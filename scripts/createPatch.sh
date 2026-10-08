@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
-# Erstellt aus den Änderungen im Patch-Modus die Datei patches/<version>.patch
+# Erstellt aus den Änderungen im Patch-Modus die Datei patches/<sprache>/<version>.patch
+# (Sprache über LANGUAGE=<code>, Standard de)
 # und verlässt den Patch-Modus (zurück auf main, Branch "patches" und Tag
 # "base" werden gelöscht).
 #
@@ -9,15 +10,18 @@
 #   version  Panel-Version, z. B. v1.15.1 oder 1.15.1
 #            (Standard: die Version, mit der startPatching.sh gestartet wurde;
 #            sonst das neueste Release laut GitHub)
-#   --sign   Nur patches/SHA256SUMS neu erzeugen und signieren
+#   --sign   Nur patches/<sprache>/SHA256SUMS neu erzeugen und signieren
 #
 # Signiert wird mit GPG. Den Schlüssel wählst du über die Umgebungsvariable
-# GERMANDACTYL_SIGNING_KEY (Fingerabdruck); sonst nimmt GPG den Standardschlüssel.
+# MULTICATYL_SIGNING_KEY (Fingerabdruck); sonst nimmt GPG den Standardschlüssel.
 
 set -euo pipefail
 
 readonly PANEL_REPO=pterodactyl/panel
 readonly PANEL_DIRS=(resources app routes database public)
+# Sprache der Patches (Unterordner von patches/), z. B. LANGUAGE=de
+readonly PATCH_LANG="${LANGUAGE:-de}"
+readonly PATCH_DIR="patches/$PATCH_LANG"
 
 RED=$'\033[1;31m'
 GREEN=$'\033[0;32m'
@@ -41,28 +45,28 @@ latest_version() {
     printf '%s\n' "$tag"
 }
 
-# Erzeugt patches/SHA256SUMS für alle Patches und signiert die Liste
-# (patches/SHA256SUMS.asc). install.sh wendet nur Patches an, deren Prüfsumme
+# Erzeugt patches/<sprache>/SHA256SUMS für alle Patches und signiert die Liste
+# (SHA256SUMS.asc). install.sh wendet nur Patches an, deren Prüfsumme
 # in dieser signierten Liste steht.
 sign_patches() {
     local patches=() key_opts=()
 
     command -v gpg >/dev/null 2>&1 || fail "gpg wurde nicht gefunden. Installiere GnuPG, um die Patches zu signieren."
-    mapfile -t patches < <(find patches -maxdepth 1 -name 'v*.patch' -printf '%f\n' | sort -V)
-    [ "${#patches[@]}" -gt 0 ] || fail "Im Ordner patches/ liegen keine Patches."
+    mapfile -t patches < <(find "$PATCH_DIR" -maxdepth 1 -name 'v*.patch' -printf '%f\n' | sort -V)
+    [ "${#patches[@]}" -gt 0 ] || fail "Im Ordner $PATCH_DIR/ liegen keine Patches."
 
-    (cd patches && sha256sum -- "${patches[@]}") >patches/SHA256SUMS
+    (cd "$PATCH_DIR" && sha256sum -- "${patches[@]}") >"$PATCH_DIR/SHA256SUMS"
 
-    [ -z "${GERMANDACTYL_SIGNING_KEY:-}" ] || key_opts=(--local-user "$GERMANDACTYL_SIGNING_KEY")
+    [ -z "${MULTICATYL_SIGNING_KEY:-}" ] || key_opts=(--local-user "$MULTICATYL_SIGNING_KEY")
     if ! gpg --batch --yes --armor --detach-sign "${key_opts[@]}" \
-            --output patches/SHA256SUMS.asc patches/SHA256SUMS; then
+            --output "$PATCH_DIR/SHA256SUMS.asc" "$PATCH_DIR/SHA256SUMS"; then
         fail "Das Signieren ist fehlgeschlagen. Ohne gültige Signatur lehnt install.sh die Patches ab!
   Signiere nachträglich mit: ./scripts/createPatch.sh --sign"
     fi
-    gpg --batch --verify patches/SHA256SUMS.asc patches/SHA256SUMS 2>/dev/null \
+    gpg --batch --verify "$PATCH_DIR/SHA256SUMS.asc" "$PATCH_DIR/SHA256SUMS" 2>/dev/null \
         || fail "Die gerade erstellte Signatur lässt sich nicht prüfen."
 
-    success "patches/SHA256SUMS für ${#patches[@]} Patches erstellt und signiert."
+    success "$PATCH_DIR/SHA256SUMS für ${#patches[@]} Patches erstellt und signiert."
 }
 
 cd "$(git rev-parse --show-toplevel)"
@@ -70,7 +74,7 @@ cd "$(git rev-parse --show-toplevel)"
 if [ "${1:-}" = --sign ]; then
     sign_patches
     echo ""
-    echo "Committe beides: git add patches/SHA256SUMS patches/SHA256SUMS.asc && git commit"
+    echo "Committe beides: git add $PATCH_DIR/SHA256SUMS $PATCH_DIR/SHA256SUMS.asc && git commit"
     exit 0
 fi
 
@@ -97,7 +101,7 @@ else
     [ -n "$version" ] || version=$(latest_version)
 fi
 [[ $version == v* ]] || version="v$version"
-patch_file="patches/$version.patch"
+patch_file="$PATCH_DIR/$version.patch"
 
 # --- Patch erstellen ----------------------------------------------------------
 
@@ -135,5 +139,5 @@ sign_patches
 echo ""
 echo "Nächste Schritte:"
 echo "  1. Trage $version in die Tabelle in patches/README.md ein."
-echo "  2. Ergänze die Version in KNOWN_PATCHES in scripts/install.sh."
-echo "  3. Committe alles: git add $patch_file patches/SHA256SUMS patches/SHA256SUMS.asc patches/README.md scripts/install.sh && git commit"
+echo "  2. Ergänze die Version in KNOWN_PATCHES_$PATCH_LANG in scripts/install.sh."
+echo "  3. Committe alles: git add $patch_file $PATCH_DIR/SHA256SUMS $PATCH_DIR/SHA256SUMS.asc patches/README.md scripts/install.sh && git commit"

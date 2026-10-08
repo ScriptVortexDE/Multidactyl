@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 #
-# GermanDactyl – Installationsskript
+# Multicatyl – Installationsskript
 #
-# Übersetzt ein Pterodactyl-Panel ins Deutsche (bzw. macht das mit -u wieder
-# rückgängig). Gedacht für den Aufruf über:
+# Übersetzt ein Pterodactyl-Panel in eine andere Sprache (Standard: Deutsch)
+# bzw. macht das mit -u wieder rückgängig. Gedacht für den Aufruf über:
 #
-#   curl -fsSL https://install.germandactyl.de | sudo bash -s -- [Optionen]
+#   curl -fsSL https://raw.githubusercontent.com/hahn1315/Multicatyl/main/scripts/install.sh | sudo bash -s -- [Optionen]
+#
+# Die Patches liegen im Repository unter patches/<sprache>/v<version>.patch.
+# Mit der Umgebungsvariable MULTICATYL_SOURCE kann eine andere Quelle gewählt
+# werden: ein lokaler Ordner (z. B. ein Checkout) oder eine andere URL-Basis.
 #
 # Neben Installation (Standard) und Deinstallation (-u) gibt es drei Modi, die
 # nichts am Panel verändern: -c prüft nur, ob der Patch passt, -s zeigt den
@@ -27,24 +31,31 @@ set -Eeuo pipefail
 # Einstellungen
 # ---------------------------------------------------------------------------
 
-readonly SCRIPT_VERSION="2.0.0"
+readonly SCRIPT_VERSION="1.0.0"
+readonly PROJECT_NAME=Multicatyl
 readonly DEFAULT_PATH=/var/www/pterodactyl
-readonly PATCH_SERVER=https://patch.germandactyl.de
-readonly PATCH_LIST_API=https://api.github.com/repos/pavl21/GermanDactyl/contents/patches
-readonly SIGNATURE_BASE=https://raw.githubusercontent.com/pavl21/GermanDactyl/main/patches
+readonly DEFAULT_LANG=de
+
+# Quelle der Patches: GitHub-Repository (Standard) oder MULTICATYL_SOURCE
+# (lokaler Ordner mit patches/<sprache>/ oder eine URL-Basis mit derselben Struktur).
+readonly REPO="${MULTICATYL_REPO:-hahn1315/Multicatyl}"
+readonly BRANCH="${MULTICATYL_BRANCH:-main}"
+readonly SOURCE="${MULTICATYL_SOURCE:-https://raw.githubusercontent.com/$REPO/$BRANCH}"
+readonly PATCH_LIST_API="https://api.github.com/repos/$REPO/contents/patches"
 
 # Öffentlicher Schlüssel, mit dem patches/SHA256SUMS signiert wird.
 # SIGNING_KEY_FPR: Fingerabdruck (40 Hex-Zeichen, ohne Leerzeichen)
 # SIGNING_KEY_B64: gpg --export <Fingerabdruck> | base64 -w0
-readonly SIGNING_KEY_FPR="2CB69766DC1E05E8D805D4C0DF5A303D401576B8"
-readonly SIGNING_KEY_B64="mDMEarlszRYJKwYBBAHaRw8BAQdA1wvFzK9PQQL8O8H7ZEZVUyNka2ss34DjIkIBxWpClgy0NEdlcm1hbkRhY3R5bCBQYXRjaCBTaWduaW5nIChodHRwczovL2dlcm1hbmRhY3R5bC5kZSmIkwQTFgoAOxYhBCy2l2bcHgXo2AXUwN9aMD1AFXa4BQJquWzNAhsDBQsJCAcCAiICBhUKCQgLAgQWAgMBAh4HAheAAAoJEN9aMD1AFXa41lABAKJvPQhh6P4CKW54qnN6pCKuYa+ZbY6/rSxUnXToMNxrAQDyL23730jn08Pu6UaSTZQZ/wnXJznaQFuudwFuMpORBg=="
+readonly SIGNING_KEY_FPR="E8DC06B31E40DC9A8F845730EDAA600187571616"
+readonly SIGNING_KEY_B64="mDMEasgHwxYJKwYBBAHaRw8BAQdAQQavvHUv40KLHRexS1f3W1vCPiQGS8ipr/UstMSVQ4u0Pk11bHRpY2F0eWwgUGF0Y2ggU2lnbmluZyA8bXVsdGljYXR5bEB1c2Vycy5ub3JlcGx5LmdpdGh1Yi5jb20+iJAEExYKADgWIQTo3AazHkDcmo+EVzDtqmABh1cWFgUCasgHwwIbAwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgAAKCRDtqmABh1cWFuBlAQCMUYQC3AYUbwnEqHsyt6zLSNqxd/fAkZ7qs/7W61m68AD9E8wx4fF4BaJM15u7XG8uWgELIJFAmaFUOANX6U6hgwU="
 readonly PANEL_RELEASES=https://github.com/pterodactyl/panel/releases/download
-readonly BACKUP_ROOT=/var/backups/germandactyl
+readonly BACKUP_ROOT=/var/backups/multicatyl
 readonly MIN_NODE_MAJOR=22
 readonly MIN_MEMORY_MB=2048
 
-# Fallback, falls die GitHub-API nicht erreichbar ist.
-readonly KNOWN_PATCHES="1.11.2 1.11.3 1.12.2 1.15.1"
+# Fallback, falls die GitHub-API nicht erreichbar ist (je Sprache).
+readonly KNOWN_LANGS="de"
+readonly KNOWN_PATCHES_de="1.11.2 1.11.3 1.12.2 1.15.1"
 
 # Verzeichnisse, die gesichert werden (sofern vorhanden).
 readonly BACKUP_DIRS=(app resources public database routes config)
@@ -66,6 +77,7 @@ unset _dir
 
 USER_PATH=""
 FORCE_VERSION=""
+PATCH_LANG=$DEFAULT_LANG
 MODE=install
 ASSUME_YES=0
 
@@ -108,26 +120,31 @@ send_error() {
 
 show_help() {
     cat <<EOF
-GermanDactyl – deutsche Übersetzung für das Pterodactyl-Panel
+Multicatyl – Übersetzungen für das Pterodactyl-Panel
 
 Verwendung:
-  curl -fsSL https://install.germandactyl.de | sudo bash -s -- [Optionen]
+  curl -fsSL https://raw.githubusercontent.com/hahn1315/Multicatyl/main/scripts/install.sh | sudo bash -s -- [Optionen]
   sudo bash install.sh [Optionen]
 
 Optionen:
   -d <pfad>     Pfad zum Panel (Standard: $DEFAULT_PATH)
+  -L <sprache>  Sprache des Patches (Standard: $DEFAULT_LANG)
   -v <version>  Patch für diese Panel-Version verwenden, z. B. -v 1.15.1
                 (nötig bei Git-Installationen, die als "canary" erscheinen)
-  -u            GermanDactyl deinstallieren und zurück zu Englisch wechseln
+  -u            Multicatyl deinstallieren und zurück zu Englisch wechseln
   -c            Nur prüfen, ob der Patch zum Panel passt (verändert nichts)
   -s            Status anzeigen: Panel-Version, Sprache, installierter Patch
-  -l            Verfügbare Patches auflisten (braucht kein Panel, kein root)
+  -l            Verfügbare Sprachen und Patches auflisten (kein Panel, kein root)
   -y            Ohne 10 Sekunden Wartezeit starten
   -V            Version dieses Skripts anzeigen
   -h            Diese Hilfe anzeigen
 
-Verfügbare Patches: $KNOWN_PATCHES
-Log-Datei: /var/log/germandactyl.log
+Umgebung:
+  MULTICATYL_SOURCE  Alternative Patch-Quelle: lokaler Ordner oder URL-Basis
+                     (Standard: $SOURCE)
+
+Bekannte Patches (de): $KNOWN_PATCHES_de
+Log-Datei: /var/log/multicatyl.log
 Backups:   $BACKUP_ROOT
 EOF
 }
@@ -211,7 +228,7 @@ rollback() {
         rm -f "$PTERODACTYL_PATH/$file"
     done
     if [ "$MODE" = install ]; then
-        rm -rf "$PTERODACTYL_PATH/resources/lang/de"
+        rm -rf "$PTERODACTYL_PATH/resources/lang/$PATCH_LANG"
     fi
 
     if tar -xzf "$BACKUP_FILE" -C "$PTERODACTYL_PATH" >>"$LOG" 2>&1; then
@@ -231,16 +248,17 @@ trap 'exit 130' INT TERM
 
 parse_options() {
     local opt
-    while getopts ":d:v:ucslyVh" opt; do
+    while getopts ":d:L:v:ucslyVh" opt; do
         case "$opt" in
             d) USER_PATH=$OPTARG ;;
+            L) PATCH_LANG=$OPTARG ;;
             v) FORCE_VERSION=${OPTARG#v} ;;
             u) MODE=uninstall ;;
             c) MODE=check ;;
             s) MODE=status ;;
             l) MODE=list ;;
             y) ASSUME_YES=1 ;;
-            V) printf 'GermanDactyl-Installer %s\n' "$SCRIPT_VERSION"; exit 0 ;;
+            V) printf 'Multicatyl-Installer %s\n' "$SCRIPT_VERSION"; exit 0 ;;
             h) show_help; exit 0 ;;
             :)
                 show_help >&2
@@ -257,6 +275,32 @@ parse_options() {
         show_help >&2
         send_error "Unbekanntes Argument: $1"
     fi
+    [[ $PATCH_LANG =~ ^[a-z]{2}(_[A-Z]{2})?$ ]] \
+        || send_error "Ungültiger Sprachcode \"$PATCH_LANG\". Erwartet wird z. B. de oder pt_BR."
+}
+
+# Holt eine Datei aus der Patch-Quelle (Ordner oder URL) nach <ziel>.
+# Gibt bei URLs den HTTP-Status in FETCH_CODE zurück, bei Ordnern 200/404.
+FETCH_CODE=""
+fetch_source() {
+    local rel=$1 dest=$2
+    if [ -d "$SOURCE" ]; then
+        if [ -f "$SOURCE/$rel" ]; then
+            cp "$SOURCE/$rel" "$dest" && FETCH_CODE=200 || FETCH_CODE=000
+        else
+            FETCH_CODE=404
+        fi
+    else
+        FETCH_CODE=$(curl -fsSL --proto '=https' --proto-redir '=https' \
+            -o "$dest" -w '%{http_code}' "$SOURCE/$rel" 2>>"$LOG") || true
+    fi
+    [ "$FETCH_CODE" = 200 ]
+}
+
+# Liefert die Fallback-Liste bekannter Patches für $PATCH_LANG.
+known_patches() {
+    local var="KNOWN_PATCHES_${PATCH_LANG//-/_}"
+    printf '%s\n' "${!var:-}"
 }
 
 # ---------------------------------------------------------------------------
@@ -280,7 +324,7 @@ load_pterodactyl_path() {
 
     PANEL_VERSION=$(sed -n "s/.*'version' => '\([^']*\)'.*/\1/p" "$PTERODACTYL_PATH/config/app.php" | head -n 1)
     VERSION=$PANEL_VERSION
-    INSTALLED_PATCH="$BACKUP_ROOT/installiert-$PANEL_VERSION.patch"
+    INSTALLED_PATCH="$BACKUP_ROOT/installiert-$PATCH_LANG-$PANEL_VERSION.patch"
     [ -n "$PANEL_VERSION" ] || send_error "Die Panel-Version konnte nicht aus config/app.php gelesen werden."
 
     local label="v$PANEL_VERSION"
@@ -294,13 +338,13 @@ load_pterodactyl_path() {
 }
 
 init_log() {
-    LOG=/var/log/germandactyl.log
+    LOG=/var/log/multicatyl.log
     if ! { touch "$LOG" && [ -w "$LOG" ]; } 2>/dev/null; then
-        LOG="$PTERODACTYL_PATH/germandactyl.debug.log"
+        LOG="$PTERODACTYL_PATH/multicatyl.debug.log"
         touch "$LOG" || send_error "Die Log-Datei $LOG kann nicht angelegt werden."
     fi
-    printf '\n===== GermanDactyl – %s – %s – Panel %s (%s), Patch %s =====\n' \
-        "$(date '+%Y-%m-%d %H:%M:%S')" "$MODE" "$PTERODACTYL_PATH" "$PANEL_VERSION" "$VERSION" >>"$LOG"
+    printf '\n===== Multicatyl – %s – %s – Panel %s (%s), Patch %s/%s =====\n' \
+        "$(date '+%Y-%m-%d %H:%M:%S')" "$MODE" "$PTERODACTYL_PATH" "$PANEL_VERSION" "$PATCH_LANG" "$VERSION" >>"$LOG"
 }
 
 # ---------------------------------------------------------------------------
@@ -308,17 +352,35 @@ init_log() {
 # ---------------------------------------------------------------------------
 
 list_available_patches() {
-    local list
-    list=$(curl -fsSL --max-time 10 "$PATCH_LIST_API" 2>/dev/null \
-        | sed -n 's/.*"name": *"v\([0-9][0-9.]*\)\.patch".*/\1/p' \
-        | sort -V | paste -sd ' ' -) || true
-    printf '%s\n' "${list:-$KNOWN_PATCHES}"
+    local list=""
+    if [ -d "$SOURCE" ]; then
+        list=$(find "$SOURCE/patches/$PATCH_LANG" -maxdepth 1 -name 'v*.patch' -printf '%f\n' 2>/dev/null \
+            | sed -n 's/^v\([0-9][0-9.]*\)\.patch$/\1/p' | sort -V | paste -sd ' ' -) || true
+    else
+        list=$(curl -fsSL --max-time 10 "$PATCH_LIST_API/$PATCH_LANG" 2>/dev/null \
+            | sed -n 's/.*"name": *"v\([0-9][0-9.]*\)\.patch".*/\1/p' \
+            | sort -V | paste -sd ' ' -) || true
+    fi
+    printf '%s\n' "${list:-$(known_patches)}"
+}
+
+# Verfügbare Sprachen (Unterordner von patches/).
+list_available_langs() {
+    local list=""
+    if [ -d "$SOURCE" ]; then
+        list=$(find "$SOURCE/patches" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null | sort | paste -sd ' ' -) || true
+    else
+        list=$(curl -fsSL --max-time 10 "$PATCH_LIST_API" 2>/dev/null \
+            | tr ',' '\n' | sed -n 's/.*"path": *"patches\/\([a-z_A-Z]*\)".*/\1/p' | sort -u | paste -sd ' ' -) || true
+    fi
+    printf '%s\n' "${list:-$KNOWN_LANGS}"
 }
 
 no_patch_error() {
     send_error "$1
-  Verfügbare Patches: $(list_available_patches)
+  Verfügbare Patches ($PATCH_LANG): $(list_available_patches)
   Mit ${BLUE}-v <version>$RED kannst du einen bestimmten Patch wählen, z. B.: ${BLUE}-v 1.15.1$RED
+  Mit ${BLUE}-L <sprache>$RED eine andere Sprache, verfügbar: $(list_available_langs)
   Am besten aktualisierst du dein Panel auf eine Version, für die es einen Patch gibt."
 }
 
@@ -326,10 +388,10 @@ no_patch_error() {
 # DOWNLOAD_CODE ("invalid", wenn die Datei kein Patch ist).
 DOWNLOAD_CODE=""
 download_patch() {
-    PATCH_FILE="$TMP_DIR/germandactyl-v$VERSION.patch"
+    PATCH_FILE="$TMP_DIR/multicatyl-$PATCH_LANG-v$VERSION.patch"
 
-    DOWNLOAD_CODE=$(curl -fsSL --proto '=https' --proto-redir '=https' \
-        -o "$PATCH_FILE" -w '%{http_code}' "$PATCH_SERVER/$VERSION" 2>>"$LOG") || true
+    fetch_source "patches/$PATCH_LANG/v$VERSION.patch" "$PATCH_FILE" || true
+    DOWNLOAD_CODE=$FETCH_CODE
 
     [ "$DOWNLOAD_CODE" = 200 ] || return 1
     if ! grep -q '^diff --git ' "$PATCH_FILE"; then
@@ -368,10 +430,8 @@ verify_patch() {
         mkdir -p "$dir/gnupg"
         chmod 700 "$dir/gnupg"
 
-        if ! curl -fsSL --proto '=https' --proto-redir '=https' -o "$dir/SHA256SUMS" \
-                "$SIGNATURE_BASE/SHA256SUMS" 2>>"$LOG" \
-            || ! curl -fsSL --proto '=https' --proto-redir '=https' -o "$dir/SHA256SUMS.asc" \
-                "$SIGNATURE_BASE/SHA256SUMS.asc" 2>>"$LOG"; then
+        if ! fetch_source "patches/$PATCH_LANG/SHA256SUMS" "$dir/SHA256SUMS" \
+            || ! fetch_source "patches/$PATCH_LANG/SHA256SUMS.asc" "$dir/SHA256SUMS.asc"; then
             VERIFY_ERROR="Die signierte Prüfsummenliste konnte nicht geladen werden."
             return 1
         fi
@@ -412,8 +472,8 @@ find_patch() {
 
     if ! download_patch; then
         case "$DOWNLOAD_CODE" in
-            404)     no_patch_error "Für die Panel-Version ${BLUE}v$VERSION$RED gibt es noch keinen GermanDactyl-Patch." ;;
-            000|"")  send_error "Der Patch-Server $PATCH_SERVER ist nicht erreichbar. Prüfe deine Internetverbindung." ;;
+            404)     no_patch_error "Für die Panel-Version ${BLUE}v$VERSION$RED gibt es noch keinen Multicatyl-Patch (Sprache: $PATCH_LANG)." ;;
+            000|"")  send_error "Die Patch-Quelle $SOURCE ist nicht erreichbar. Prüfe deine Internetverbindung." ;;
             invalid) send_error "Die heruntergeladene Datei ist kein gültiger Patch." ;;
             unverified) send_error "$VERIFY_ERROR
   Der Patch wird aus Sicherheitsgründen nicht angewendet. Versuche es später erneut oder melde das Problem." ;;
@@ -421,7 +481,7 @@ find_patch() {
         esac
     fi
 
-    send_success "Patch für ${BLUE}v$VERSION$GREEN geladen, Signatur und Prüfsumme sind gültig."
+    send_success "Patch ${BLUE}$PATCH_LANG/v$VERSION$GREEN geladen, Signatur und Prüfsumme sind gültig."
 }
 
 # Prüft die Pfade im Patch und merkt sich neu angelegte Dateien.
@@ -716,7 +776,7 @@ apply_patch() {
     local check_log="$TMP_DIR/check.log" use_reject=0
 
     if git apply "${APPLY_OPTS[@]}" --reverse --check "$PATCH_FILE" >/dev/null 2>&1; then
-        send_success "GermanDactyl ist für v$VERSION bereits installiert. Es gibt nichts zu tun."
+        send_success "Multicatyl ($PATCH_LANG) ist für v$VERSION bereits installiert. Es gibt nichts zu tun."
         send_info "Zum Entfernen: Skript mit -u starten."
         exit 0
     fi
@@ -725,8 +785,8 @@ apply_patch() {
         cat "$check_log" >>"$LOG"
         send_warn "Der Patch passt nicht vollständig zu deinem Panel. Betroffene Dateien:"
         show_failed_files "$check_log"
-        if [ -d "$PTERODACTYL_PATH/resources/lang/de" ]; then
-            send_warn "GermanDactyl scheint bereits (teilweise) installiert zu sein. Entferne es zuerst mit -u."
+        if [ -d "$PTERODACTYL_PATH/resources/lang/$PATCH_LANG" ]; then
+            send_warn "Multicatyl scheint bereits (teilweise) installiert zu sein. Entferne es zuerst mit -u."
         else
             send_warn "Möglicherweise hat ein Addon oder Theme diese Dateien verändert."
         fi
@@ -783,10 +843,10 @@ do_install() {
     build_panel
     ROLLBACK_NEEDED=0
 
-    set_locale de en
+    set_locale "$PATCH_LANG" en
     finish_panel
 
-    send_success "GermanDactyl wurde installiert. Viel Spaß mit deinem deutschen Panel! :)"
+    send_success "Multicatyl ($PATCH_LANG) wurde installiert. Viel Spaß mit deinem übersetzten Panel! :)"
     send_info "Backup: $BACKUP_FILE"
 }
 
@@ -830,10 +890,10 @@ do_uninstall() {
     fi
 
     # Nicht installiert? Dann nur die Sprache zurückstellen.
-    if [ -n "$PATCH_FILE" ] && [ ! -d resources/lang/de ] \
+    if [ -n "$PATCH_FILE" ] && [ ! -d "resources/lang/$PATCH_LANG" ] \
         && git apply "${APPLY_OPTS[@]}" --check "$PATCH_FILE" >/dev/null 2>&1; then
-        send_info "GermanDactyl ist in diesem Panel nicht installiert. Es wird nur die Sprache auf Englisch zurückgestellt."
-        set_locale en de
+        send_info "Multicatyl ist in diesem Panel nicht installiert. Es wird nur die Sprache auf Englisch zurückgestellt."
+        set_locale en "$PATCH_LANG"
         run_logged php artisan config:clear || true
         exit 0
     fi
@@ -841,18 +901,18 @@ do_uninstall() {
     # 1. Patch sauber rückwärts anwenden (erhält Addons).
     if [ -n "$PATCH_FILE" ] && git apply "${APPLY_OPTS[@]}" --reverse --check "$PATCH_FILE" >/dev/null 2>&1; then
         method=reverse
-        send_info "GermanDactyl wird entfernt, indem der Patch rückgängig gemacht wird."
+        send_info "Multicatyl wird entfernt, indem der Patch rückgängig gemacht wird."
     # 2. Originaldateien aus dem Release-Tarball.
     elif download_release; then
         method=tarball
-        send_info "GermanDactyl wird entfernt, indem die Originaldateien von v$PANEL_VERSION neu entpackt werden."
+        send_info "Multicatyl wird entfernt, indem die Originaldateien von v$PANEL_VERSION neu entpackt werden."
         send_warn "Änderungen durch Addons oder Themes in app/ und resources/ gehen dabei verloren."
     # 3. Backup von der Installation.
     elif backup_src=$(latest_backup) && [ -n "$backup_src" ]; then
         method=backup
-        send_info "GermanDactyl wird entfernt, indem das Backup $backup_src zurückgespielt wird."
+        send_info "Multicatyl wird entfernt, indem das Backup $backup_src zurückgespielt wird."
     else
-        send_error "GermanDactyl kann nicht automatisch entfernt werden: Weder der Patch noch das Release-Archiv von v$PANEL_VERSION noch ein Backup sind verfügbar.
+        send_error "Multicatyl kann nicht automatisch entfernt werden: Weder der Patch noch das Release-Archiv von v$PANEL_VERSION noch ein Backup sind verfügbar.
   Lade das Panel-Release deiner Version neu herunter (siehe https://pterodactyl.io/panel/1.0/updating.html)."
     fi
 
@@ -886,8 +946,8 @@ do_uninstall() {
     for file in "${CREATED_FILES[@]}"; do
         rm -f "$PTERODACTYL_PATH/$file"
     done
-    rm -rf "$PTERODACTYL_PATH/resources/lang/de"
-    send_success "Die deutschen Dateien wurden entfernt."
+    rm -rf "$PTERODACTYL_PATH/resources/lang/$PATCH_LANG"
+    send_success "Die Sprachdateien ($PATCH_LANG) wurden entfernt."
 
     # Nur nach dem Rückwärts-Patch müssen die Assets neu gebaut werden; Tarball
     # und Backup enthalten bereits fertige englische Assets.
@@ -896,11 +956,11 @@ do_uninstall() {
     fi
     ROLLBACK_NEEDED=0
 
-    set_locale en de
+    set_locale en "$PATCH_LANG"
     finish_panel
     rm -f "$INSTALLED_PATCH"
 
-    send_success "GermanDactyl wurde entfernt. Dein Panel ist wieder auf Englisch."
+    send_success "Multicatyl wurde entfernt. Dein Panel ist wieder auf Englisch."
     send_info "Backup des deutschen Stands: $BACKUP_FILE"
 }
 
@@ -921,7 +981,7 @@ do_check() {
     inspect_patch
 
     if git apply "${APPLY_OPTS[@]}" --reverse --check "$PATCH_FILE" >/dev/null 2>&1; then
-        send_success "GermanDactyl v$VERSION ist bereits vollständig installiert."
+        send_success "Multicatyl v$VERSION ist bereits vollständig installiert."
         return 0
     fi
     if git apply "${APPLY_OPTS[@]}" --check "$PATCH_FILE" >"$check_log" 2>&1; then
@@ -933,8 +993,8 @@ do_check() {
     cat "$check_log" >>"$LOG"
     send_warn "Der Patch v$VERSION passt nicht vollständig zu deinem Panel. Betroffene Dateien:"
     show_failed_files "$check_log"
-    if [ -d resources/lang/de ]; then
-        send_warn "GermanDactyl scheint bereits (teilweise) installiert zu sein. Entferne es zuerst mit -u."
+    if [ -d "resources/lang/$PATCH_LANG" ]; then
+        send_warn "Multicatyl scheint bereits (teilweise) installiert zu sein. Entferne es zuerst mit -u."
     else
         send_warn "Möglicherweise hat ein Addon oder Theme diese Dateien verändert."
     fi
@@ -953,11 +1013,11 @@ do_status() {
         state="nicht installiert"
     elif [ -f "$INSTALLED_PATCH" ] && command -v git >/dev/null 2>&1 \
         && (cd "$PTERODACTYL_PATH" && git apply "${APPLY_OPTS[@]}" --reverse --check "$INSTALLED_PATCH" >/dev/null 2>&1); then
-        state="installiert (Patch v$PANEL_VERSION, vollständig)"
+        state="installiert ($PATCH_LANG, Patch v$PANEL_VERSION, vollständig)"
     elif [ -f "$INSTALLED_PATCH" ]; then
-        state="installiert (Patch v$PANEL_VERSION, Dateien wurden seitdem verändert)"
+        state="installiert ($PATCH_LANG, Patch v$PANEL_VERSION, Dateien wurden seitdem verändert)"
     else
-        state="installiert (deutsche Sprachdateien vorhanden, Patch-Version unbekannt)"
+        state="installiert (Sprachdateien $PATCH_LANG vorhanden, Patch-Version unbekannt)"
     fi
 
     backups=0
@@ -969,15 +1029,17 @@ do_status() {
     printf 'Installer:          %s\n' "$SCRIPT_VERSION"
     printf 'Panel-Pfad:         %s\n' "$PTERODACTYL_PATH"
     printf 'Panel-Version:      %s\n' "$PANEL_VERSION"
-    printf 'GermanDactyl:       %s\n' "$state"
+    printf 'Multicatyl:       %s\n' "$state"
     printf 'APP_LOCALE:         %s\n' "${locale:-nicht gesetzt}"
     printf 'Backups:            %s unter %s\n' "$backups" "$BACKUP_ROOT"
+    printf 'Sprache:            %s\n' "$PATCH_LANG"
     printf 'Verfügbare Patches: %s\n' "$patches"
+    printf 'Patch-Quelle:       %s\n' "$SOURCE"
 
     if [ "$PANEL_VERSION" = canary ]; then
         send_warn "Das Panel meldet \"canary\" (Git-Installation). Gib die Version beim Installieren mit -v an."
     elif [[ " $patches " == *" $PANEL_VERSION "* ]]; then
-        send_success "Für v$PANEL_VERSION gibt es einen passenden Patch."
+        send_success "Für v$PANEL_VERSION gibt es einen passenden Patch ($PATCH_LANG)."
     else
         send_warn "Für v$PANEL_VERSION gibt es keinen eigenen Patch. Aktualisiere das Panel auf eine unterstützte Version."
     fi
@@ -985,12 +1047,16 @@ do_status() {
 
 # -l: verfügbare Patches auflisten (GitHub-API, sonst die eingebaute Liste).
 do_list() {
-    local patches
-    command -v curl >/dev/null 2>&1 || send_error "curl wurde nicht gefunden. Bitte installiere es zuerst."
-    patches=$(list_available_patches)
-    printf 'Verfügbare GermanDactyl-Patches: %s\n' "$patches"
-    printf 'Patch-Dateien:  %s/<version>\n' "$PATCH_SERVER"
-    printf 'Prüfsummen:     %s/SHA256SUMS (signiert, Schlüssel %s)\n' "$SIGNATURE_BASE" "$SIGNING_KEY_FPR"
+    local lang langs
+    [ -d "$SOURCE" ] || command -v curl >/dev/null 2>&1 || send_error "curl wurde nicht gefunden. Bitte installiere es zuerst."
+    langs=$(list_available_langs)
+    printf 'Patch-Quelle: %s\n' "$SOURCE"
+    printf 'Signatur:     Schlüssel %s\n\n' "$SIGNING_KEY_FPR"
+    for lang in $langs; do
+        PATCH_LANG=$lang
+        printf '%-6s %s\n' "$lang:" "$(list_available_patches)"
+    done
+    printf '\nPatch-Dateien: %s/patches/<sprache>/v<version>.patch\n' "$SOURCE"
 }
 
 # ---------------------------------------------------------------------------

@@ -2,13 +2,13 @@
 
 Pterodactyl hat ein neues Update bekommen? Mit dieser Anleitung ist das kein Problem.
 
-!!! danger "Gibt es schon einen passenden GermanDactyl-Patch?"
-    Nur weil ein Pterodactyl-Update erschienen ist, gibt es nicht automatisch auch schon einen GermanDactyl-Patch
+!!! danger "Gibt es schon einen passenden Multicatyl-Patch?"
+    Nur weil ein Pterodactyl-Update erschienen ist, gibt es nicht automatisch auch schon einen Multicatyl-Patch
     dafür. Prüfe vorher in der [Tabelle der unterstützten Versionen](../installation.md#unterstutzte-versionen), ob
     die neue Version bereits unterstützt wird. Falls nicht, hab noch etwas Geduld.
 
 !!! warning "Das Update überschreibt die Übersetzung"
-    Nach jedem Panel-Update ist das Panel wieder auf Englisch. Führe GermanDactyl danach einfach erneut aus.
+    Nach jedem Panel-Update ist das Panel wieder auf Englisch. Führe Multicatyl danach einfach erneut aus.
 
 ## 1. Panel aktualisieren
 
@@ -28,12 +28,12 @@ php artisan view:clear && php artisan config:clear
 php artisan migrate --seed --force
 ```
 
-Beende den Wartungsmodus noch **nicht** – erst nach GermanDactyl (Schritt 3).
+Beende den Wartungsmodus noch **nicht** – erst nach Multicatyl (Schritt 3).
 
-## 2. GermanDactyl erneut ausführen
+## 2. Multicatyl erneut ausführen
 
 ```shell
-curl -sSL https://install.germandactyl.de/ | sudo bash -s -- -y
+curl -sSL https://raw.githubusercontent.com/hahn1315/Multicatyl/main/scripts/install.sh | sudo bash -s -- -y
 ```
 
 Der Installer wendet den Patch an, baut die Oberfläche und setzt die Rechte. Liegt dein

@@ -1,42 +1,66 @@
-## Was ist GermanDactyl?
+# Multicatyl
 
-GermanDactyl ist die deutsche Übersetzung des [Pterodactyl Panels](https://pterodactyl.io/). Deutsch wird dabei als eigene Sprache (`resources/lang/de`) hinzugefügt, Englisch bleibt erhalten.
+Multicatyl übersetzt das [Pterodactyl Panel](https://pterodactyl.io/) in andere Sprachen – signierte Patches, ein Installer mit Backup und Rollback und eine Web-Oberfläche zur Versionsverwaltung. Englisch bleibt dabei immer erhalten.
 
-## Wie installiere ich das?
+Aktuell enthalten: **Deutsch** (`de`) für Panel **v1.15.1** sowie die älteren Versionen 1.11.2, 1.11.3 und 1.12.2. Weitere Sprachen kommen einfach als neuer Ordner `patches/<sprache>/` dazu.
 
-Ganz einfach:
+## Installation
 
 ```shell
-curl -sSL https://install.germandactyl.de/ | sudo bash -s --
+curl -fsSL https://raw.githubusercontent.com/hahn1315/Multicatyl/main/scripts/install.sh | sudo bash -s --
 ```
 
-Der Installer erstellt vorher ein Backup, wendet den passenden Patch an und baut das Panel neu. Optionen (`-d`, `-v`, `-y`, `-u`, `-c`, `-s`, `-l`, `-h`) und Voraussetzungen findest du in der [Dokumentation](https://germandactyl.de/installation/).
+Der Installer erkennt die Panel-Version, lädt den passenden Patch, prüft Signatur und Prüfsumme, legt ein Backup an, wendet den Patch an, baut die Oberfläche neu und stellt die Sprache um. Schlägt der Build fehl, wird das Backup automatisch zurückgespielt.
+
+| Option | Bedeutung |
+| --- | --- |
+| `-d <pfad>` | Pfad zum Panel (Standard `/var/www/pterodactyl`) |
+| `-L <sprache>` | Sprache (Standard `de`) |
+| `-v <version>` | Patch-Version erzwingen, z. B. bei `canary` |
+| `-c` | nur prüfen, ob der Patch passt – verändert nichts |
+| `-s` | Status: Panel-Version, Sprache, installierter Patch, Backups |
+| `-l` | verfügbare Sprachen und Patches auflisten |
+| `-u` | deinstallieren, zurück zu Englisch |
+| `-y` | ohne Wartezeit starten |
+| `-V` / `-h` | Version / Hilfe |
+
+Alle Details, Voraussetzungen und die manuelle Installation stehen in der [Dokumentation](https://hahn1315.github.io/Multicatyl/).
 
 ## Unterstützte Versionen
 
-Aktuelle Panel-Version: **v1.15.1**
-
-| Pterodactyl Panel | GermanDactyl-Patch |
+| Pterodactyl Panel | Patch `de` |
 | --- | --- |
 | 1.11.2 | v1.11.2 |
 | 1.11.3 | v1.11.3 |
 | 1.12.2 | v1.12.2 |
 | 1.13.x, 1.14.x, 1.15.0 | kein eigener Patch – bitte auf 1.15.1 aktualisieren |
-| 1.15.1 | v1.15.1 |
+| 1.15.1 (aktuell) | v1.15.1 |
 
 ## Versionsverwaltung im Browser
 
-Unter [germandactyl.de/manager/](https://germandactyl.de/manager/) (im Repo: [`docs/manager/index.html`](docs/manager/index.html)) findest du eine Web-Oberfläche, die dir
+[`docs/manager/index.html`](docs/manager/index.html) (online unter `/manager/` der Dokumentation) zeigt
 
-- zeigt, welche Panel-Version aktuell ist und welcher Patch dazu passt,
-- den passenden Installationsbefehl mit allen Optionen zusammenbaut,
-- deine eigenen Panels samt Patch-Stand lokal im Browser verwaltet,
-- Prüfsummen, Signatur und Fehlerbehebung an einem Ort bündelt.
+- welche Panel-Version aktuell ist und welcher Patch dazu passt,
+- den fertigen Installationsbefehl für jede Option, Sprache und jeden Pfad,
+- den Patch-Stand deiner eigenen Panels (lokal im Browser gespeichert),
+- Prüfsummen, Signaturschlüssel und Fehlerbehebung an einem Ort.
 
-## Discord
+## Sicherheit
 
-Wenn du uns beim Übersetzen oder Umformulieren helfen möchtest, komm gerne [in unseren Discord](https://discord.gg/6R38NnTCct). Wie du Übersetzungen direkt per Pull Request einreichst, steht [in der Anleitung](https://germandactyl.de/guides/contribute/).
+Jeder Patch steht mit seiner SHA-256-Prüfsumme in `patches/<sprache>/SHA256SUMS`. Diese Liste ist mit GPG signiert (`SHA256SUMS.asc`), der öffentliche Schlüssel liegt in [`patches/multicatyl-signing-key.asc`](patches/multicatyl-signing-key.asc) und ist zusätzlich fest im Installer hinterlegt. Ein Patch, dessen Prüfsumme oder Signatur nicht stimmt, wird nicht angewendet.
 
-## Lizenz
+## Eigene Patch-Quelle
 
-Verbreitet unter der MIT-Lizenz. Siehe [`LICENSE`](LICENSE) für weitere Informationen.
+Ohne Internet oder zum Testen eigener Patches kannst du einen lokalen Checkout als Quelle nutzen:
+
+```shell
+MULTICATYL_SOURCE=/opt/multicatyl sudo -E bash /opt/multicatyl/scripts/install.sh -c
+```
+
+## Mitmachen
+
+Neue Panel-Version oder neue Sprache? Die Anleitung steht unter [Übersetzungen einreichen](https://hahn1315.github.io/Multicatyl/guides/contribute/). Fehler bitte als [Issue](https://github.com/hahn1315/Multicatyl/issues) melden.
+
+## Lizenz und Herkunft
+
+MIT-Lizenz, siehe [`LICENSE`](LICENSE). Die deutschen Übersetzungen basieren auf [GermanDactyl](https://github.com/pavl21/GermanDactyl) von Paul Schwarz (MIT). Multicatyl ist davon unabhängig: eigene Patch-Quelle, eigener Signaturschlüssel, eigene Dokumentation.

@@ -40,15 +40,21 @@ jobs:
           work=$(mktemp -d)
           mkdir -m 700 "$work/gnupg"
           printf '%s' "$b64" | base64 -d >"$work/key.gpg"
-          gpgv --homedir "$work/gnupg" --keyring "$work/key.gpg" --status-fd 3 \
-            patches/SHA256SUMS.asc patches/SHA256SUMS 3>"$work/status"
-          grep -Eq "^\[GNUPG:\] VALIDSIG .*\b$fpr\b" "$work/status" \
-            || { echo "::error file=patches/SHA256SUMS.asc::Signatur stammt nicht vom Schlüssel $fpr."; exit 1; }
 
-          cd patches
-          sha256sum --strict -c SHA256SUMS
-          for patch in v*.patch; do
-            grep -q "  $patch\$" SHA256SUMS \
-              || { echo "::error file=patches/$patch::$patch fehlt in SHA256SUMS. Signiere mit ./scripts/createPatch.sh --sign"; exit 1; }
+          for dir in patches/*/; do
+            lang=$(basename "$dir")
+            echo "== Sprache $lang"
+            gpgv --homedir "$work/gnupg" --keyring "$work/key.gpg" --status-fd 3 \
+              "$dir/SHA256SUMS.asc" "$dir/SHA256SUMS" 3>"$work/status"
+            grep -Eq "^\[GNUPG:\] VALIDSIG .*\b$fpr\b" "$work/status" \
+              || { echo "::error file=$dir/SHA256SUMS.asc::Signatur stammt nicht vom Schlüssel $fpr."; exit 1; }
+            (
+              cd "$dir"
+              sha256sum --strict -c SHA256SUMS
+              for patch in v*.patch; do
+                grep -Eq "^[0-9a-f]{64} [ *]$patch\$" SHA256SUMS \
+                  || { echo "::error file=$dir$patch::$patch fehlt in SHA256SUMS. Signiere mit LANGUAGE=$lang ./scripts/createPatch.sh --sign"; exit 1; }
+              done
+            )
           done
           echo "Alle Patches sind signiert und unverändert."

@@ -1,9 +1,9 @@
-site_name: GermanDactyl Dokumentation
-site_url: https://germandactyl.de/
-copyright: Copyright &copy; 2023–2026 Paul Schwarz
+site_name: Multicatyl Dokumentation
+site_url: https://hahn1315.github.io/Multicatyl/
+copyright: Multicatyl – MIT-Lizenz. Übersetzungen basieren auf GermanDactyl (Paul Schwarz, MIT).
 
-repo_name: GermanDactyl
-repo_url: https://github.com/pavl21/GermanDactyl
+repo_name: Multicatyl
+repo_url: https://github.com/hahn1315/Multicatyl
 edit_uri: edit/main/docs/
 
 theme:
@@ -31,12 +31,8 @@ theme:
 extra:
   generator: true
   social:
-    - icon: fontawesome/brands/tiktok
-      link: https://www.tiktok.com/@paul_schwarz_
-    - icon: fontawesome/brands/x-twitter
-      link: https://x.com/Paul_Schwarz_
-    - icon: fontawesome/brands/discord
-      link: https://discord.gg/6R38NnTCct
+    - icon: fontawesome/brands/github
+      link: https://github.com/hahn1315/Multicatyl
 
 markdown_extensions:
   - attr_list
@@ -52,9 +48,9 @@ markdown_extensions:
 
 nav:
   - Start: index.md
+  - Versionsverwaltung: manager/index.html
   - Installation: installation.md
   - Deinstallation: uninstall.md
-  - GermanDactyl Setup: guides/setup.md
   - Anleitungen:
       - Update ausführen: guides/update.md
       - Übersetzungen einreichen: guides/contribute.md

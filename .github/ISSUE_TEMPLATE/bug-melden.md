@@ -10,7 +10,7 @@ assignees: ''
 **Umgebung**
 
 - Panel-Version (z. B. 1.15.1):
-- GermanDactyl-Patch-Version (z. B. 1.15.1):
+- Multicatyl-Patch (Sprache und Version, z. B. de 1.15.1):
 - Betriebssystem (z. B. Ubuntu 24.04):
 - Node-Version (`node -v`):
 
@@ -28,7 +28,7 @@ Wie soll's richtig sein?
 3.
 
 **Log-Auszug**
-Bei Installationsproblemen: die letzten Zeilen aus dem Log (z. B. `tail -n 50 /var/log/germandactyl.log`).
+Bei Installationsproblemen: die letzten Zeilen aus dem Log (z. B. `tail -n 50 /var/log/multicatyl.log`).
 
 ```
 Log hier einfügen

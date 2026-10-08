@@ -1,39 +1,39 @@
 # Changelog
 
-Alle wichtigen Änderungen an GermanDactyl (Installer, Patches, Dokumentation).
+## 1.0.0 – 2026-10-08
 
-## 2.0.0 – 2026-10-08
+Erste Version von **Multicatyl**, ein eigenständiges Projekt auf Basis der deutschen Übersetzung von
+GermanDactyl (MIT-Lizenz). Alles, was an die alte Infrastruktur gebunden war, wurde ersetzt.
 
-### Neu
+### Unabhängigkeit
 
-- **Versionsverwaltung im Browser** (`docs/manager/index.html`, erreichbar unter `/manager/`):
-  Versionsmatrix Panel ↔ Patch, Befehls-Generator für alle Installer-Optionen, lokale Liste
-  der eigenen Panels mit Patch-Stand, Signatur- und Prüfsummen-Infos, Fehlerbehebung.
-- **Installer `-c`**: prüft nur, ob der Patch zum Panel passt (Signatur, `git apply --check`),
-  verändert nichts. Exit-Code 2, wenn er nicht vollständig passt.
-- **Installer `-s`**: zeigt Panel-Version, Sprache (`APP_LOCALE`), installierten Patch,
-  Anzahl der Backups und verfügbare Patches.
-- **Installer `-l`**: listet die verfügbaren Patches, ohne Panel und ohne root.
-- **Installer `-V`**: gibt die Version des Installers aus.
-- `CHANGELOG.md` (diese Datei).
+- Patches, Prüfsummen und Installer werden direkt aus diesem Repository geladen
+  (`raw.githubusercontent.com/<repo>/main/...`), keine fremden Domains mehr.
+- Eigener GPG-Signaturschlüssel, öffentlich unter `patches/multicatyl-signing-key.asc` und fest im Installer.
+- Eigene Dokumentation (MkDocs) ohne fremde Social-Links, Spenden-Links oder Domain.
+- Die Patches selbst tragen jetzt Multicatyl-Hinweise und verlinken auf dieses Projekt.
 
-### Behoben
+### Neu gegenüber GermanDactyl
 
-- `README.md` enthielt den Inhalt 50-mal hintereinander (2,3 MB). Jetzt eine saubere Kopie.
-- Installer: `.rej`-Dateien nach einer Teil-Installation wurden nur in `resources/`, `app/`
-  und `public/` eingesammelt. Jetzt in allen erlaubten Ordnern (`database/`, `routes/`,
-  `config/` eingeschlossen).
-- Fehlerbehebung: Der Log-Pfad `/var/log/germandactyl.log` wurde fälschlich als „im Panel-Ordner“
-  beschrieben.
+- **Mehrsprachig:** Patches liegen unter `patches/<sprache>/`, der Installer wählt mit `-L <sprache>` (Standard `de`).
+- **Eigene Patch-Quelle:** `MULTICATYL_SOURCE` erlaubt einen lokalen Checkout oder eine andere URL-Basis, auch offline.
+  Signatur und Prüfsummen werden trotzdem geprüft.
+- **Prüfmodus `-c`:** lädt und verifiziert den Patch und testet mit `git apply --check`, verändert nichts
+  (Exit-Code 2, wenn er nicht passt).
+- **Status `-s`:** Panel-Version, Sprache, installierter Patch, Backups, verfügbare Patches.
+- **Auflisten `-l`:** alle Sprachen und Patches, ohne Panel und ohne root.
+- **Versionsverwaltung im Browser** (`docs/manager/index.html`): Versionsmatrix, Befehls-Generator mit Sprache,
+  lokale Liste eigener Panels, Signaturdaten, Fehlerbehebung.
+- `.gitattributes` erzwingt LF, damit Prüfsummen auch nach einem Checkout unter Windows stimmen.
 
-### Dokumentation
+### Behoben (aus GermanDactyl übernommen und korrigiert)
 
-- Optionen-Tabellen in Installation und `scripts/README.md` um `-c`, `-s`, `-l`, `-V` ergänzt.
-- Neuer Tab „Nur prüfen“ in der Installationsanleitung.
-- Fehlerbehebung: Abschnitt zu `-c` und `-s`.
+- `README.md` enthielt den Inhalt 50-mal (2,3 MB).
+- `.rej`-Dateien wurden nach einer Teil-Installation nicht in allen erlaubten Ordnern eingesammelt.
+- Falscher Log-Pfad in der Fehlerbehebung.
 
-## 1.15.1 – 2026-09-27
+### Enthaltene Patches
 
-- Patch für Pterodactyl Panel v1.15.1.
-- Signierte Prüfsummen (`patches/SHA256SUMS`, GPG-Schlüssel `2CB6 9766 DC1E 05E8 D805 D4C0 DF5A 303D 4015 76B8`).
-- Installer prüft Signatur und Prüfsumme vor jeder Installation.
+| Sprache | Panel-Versionen |
+| --- | --- |
+| de | 1.11.2, 1.11.3, 1.12.2, 1.15.1 |

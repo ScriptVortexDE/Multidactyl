@@ -1,7 +1,7 @@
 # Installation
 
 !!! warning "Möglicherweise nicht mit allen Add-ons kompatibel"
-    GermanDactyl verwendet Patches, um die Oberfläche zu übersetzen. Hast du vorher schon Plugins oder Themes
+    Multicatyl verwendet Patches, um die Oberfläche zu übersetzen. Hast du vorher schon Plugins oder Themes
     installiert, die die Oberfläche verändern, kann es sein, dass einige Dateien nicht gepatcht werden können.
 
 ## Voraussetzungen
@@ -19,7 +19,7 @@
 
 ## Unterstützte Versionen
 
-| Pterodactyl Panel | GermanDactyl-Patch |
+| Pterodactyl Panel | Multicatyl-Patch (de) |
 | --- | --- |
 | 1.11.2 | v1.11.2 |
 | 1.11.3 | v1.11.3 |
@@ -31,26 +31,26 @@ Nutzt du 1.13.x, 1.14.x oder 1.15.0, [aktualisiere dein Panel](guides/update.md)
 
 ## Der einfache Weg
 
-Füge den folgenden Befehl in die Konsole deines Servers ein. GermanDactyl installiert sich dann automatisch.
+Füge den folgenden Befehl in die Konsole deines Servers ein. Multicatyl installiert sich dann automatisch.
 
 === ":material-flash: Normale Installation"
     ```shell
-    curl -sSL https://install.germandactyl.de/ | sudo bash -s --
+    curl -sSL https://raw.githubusercontent.com/hahn1315/Multicatyl/main/scripts/install.sh | sudo bash -s --
     ```
 
 === ":material-folder: Ordner auswählen"
     ```shell
-    curl -sSL https://install.germandactyl.de/ | sudo bash -s -- -d /var/www/pterodactyl -y
+    curl -sSL https://raw.githubusercontent.com/hahn1315/Multicatyl/main/scripts/install.sh | sudo bash -s -- -d /var/www/pterodactyl -y
     ```
 
 === ":material-check: Nur prüfen"
     ```shell
-    curl -sSL https://install.germandactyl.de/ | sudo bash -s -- -c
+    curl -sSL https://raw.githubusercontent.com/hahn1315/Multicatyl/main/scripts/install.sh | sudo bash -s -- -c
     ```
 
 === ":material-update: Version erzwingen"
     ```shell
-    curl -sSL https://install.germandactyl.de/ | sudo bash -s -- -v 1.15.1
+    curl -sSL https://raw.githubusercontent.com/hahn1315/Multicatyl/main/scripts/install.sh | sudo bash -s -- -v 1.15.1
     ```
     !!! warning "Auf eigenes Risiko"
         Nutze `-v` nur, wenn die vom Panel gemeldete Version nicht stimmt (z. B. `canary`). Ein Patch für eine andere
@@ -61,12 +61,13 @@ Füge den folgenden Befehl in die Konsole deines Servers ein. GermanDactyl insta
 | Option | Bedeutung |
 | --- | --- |
 | `-d <pfad>` | Pfad zum Panel (Standard: `/var/www/pterodactyl`) |
+| `-L <sprache>` | Sprache des Patches (Standard `de`) |
 | `-v <version>` | Patch-Version erzwingen |
 | `-y` | ohne 10-Sekunden-Wartezeit starten |
-| `-u` | GermanDactyl deinstallieren (zurück auf Englisch), siehe [Deinstallation](uninstall.md) |
+| `-u` | Multicatyl deinstallieren (zurück auf Englisch), siehe [Deinstallation](uninstall.md) |
 | `-c` | nur prüfen, ob der Patch zum Panel passt – verändert nichts |
 | `-s` | Status anzeigen: Panel-Version, Sprache, installierter Patch, Backups |
-| `-l` | verfügbare Patches auflisten (braucht kein Panel und kein root) |
+| `-l` | verfügbare Sprachen und Patches auflisten (braucht kein Panel und kein root) |
 | `-V` | Version des Installers anzeigen |
 | `-h` | Hilfe anzeigen |
 
@@ -80,7 +81,7 @@ Füge den folgenden Befehl in die Konsole deines Servers ein. GermanDactyl insta
 ### Was der Installer macht
 
 1. **Prüfungen:** Root-Rechte, Panel-Pfad, Panel-Version, Distribution (Debian/Ubuntu), Node.js ≥ 22 (sonst wird Node 22 über NodeSource installiert) und Yarn.
-2. **Backup** nach `/var/backups/germandactyl/`.
+2. **Backup** nach `/var/backups/multicatyl/`.
 3. **Wartungsmodus** einschalten.
 4. **Patch** herunterladen, prüfen und anwenden.
 5. **Sprache umstellen:** Panel-Standardsprache und alle bestehenden Benutzer auf Deutsch, neue Benutzer bekommen ebenfalls Deutsch.
@@ -88,7 +89,7 @@ Füge den folgenden Befehl in die Konsole deines Servers ein. GermanDactyl insta
 7. **Cache leeren** und **Rechte setzen**, danach Wartungsmodus beenden.
 
 Schlägt der Build fehl, wird das Backup automatisch wiederhergestellt. Alle Ausgaben landen in
-`/var/log/germandactyl.log` (Fallback: `germandactyl.debug.log` im Panel-Ordner).
+`/var/log/multicatyl.log` (Fallback: `multicatyl.debug.log` im Panel-Ordner).
 
 !!! tip "Sprache pro Benutzer"
     Unter **Admin → Benutzer** kannst du die Sprache einzelner Benutzer wieder auf Englisch stellen. Die fest
@@ -97,22 +98,34 @@ Schlägt der Build fehl, wird das Backup automatisch wiederhergestellt. Alle Aus
 ### Signierte Patches
 
 Der Installer wendet nur Patches an, deren SHA-256-Prüfsumme in der signierten Liste
-[`patches/SHA256SUMS`](https://github.com/pavl21/GermanDactyl/blob/main/patches/SHA256SUMS) steht. Die Signatur
+[`patches/de/SHA256SUMS`](https://github.com/hahn1315/Multicatyl/blob/main/patches/de/SHA256SUMS) steht. Die Signatur
 prüft er mit `gpgv` gegen den im Skript fest hinterlegten Schlüssel. Ist die Signatur ungültig oder wurde der Patch
 verändert, bricht die Installation ab, ohne etwas am Panel zu ändern.
 
 Fingerabdruck des Signaturschlüssels:
 
 ```
-2CB6 9766 DC1E 05E8 D805  D4C0 DF5A 303D 4015 76B8
+E8DC 06B3 1E40 DC9A 8F84  5730 EDAA 6001 8757 1616
 ```
 
-Manuell prüfen kannst du einen Patch so (im Ordner `patches/`):
+Manuell prüfen kannst du einen Patch so (im Ordner `patches/de/`):
 
 ```bash
-gpg --import germandactyl-signing-key.asc
+gpg --import multicatyl-signing-key.asc
 gpg --verify SHA256SUMS.asc SHA256SUMS && sha256sum --ignore-missing -c SHA256SUMS
 ```
+
+## Patch-Quelle ändern
+
+Standardmäßig lädt der Installer Patches und Prüfsummen aus dem GitHub-Repository. Mit `MULTICATYL_SOURCE` nutzt du
+eine andere Quelle, z. B. einen lokalen Checkout (praktisch ohne Internet oder zum Testen eigener Patches):
+
+```shell
+git clone https://github.com/hahn1315/Multicatyl.git /opt/multicatyl
+MULTICATYL_SOURCE=/opt/multicatyl sudo -E bash /opt/multicatyl/scripts/install.sh -c
+```
+
+Signatur und Prüfsummen werden auch dann geprüft.
 
 ## Patches manuell anwenden
 
@@ -123,7 +136,7 @@ kannst du den Patch auch manuell anwenden. Im Beispiel liegt das Panel unter `/v
     ```shell
     cd /var/www/pterodactyl
     tar czf /root/panel-backup.tar.gz .
-    curl -fsSL https://patch.germandactyl.de/1.15.1 -o /tmp/germandactyl.patch
+    curl -fsSL https://raw.githubusercontent.com/hahn1315/Multicatyl/main/patches/de/v1.15.1.patch -o /tmp/multicatyl.patch
     ```
 
 2. Installiere bei Bedarf Node.js 22, Yarn und Git:
@@ -135,8 +148,8 @@ kannst du den Patch auch manuell anwenden. Im Beispiel liegt das Panel unter `/v
 
 3. Prüfe den Patch und wende ihn an:
     ```shell
-    git apply --check /tmp/germandactyl.patch
-    git apply --reject /tmp/germandactyl.patch
+    git apply --check /tmp/multicatyl.patch
+    git apply --reject /tmp/multicatyl.patch
     ```
 
 4. Baue die Oberfläche neu und leere den Cache:
@@ -150,4 +163,4 @@ kannst du den Patch auch manuell anwenden. Im Beispiel liegt das Panel unter `/v
 5. Stelle die Sprache ein: `APP_LOCALE=de` in der `.env` setzen und unter **Admin → Benutzer** die Sprache der
    Benutzer auf Deutsch stellen.
 
-Das war's – dein Pterodactyl Panel ist jetzt auf Deutsch. :)
+Das war's – dein Pterodactyl Panel ist jetzt übersetzt. :)

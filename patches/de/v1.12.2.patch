@@ -1,8 +1,8 @@
 diff --git a/app/Exceptions/Handler.php b/app/Exceptions/Handler.php
-index bcc636b..82a0cef 100644
+index a757917..adcb4a3 100644
 --- a/app/Exceptions/Handler.php
 +++ b/app/Exceptions/Handler.php
-@@ -200,14 +200,14 @@ class Handler extends ExceptionHandler
+@@ -198,14 +198,14 @@ class Handler extends ExceptionHandler
                  : strval($match ?? '500'),
              'detail' => $e instanceof HttpExceptionInterface || !is_null($match)
                  ? $e->getMessage()
@@ -56,12 +56,12 @@ index 59a53d3..254b3df 100644
      }
  }
 diff --git a/app/Exceptions/Http/Server/ServerStateConflictException.php b/app/Exceptions/Http/Server/ServerStateConflictException.php
-index ea6a60a..3077cf4 100644
+index 7d19bfc..6456214 100644
 --- a/app/Exceptions/Http/Server/ServerStateConflictException.php
 +++ b/app/Exceptions/Http/Server/ServerStateConflictException.php
-@@ -14,17 +14,17 @@ class ServerStateConflictException extends ConflictHttpException
+@@ -13,17 +13,17 @@ class ServerStateConflictException extends ConflictHttpException
       */
-     public function __construct(Server $server, Throwable $previous = null)
+     public function __construct(Server $server, ?\Throwable $previous = null)
      {
 -        $message = 'This server is currently in an unsupported state, please try again later.';
 +        $message = 'Dieser Server befindet sich derzeit in einem nicht unterstützten Zustand. Bitte versuche es später erneut.';
@@ -84,12 +84,12 @@ index ea6a60a..3077cf4 100644
  
          parent::__construct($message, $previous);
 diff --git a/app/Exceptions/Http/TwoFactorAuthRequiredException.php b/app/Exceptions/Http/TwoFactorAuthRequiredException.php
-index cecb646..b7863e6 100644
+index 9689338..eadbf3c 100644
 --- a/app/Exceptions/Http/TwoFactorAuthRequiredException.php
 +++ b/app/Exceptions/Http/TwoFactorAuthRequiredException.php
-@@ -14,6 +14,6 @@ class TwoFactorAuthRequiredException extends HttpException implements HttpExcept
+@@ -13,6 +13,6 @@ class TwoFactorAuthRequiredException extends HttpException implements HttpExcept
       */
-     public function __construct(Throwable $previous = null)
+     public function __construct(?\Throwable $previous = null)
      {
 -        parent::__construct(Response::HTTP_BAD_REQUEST, 'Two-factor authentication is required on this account in order to access this endpoint.', $previous);
 +        parent::__construct(Response::HTTP_BAD_REQUEST, 'Für dieses Konto ist die Zwei-Faktor-Authentifizierung erforderlich, um auf diesen Endpunkt zuzugreifen.', $previous);
@@ -208,10 +208,10 @@ index b7b819b..4f7850d 100644
      }
  }
 diff --git a/app/Http/Controllers/Admin/ApiController.php b/app/Http/Controllers/Admin/ApiController.php
-index 02ad6e5..427a8a7 100644
+index a8f87bf..d347223 100644
 --- a/app/Http/Controllers/Admin/ApiController.php
 +++ b/app/Http/Controllers/Admin/ApiController.php
-@@ -70,7 +70,7 @@ class ApiController extends Controller
+@@ -66,7 +66,7 @@ class ApiController extends Controller
              'user_id' => $request->user()->id,
          ], $request->getKeyPermissions());
  
@@ -221,19 +221,19 @@ index 02ad6e5..427a8a7 100644
          return redirect()->route('admin.api.index');
      }
 diff --git a/app/Http/Controllers/Admin/DatabaseController.php b/app/Http/Controllers/Admin/DatabaseController.php
-index e0dc0dc..7b6737d 100644
+index b37a4da..fe13629 100644
 --- a/app/Http/Controllers/Admin/DatabaseController.php
 +++ b/app/Http/Controllers/Admin/DatabaseController.php
-@@ -72,7 +72,7 @@ class DatabaseController extends Controller
-         } catch (Exception $exception) {
-             if ($exception instanceof PDOException || $exception->getPrevious() instanceof PDOException) {
+@@ -68,7 +68,7 @@ class DatabaseController extends Controller
+         } catch (\Exception $exception) {
+             if ($exception instanceof \PDOException || $exception->getPrevious() instanceof \PDOException) {
                  $this->alert->danger(
 -                    sprintf('There was an error while trying to connect to the host or while executing a query: "%s"', $exception->getMessage())
 +                    sprintf('Beim Verbinden mit dem Host oder beim Ausführen einer Abfrage ist ein Fehler aufgetreten: "%s"', $exception->getMessage())
                  )->flash();
  
                  return redirect()->route('admin.databases')->withInput($request->validated());
-@@ -81,7 +81,7 @@ class DatabaseController extends Controller
+@@ -77,7 +77,7 @@ class DatabaseController extends Controller
              }
          }
  
@@ -242,23 +242,23 @@ index e0dc0dc..7b6737d 100644
  
          return redirect()->route('admin.databases.view', $host->id);
      }
-@@ -97,13 +97,13 @@ class DatabaseController extends Controller
+@@ -93,13 +93,13 @@ class DatabaseController extends Controller
  
          try {
              $this->updateService->handle($host->id, $request->normalize());
 -            $this->alert->success('Database host was updated successfully.')->flash();
 +            $this->alert->success('Der Datenbank-Host wurde erfolgreich aktualisiert.')->flash();
-         } catch (Exception $exception) {
+         } catch (\Exception $exception) {
              // Catch any SQL related exceptions and display them back to the user, otherwise just
              // throw the exception like normal and move on with it.
-             if ($exception instanceof PDOException || $exception->getPrevious() instanceof PDOException) {
+             if ($exception instanceof \PDOException || $exception->getPrevious() instanceof \PDOException) {
                  $this->alert->danger(
 -                    sprintf('There was an error while trying to connect to the host or while executing a query: "%s"', $exception->getMessage())
 +                    sprintf('Beim Verbinden mit dem Host oder beim Ausführen einer Abfrage ist ein Fehler aufgetreten: "%s"', $exception->getMessage())
                  )->flash();
  
                  return $redirect->withInput($request->normalize());
-@@ -123,7 +123,7 @@ class DatabaseController extends Controller
+@@ -119,7 +119,7 @@ class DatabaseController extends Controller
      public function delete(int $host): RedirectResponse
      {
          $this->deletionService->handle($host);
@@ -268,7 +268,7 @@ index e0dc0dc..7b6737d 100644
          return redirect()->route('admin.databases');
      }
 diff --git a/app/Http/Controllers/Admin/LocationController.php b/app/Http/Controllers/Admin/LocationController.php
-index ea01cba..9d61d6a 100644
+index f97e55d..67b1014 100644
 --- a/app/Http/Controllers/Admin/LocationController.php
 +++ b/app/Http/Controllers/Admin/LocationController.php
 @@ -60,7 +60,7 @@ class LocationController extends Controller
@@ -290,7 +290,7 @@ index ea01cba..9d61d6a 100644
          return redirect()->route('admin.locations.view', $location->id);
      }
 diff --git a/app/Http/Controllers/Admin/MountController.php b/app/Http/Controllers/Admin/MountController.php
-index 097ad66..4c5e6fa 100644
+index a10e6b9..ac86f14 100644
 --- a/app/Http/Controllers/Admin/MountController.php
 +++ b/app/Http/Controllers/Admin/MountController.php
 @@ -72,7 +72,7 @@ class MountController extends Controller
@@ -330,10 +330,10 @@ index 097ad66..4c5e6fa 100644
          return redirect()->route('admin.mounts.view', $mount->id);
      }
 diff --git a/app/Http/Controllers/Admin/NodeAutoDeployController.php b/app/Http/Controllers/Admin/NodeAutoDeployController.php
-index ac0684a..213b51c 100644
+index 2be1a91..a5af3b6 100644
 --- a/app/Http/Controllers/Admin/NodeAutoDeployController.php
 +++ b/app/Http/Controllers/Admin/NodeAutoDeployController.php
-@@ -49,7 +49,7 @@ class NodeAutoDeployController extends Controller
+@@ -40,7 +40,7 @@ class NodeAutoDeployController extends Controller
          if (!$key) {
              $key = $this->keyCreationService->setKeyType(ApiKey::TYPE_APPLICATION)->handle([
                  'user_id' => $request->user()->id,
@@ -343,10 +343,10 @@ index ac0684a..213b51c 100644
              ], ['r_nodes' => 1]);
          }
 diff --git a/app/Http/Controllers/Admin/Servers/ServerViewController.php b/app/Http/Controllers/Admin/Servers/ServerViewController.php
-index 7cf64a2..2351420 100644
+index 0d1b7e8..cc50268 100644
 --- a/app/Http/Controllers/Admin/Servers/ServerViewController.php
 +++ b/app/Http/Controllers/Admin/Servers/ServerViewController.php
-@@ -124,7 +124,7 @@ class ServerViewController extends Controller
+@@ -119,7 +119,7 @@ class ServerViewController extends Controller
      public function manage(Request $request, Server $server): View
      {
          if ($server->status === Server::STATUS_INSTALL_FAILED) {
@@ -356,7 +356,7 @@ index 7cf64a2..2351420 100644
  
          // Check if the panel doesn't have at least 2 nodes configured.
 diff --git a/app/Http/Controllers/Admin/ServersController.php b/app/Http/Controllers/Admin/ServersController.php
-index 3d2c55a..2982d2f 100644
+index 1805a83..c21939c 100644
 --- a/app/Http/Controllers/Admin/ServersController.php
 +++ b/app/Http/Controllers/Admin/ServersController.php
 @@ -254,7 +254,7 @@ class ServersController extends Controller
@@ -378,10 +378,10 @@ index 3d2c55a..2982d2f 100644
          return redirect()->route('admin.servers.view.mounts', $server->id);
      }
 diff --git a/app/Http/Controllers/Admin/Settings/AdvancedController.php b/app/Http/Controllers/Admin/Settings/AdvancedController.php
-index bf68832..ef119e3 100644
+index 9c8bc03..1e8187d 100644
 --- a/app/Http/Controllers/Admin/Settings/AdvancedController.php
 +++ b/app/Http/Controllers/Admin/Settings/AdvancedController.php
-@@ -55,7 +55,7 @@ class AdvancedController extends Controller
+@@ -53,7 +53,7 @@ class AdvancedController extends Controller
          }
  
          $this->kernel->call('queue:restart');
@@ -391,10 +391,10 @@ index bf68832..ef119e3 100644
          return redirect()->route('admin.settings.advanced');
      }
 diff --git a/app/Http/Controllers/Admin/Settings/IndexController.php b/app/Http/Controllers/Admin/Settings/IndexController.php
-index eabede9..151f222 100644
+index e89d120..d091bb2 100644
 --- a/app/Http/Controllers/Admin/Settings/IndexController.php
 +++ b/app/Http/Controllers/Admin/Settings/IndexController.php
-@@ -53,7 +53,7 @@ class IndexController extends Controller
+@@ -51,7 +51,7 @@ class IndexController extends Controller
          }
  
          $this->kernel->call('queue:restart');
@@ -404,10 +404,10 @@ index eabede9..151f222 100644
          return redirect()->route('admin.settings');
      }
 diff --git a/app/Http/Controllers/Admin/Settings/MailController.php b/app/Http/Controllers/Admin/Settings/MailController.php
-index 050990d..5108f8f 100644
+index 0725f8d..8fc271d 100644
 --- a/app/Http/Controllers/Admin/Settings/MailController.php
 +++ b/app/Http/Controllers/Admin/Settings/MailController.php
-@@ -53,7 +53,7 @@ class MailController extends Controller
+@@ -50,7 +50,7 @@ class MailController extends Controller
      public function update(MailSettingsFormRequest $request): Response
      {
          if ($this->config->get('mail.default') !== 'smtp') {
@@ -417,7 +417,7 @@ index 050990d..5108f8f 100644
  
          $values = $request->normalize();
 diff --git a/app/Http/Controllers/Api/Client/ApiKeyController.php b/app/Http/Controllers/Api/Client/ApiKeyController.php
-index ac00a4d..601c464 100644
+index fc9aa64..a2ab290 100644
 --- a/app/Http/Controllers/Api/Client/ApiKeyController.php
 +++ b/app/Http/Controllers/Api/Client/ApiKeyController.php
 @@ -30,7 +30,7 @@ class ApiKeyController extends ClientApiController
@@ -430,10 +430,10 @@ index ac00a4d..601c464 100644
  
          $token = $request->user()->createToken(
 diff --git a/app/Http/Controllers/Api/Client/Servers/BackupController.php b/app/Http/Controllers/Api/Client/Servers/BackupController.php
-index 7a35341..25f98e7 100644
+index 002f77d..1a85983 100644
 --- a/app/Http/Controllers/Api/Client/Servers/BackupController.php
 +++ b/app/Http/Controllers/Api/Client/Servers/BackupController.php
-@@ -164,7 +164,7 @@ class BackupController extends ClientApiController
+@@ -171,7 +171,7 @@ class BackupController extends ClientApiController
          }
  
          if ($backup->disk !== Backup::ADAPTER_AWS_S3 && $backup->disk !== Backup::ADAPTER_WINGS) {
@@ -442,7 +442,7 @@ index 7a35341..25f98e7 100644
          }
  
          $url = $this->downloadLinkService->handle($backup, $request->user());
-@@ -197,11 +197,11 @@ class BackupController extends ClientApiController
+@@ -200,11 +200,11 @@ class BackupController extends ClientApiController
          // Cannot restore a backup unless a server is fully installed and not currently
          // processing a different backup restoration request.
          if (!is_null($server->status)) {
@@ -457,32 +457,32 @@ index 7a35341..25f98e7 100644
  
          $log = Activity::event('server:backup.restore')
 diff --git a/app/Http/Controllers/Api/Client/Servers/CommandController.php b/app/Http/Controllers/Api/Client/Servers/CommandController.php
-index 6cc50de..44eac18 100644
+index eb6394c..5cb8e4c 100644
 --- a/app/Http/Controllers/Api/Client/Servers/CommandController.php
 +++ b/app/Http/Controllers/Api/Client/Servers/CommandController.php
-@@ -40,7 +40,7 @@ class CommandController extends ClientApiController
-                     $previous->getResponse() instanceof ResponseInterface
-                     && $previous->getResponse()->getStatusCode() === Response::HTTP_BAD_GATEWAY
-                 ) {
+@@ -36,7 +36,7 @@ class CommandController extends ClientApiController
+ 
+             if ($previous instanceof BadResponseException) {
+                 if ($previous->getResponse()->getStatusCode() === Response::HTTP_BAD_GATEWAY) {
 -                    throw new HttpException(Response::HTTP_BAD_GATEWAY, 'Server must be online in order to send commands.', $exception);
 +                    throw new HttpException(Response::HTTP_BAD_GATEWAY, 'Der Server muss online sein, damit du Befehle senden kannst.', $exception);
                  }
              }
  
 diff --git a/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php b/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php
-index 4e3c5f9..6161eeb 100644
+index 6f66f42..c95c872 100644
 --- a/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php
 +++ b/app/Http/Controllers/Api/Client/Servers/NetworkAllocationController.php
-@@ -93,7 +93,7 @@ class NetworkAllocationController extends ClientApiController
-     public function store(NewAllocationRequest $request, Server $server): array
+@@ -96,7 +96,7 @@ class NetworkAllocationController extends ClientApiController
      {
-         if ($server->allocations()->count() >= $server->allocation_limit) {
--            throw new DisplayException('Cannot assign additional allocations to this server: limit has been reached.');
-+            throw new DisplayException('Diesem Server können keine weiteren Ports zugewiesen werden: Das Limit ist erreicht.');
-         }
+         $allocation = Activity::event('server:allocation.create')->transaction(function ($log) use ($server) {
+             if ($server->allocations()->lockForUpdate()->count() >= $server->allocation_limit) {
+-                throw new DisplayException('Cannot assign additional allocations to this server: limit has been reached.');
++                throw new DisplayException('Diesem Server können keine weiteren Ports zugewiesen werden: Das Limit ist erreicht.');
+             }
  
-         $allocation = $this->assignableAllocationService->handle($server);
-@@ -118,11 +118,11 @@ class NetworkAllocationController extends ClientApiController
+             $allocation = $this->assignableAllocationService->handle($server);
+@@ -121,11 +121,11 @@ class NetworkAllocationController extends ClientApiController
          // Don't allow the deletion of allocations if the server does not have an
          // allocation limit set.
          if (empty($server->allocation_limit)) {
@@ -497,23 +497,23 @@ index 4e3c5f9..6161eeb 100644
  
          Allocation::query()->where('id', $allocation->id)->update([
 diff --git a/app/Http/Controllers/Api/Client/Servers/ScheduleController.php b/app/Http/Controllers/Api/Client/Servers/ScheduleController.php
-index 50c04c7..521005f 100644
+index 832e426..c989208 100644
 --- a/app/Http/Controllers/Api/Client/Servers/ScheduleController.php
 +++ b/app/Http/Controllers/Api/Client/Servers/ScheduleController.php
-@@ -179,7 +179,7 @@ class ScheduleController extends ClientApiController
+@@ -178,7 +178,7 @@ class ScheduleController extends ClientApiController
                  $request->input('day_of_week')
              );
-         } catch (Exception $exception) {
+         } catch (\Exception $exception) {
 -            throw new DisplayException('The cron data provided does not evaluate to a valid expression.');
 +            throw new DisplayException('Die angegebenen Cron-Daten ergeben keinen gültigen Ausdruck.');
          }
      }
  }
 diff --git a/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php b/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php
-index addca28..63237f1 100644
+index 1091fb2..c7a5960 100644
 --- a/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php
 +++ b/app/Http/Controllers/Api/Client/Servers/ScheduleTaskController.php
-@@ -38,11 +38,11 @@ class ScheduleTaskController extends ClientApiController
+@@ -41,11 +41,11 @@ class ScheduleTaskController extends ClientApiController
      {
          $limit = config('pterodactyl.client_features.schedules.per_schedule_task_limit', 10);
          if ($schedule->tasks()->count() >= $limit) {
@@ -526,8 +526,8 @@ index addca28..63237f1 100644
 +            throw new HttpForbiddenException("Eine Backup-Aufgabe kann nicht erstellt werden, wenn das Backup-Limit des Servers auf 0 steht.");
          }
  
-         /** @var \Pterodactyl\Models\Task|null $lastTask */
-@@ -81,7 +81,7 @@ class ScheduleTaskController extends ClientApiController
+         /** @var Task|null $lastTask */
+@@ -105,7 +105,7 @@ class ScheduleTaskController extends ClientApiController
          }
  
          if ($server->backup_limit === 0 && $request->action === 'backup') {
@@ -535,8 +535,8 @@ index addca28..63237f1 100644
 +            throw new HttpForbiddenException("Eine Backup-Aufgabe kann nicht erstellt werden, wenn das Backup-Limit des Servers auf 0 steht.");
          }
  
-         $this->repository->update($task->id, [
-@@ -114,7 +114,7 @@ class ScheduleTaskController extends ClientApiController
+         $this->connection->transaction(function () use ($request, $schedule, $task) {
+@@ -160,7 +160,7 @@ class ScheduleTaskController extends ClientApiController
          }
  
          if (!$request->user()->can(Permission::ACTION_SCHEDULE_UPDATE, $server)) {
@@ -544,9 +544,9 @@ index addca28..63237f1 100644
 +            throw new HttpForbiddenException('Du hast keine Berechtigung, diese Aktion auszuführen.');
          }
  
-         $schedule->tasks()->where('sequence_id', '>', $task->sequence_id)->update([
+         $schedule->tasks()
 diff --git a/app/Http/Controllers/Api/Client/Servers/SettingsController.php b/app/Http/Controllers/Api/Client/Servers/SettingsController.php
-index 6e64518..3a14807 100644
+index b776788..fd4553c 100644
 --- a/app/Http/Controllers/Api/Client/Servers/SettingsController.php
 +++ b/app/Http/Controllers/Api/Client/Servers/SettingsController.php
 @@ -78,7 +78,7 @@ class SettingsController extends ClientApiController
@@ -559,11 +559,11 @@ index 6e64518..3a14807 100644
  
          $original = $server->image;
 diff --git a/app/Http/Controllers/Api/Client/Servers/StartupController.php b/app/Http/Controllers/Api/Client/Servers/StartupController.php
-index 9548be2..2a00a52 100644
+index 2f8cd6c..8b6f559 100644
 --- a/app/Http/Controllers/Api/Client/Servers/StartupController.php
 +++ b/app/Http/Controllers/Api/Client/Servers/StartupController.php
-@@ -57,9 +57,9 @@ class StartupController extends ClientApiController
-         $original = $variable->server_value;
+@@ -55,9 +55,9 @@ class StartupController extends ClientApiController
+         $variable = $server->variables()->where('env_variable', $request->input('key'))->first();
  
          if (is_null($variable) || !$variable->user_viewable) {
 -            throw new BadRequestHttpException('The environment variable you are trying to edit does not exist.');
@@ -573,9 +573,9 @@ index 9548be2..2a00a52 100644
 +            throw new BadRequestHttpException('Die Umgebungsvariable, die du bearbeiten möchtest, ist schreibgeschützt.');
          }
  
-         // Revalidate the variable value using the egg variable specific validation rules for it.
+         $original = $variable->server_value;
 diff --git a/app/Http/Controllers/Api/Client/Servers/WebsocketController.php b/app/Http/Controllers/Api/Client/Servers/WebsocketController.php
-index 59b6f75..37f0416 100644
+index 9a3a1f5..dfa15e9 100644
 --- a/app/Http/Controllers/Api/Client/Servers/WebsocketController.php
 +++ b/app/Http/Controllers/Api/Client/Servers/WebsocketController.php
 @@ -34,7 +34,7 @@ class WebsocketController extends ClientApiController
@@ -597,7 +597,7 @@ index 59b6f75..37f0416 100644
  
              // Redirect the websocket request to the new node if the server has been archived.
 diff --git a/app/Http/Controllers/Api/Client/TwoFactorController.php b/app/Http/Controllers/Api/Client/TwoFactorController.php
-index 8cfa09b..e7de478 100644
+index edc13d2..6a5f83c 100644
 --- a/app/Http/Controllers/Api/Client/TwoFactorController.php
 +++ b/app/Http/Controllers/Api/Client/TwoFactorController.php
 @@ -36,7 +36,7 @@ class TwoFactorController extends ClientApiController
@@ -628,10 +628,10 @@ index 8cfa09b..e7de478 100644
  
          /** @var \Pterodactyl\Models\User $user */
 diff --git a/app/Http/Controllers/Api/Remote/Backups/BackupRemoteUploadController.php b/app/Http/Controllers/Api/Remote/Backups/BackupRemoteUploadController.php
-index 7d92e0b..4b11ed7 100644
+index 6d8865f..da12811 100644
 --- a/app/Http/Controllers/Api/Remote/Backups/BackupRemoteUploadController.php
 +++ b/app/Http/Controllers/Api/Remote/Backups/BackupRemoteUploadController.php
-@@ -35,7 +35,7 @@ class BackupRemoteUploadController extends Controller
+@@ -40,7 +40,7 @@ class BackupRemoteUploadController extends Controller
          // Get the size query parameter.
          $size = (int) $request->query('size');
          if (empty($size)) {
@@ -639,11 +639,11 @@ index 7d92e0b..4b11ed7 100644
 +            throw new BadRequestHttpException('Es muss ein nicht leerer Abfrageparameter "size" angegeben werden.');
          }
  
-         /** @var \Pterodactyl\Models\Backup $backup */
-@@ -44,13 +44,13 @@ class BackupRemoteUploadController extends Controller
+         $model = Backup::query()->where('uuid', $backup)->firstOrFail();
+@@ -55,13 +55,13 @@ class BackupRemoteUploadController extends Controller
          // Prevent backups that have already been completed from trying to
          // be uploaded again.
-         if (!is_null($backup->completed_at)) {
+         if (!is_null($model->completed_at)) {
 -            throw new ConflictHttpException('This backup is already in a completed state.');
 +            throw new ConflictHttpException('Dieses Backup ist bereits abgeschlossen.');
          }
@@ -657,11 +657,11 @@ index 7d92e0b..4b11ed7 100644
  
          // The path where backup will be uploaded to
 diff --git a/app/Http/Controllers/Api/Remote/Backups/BackupStatusController.php b/app/Http/Controllers/Api/Remote/Backups/BackupStatusController.php
-index f9c2a79..f8591cc 100644
+index aede7fa..ccf9838 100644
 --- a/app/Http/Controllers/Api/Remote/Backups/BackupStatusController.php
 +++ b/app/Http/Controllers/Api/Remote/Backups/BackupStatusController.php
-@@ -34,7 +34,7 @@ class BackupStatusController extends Controller
-         $model = Backup::query()->where('uuid', $backup)->firstOrFail();
+@@ -49,7 +49,7 @@ class BackupStatusController extends Controller
+         }
  
          if ($model->is_successful) {
 -            throw new BadRequestHttpException('Cannot update the status of a backup that is already marked as completed.');
@@ -669,7 +669,7 @@ index f9c2a79..f8591cc 100644
          }
  
          $action = $request->boolean('successful') ? 'server:backup.complete' : 'server:backup.fail';
-@@ -109,7 +109,7 @@ class BackupStatusController extends Controller
+@@ -129,7 +129,7 @@ class BackupStatusController extends Controller
                  return;
              }
  
@@ -679,7 +679,7 @@ index f9c2a79..f8591cc 100644
  
          $params = [
 diff --git a/app/Http/Controllers/Api/Remote/SftpAuthenticationController.php b/app/Http/Controllers/Api/Remote/SftpAuthenticationController.php
-index a360d1d..aa7f4dd 100644
+index 6db0d45..1cf50f7 100644
 --- a/app/Http/Controllers/Api/Remote/SftpAuthenticationController.php
 +++ b/app/Http/Controllers/Api/Remote/SftpAuthenticationController.php
 @@ -35,13 +35,13 @@ class SftpAuthenticationController extends Controller
@@ -717,10 +717,10 @@ index a360d1d..aa7f4dd 100644
          }
  
 diff --git a/app/Http/Controllers/Auth/LoginCheckpointController.php b/app/Http/Controllers/Auth/LoginCheckpointController.php
-index af05c55..c6d0381 100644
+index ed212e4..3121173 100644
 --- a/app/Http/Controllers/Auth/LoginCheckpointController.php
 +++ b/app/Http/Controllers/Auth/LoginCheckpointController.php
-@@ -16,7 +16,7 @@ use Illuminate\Contracts\Validation\Factory as ValidationFactory;
+@@ -17,7 +17,7 @@ use Illuminate\Contracts\Validation\Factory as ValidationFactory;
  
  class LoginCheckpointController extends AbstractLoginController
  {
@@ -729,7 +729,7 @@ index af05c55..c6d0381 100644
  
      /**
       * LoginCheckpointController constructor.
-@@ -79,7 +79,7 @@ class LoginCheckpointController extends AbstractLoginController
+@@ -91,7 +91,7 @@ class LoginCheckpointController extends AbstractLoginController
              }
          }
  
@@ -739,10 +739,10 @@ index af05c55..c6d0381 100644
  
      /**
 diff --git a/app/Http/Middleware/Admin/Servers/ServerInstalled.php b/app/Http/Middleware/Admin/Servers/ServerInstalled.php
-index 63c90c3..b0175db 100644
+index d3fa759..470e553 100644
 --- a/app/Http/Middleware/Admin/Servers/ServerInstalled.php
 +++ b/app/Http/Middleware/Admin/Servers/ServerInstalled.php
-@@ -20,11 +20,11 @@ class ServerInstalled
+@@ -19,11 +19,11 @@ class ServerInstalled
          $server = $request->route()->parameter('server');
  
          if (!$server instanceof Server) {
@@ -757,10 +757,10 @@ index 63c90c3..b0175db 100644
  
          return $next($request);
 diff --git a/app/Http/Middleware/Api/Application/AuthenticateApplicationUser.php b/app/Http/Middleware/Api/Application/AuthenticateApplicationUser.php
-index 2e366c4..4336726 100644
+index e6f83b4..1239c00 100644
 --- a/app/Http/Middleware/Api/Application/AuthenticateApplicationUser.php
 +++ b/app/Http/Middleware/Api/Application/AuthenticateApplicationUser.php
-@@ -17,7 +17,7 @@ class AuthenticateApplicationUser
+@@ -16,7 +16,7 @@ class AuthenticateApplicationUser
          /** @var \Pterodactyl\Models\User|null $user */
          $user = $request->user();
          if (!$user || !$user->root_admin) {
@@ -770,10 +770,10 @@ index 2e366c4..4336726 100644
  
          return $next($request);
 diff --git a/app/Http/Middleware/Api/AuthenticateIPAccess.php b/app/Http/Middleware/Api/AuthenticateIPAccess.php
-index c55ce8b..c3063be 100644
+index e2332de..3233d3d 100644
 --- a/app/Http/Middleware/Api/AuthenticateIPAccess.php
 +++ b/app/Http/Middleware/Api/AuthenticateIPAccess.php
-@@ -44,6 +44,6 @@ class AuthenticateIPAccess
+@@ -43,6 +43,6 @@ class AuthenticateIPAccess
              ->property('identifier', $token->identifier)
              ->log();
  
@@ -782,25 +782,25 @@ index c55ce8b..c3063be 100644
      }
  }
 diff --git a/app/Http/Middleware/Api/Client/RequireClientApiKey.php b/app/Http/Middleware/Api/Client/RequireClientApiKey.php
-index 1ddd0f1..a7a1a26 100644
+index 6c815fc..c6a384b 100644
 --- a/app/Http/Middleware/Api/Client/RequireClientApiKey.php
 +++ b/app/Http/Middleware/Api/Client/RequireClientApiKey.php
 @@ -17,7 +17,7 @@ class RequireClientApiKey
          $token = $request->user()->currentAccessToken();
  
-         if ($token instanceof ApiKey && $token->key_type === ApiKey::TYPE_APPLICATION) {
+         if ($token instanceof ApiKey && $token->key_type === ApiKey::TYPE_APPLICATION) { // @phpstan-ignore instanceof.alwaysTrue
 -            throw new AccessDeniedHttpException('You are attempting to use an application API key on an endpoint that requires a client API key.');
 +            throw new AccessDeniedHttpException('Du versuchst, einen Anwendungs-API-Schlüssel an einem Endpunkt zu verwenden, der einen Client-API-Schlüssel erfordert.');
          }
  
          return $next($request);
 diff --git a/app/Http/Middleware/Api/Client/Server/ResourceBelongsToServer.php b/app/Http/Middleware/Api/Client/Server/ResourceBelongsToServer.php
-index 5d3530d..7649d4f 100644
+index 43a48a4..7d59986 100644
 --- a/app/Http/Middleware/Api/Client/Server/ResourceBelongsToServer.php
 +++ b/app/Http/Middleware/Api/Client/Server/ResourceBelongsToServer.php
-@@ -35,7 +35,7 @@ class ResourceBelongsToServer
+@@ -33,7 +33,7 @@ class ResourceBelongsToServer
  
-         /** @var \Pterodactyl\Models\Server $server */
+         /** @var Server $server */
          $server = $request->route()->parameter('server');
 -        $exception = new NotFoundHttpException('The requested resource was not found for this server.');
 +        $exception = new NotFoundHttpException('Die angeforderte Ressource wurde für diesen Server nicht gefunden.');
@@ -808,23 +808,23 @@ index 5d3530d..7649d4f 100644
              // Specifically skip the server, we're just trying to see if all of the
              // other resources are assigned to this server. Also skip anything that
 diff --git a/app/Http/Middleware/Api/IsValidJson.php b/app/Http/Middleware/Api/IsValidJson.php
-index e35173a..5c8f291 100644
+index 95101a1..5af7d0e 100644
 --- a/app/Http/Middleware/Api/IsValidJson.php
 +++ b/app/Http/Middleware/Api/IsValidJson.php
-@@ -20,7 +20,7 @@ class IsValidJson
+@@ -18,7 +18,7 @@ class IsValidJson
              try {
                  json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-             } catch (JsonException $exception) {
+             } catch (\JsonException $exception) {
 -                throw new BadRequestHttpException('The JSON data passed in the request appears to be malformed: ' . $exception->getMessage());
 +                throw new BadRequestHttpException('Die in der Anfrage übergebenen JSON-Daten scheinen fehlerhaft zu sein: ' . $exception->getMessage());
              }
          }
  
 diff --git a/app/Http/Middleware/VerifyReCaptcha.php b/app/Http/Middleware/VerifyReCaptcha.php
-index 45ae4bb..bbb1822 100644
+index ef251c3..c1cc312 100644
 --- a/app/Http/Middleware/VerifyReCaptcha.php
 +++ b/app/Http/Middleware/VerifyReCaptcha.php
-@@ -55,7 +55,7 @@ class VerifyReCaptcha
+@@ -53,7 +53,7 @@ class VerifyReCaptcha
              )
          );
  
@@ -904,10 +904,10 @@ index efa1cc3..c24d103 100644
              }
          });
 diff --git a/app/Http/Requests/Api/Client/Account/StoreSSHKeyRequest.php b/app/Http/Requests/Api/Client/Account/StoreSSHKeyRequest.php
-index bddea15..b7c829a 100644
+index 3c8cf89..2952825 100644
 --- a/app/Http/Requests/Api/Client/Account/StoreSSHKeyRequest.php
 +++ b/app/Http/Requests/Api/Client/Account/StoreSSHKeyRequest.php
-@@ -37,22 +37,22 @@ class StoreSSHKeyRequest extends ClientApiRequest
+@@ -36,22 +36,22 @@ class StoreSSHKeyRequest extends ClientApiRequest
              try {
                  $this->key = PublicKeyLoader::loadPublicKey($this->input('public_key'));
              } catch (NoKeyLoadedException $exception) {
@@ -961,10 +961,10 @@ index 72674a3..9bf9123 100644
          }
  
 diff --git a/app/Http/Requests/Api/Client/Servers/Subusers/SubuserRequest.php b/app/Http/Requests/Api/Client/Servers/Subusers/SubuserRequest.php
-index 7c4fab9..6763d15 100644
+index 3e60ac5..a5a4289 100644
 --- a/app/Http/Requests/Api/Client/Servers/Subusers/SubuserRequest.php
 +++ b/app/Http/Requests/Api/Client/Servers/Subusers/SubuserRequest.php
-@@ -68,7 +68,7 @@ abstract class SubuserRequest extends ClientApiRequest
+@@ -66,7 +66,7 @@ abstract class SubuserRequest extends ClientApiRequest
          $service = $this->container->make(GetUserPermissionsService::class);
  
          if (count(array_diff($permissions, $service->handle($server, $user))) > 0) {
@@ -1140,10 +1140,10 @@ index b2e0007..349bdc4 100644
          ],
      ];
 diff --git a/app/Models/User.php b/app/Models/User.php
-index df8271c..de2d792 100644
+index 02df0ca..a43aac3 100644
 --- a/app/Models/User.php
 +++ b/app/Models/User.php
-@@ -149,7 +149,7 @@ class User extends Model implements
+@@ -157,7 +157,7 @@ class User extends Model implements
      protected $attributes = [
          'external_id' => null,
          'root_admin' => false,
@@ -1249,10 +1249,10 @@ index b424c82..d96b983 100644
      }
  }
 diff --git a/app/Notifications/ServerInstalled.php b/app/Notifications/ServerInstalled.php
-index 46f38ff..aab66de 100644
+index 0376337..82e9b46 100644
 --- a/app/Notifications/ServerInstalled.php
 +++ b/app/Notifications/ServerInstalled.php
-@@ -52,9 +52,10 @@ class ServerInstalled extends Notification implements ShouldQueue, ReceivesEvent
+@@ -54,9 +54,10 @@ class ServerInstalled extends Notification implements ShouldQueue, ReceivesEvent
      public function toMail(): MailMessage
      {
          return (new MailMessage())
@@ -1268,10 +1268,10 @@ index 46f38ff..aab66de 100644
      }
  }
 diff --git a/app/Rules/Fqdn.php b/app/Rules/Fqdn.php
-index 47baf51..be3caf3 100644
+index 19a5009..2ab257a 100644
 --- a/app/Rules/Fqdn.php
 +++ b/app/Rules/Fqdn.php
-@@ -38,7 +38,7 @@ class Fqdn implements Rule, DataAwareRule
+@@ -37,7 +37,7 @@ class Fqdn implements Rule, DataAwareRule
              // custom SSL cert, IPs will not be able to use HTTPS.  This should prevent most
              // home users from making this mistake and wondering why their node is not working.
              if ($this->schemeField && Arr::get($this->data, $this->schemeField) === 'https') {
@@ -1280,7 +1280,7 @@ index 47baf51..be3caf3 100644
  
                  return false;
              }
-@@ -58,7 +58,7 @@ class Fqdn implements Rule, DataAwareRule
+@@ -57,7 +57,7 @@ class Fqdn implements Rule, DataAwareRule
              return true;
          }
  
@@ -1290,10 +1290,10 @@ index 47baf51..be3caf3 100644
          return false;
      }
 diff --git a/app/Rules/Username.php b/app/Rules/Username.php
-index b89184e..f43b530 100644
+index 4e3dc24..eb7b23b 100644
 --- a/app/Rules/Username.php
 +++ b/app/Rules/Username.php
-@@ -30,8 +30,8 @@ class Username implements Rule
+@@ -29,8 +29,8 @@ class Username implements Rule
       */
      public function message(): string
      {
@@ -1305,20 +1305,20 @@ index b89184e..f43b530 100644
  
      /**
 diff --git a/app/Services/Allocations/AssignmentService.php b/app/Services/Allocations/AssignmentService.php
-index ec79d18..c7a7f33 100644
+index 94f347c..2694eff 100644
 --- a/app/Services/Allocations/AssignmentService.php
 +++ b/app/Services/Allocations/AssignmentService.php
-@@ -56,7 +56,7 @@ class AssignmentService
+@@ -55,7 +55,7 @@ class AssignmentService
              $parsed = Network::parse($underlying);
-         } catch (Exception $exception) {
-             /* @noinspection PhpUndefinedVariableInspection */
+         } catch (\Exception $exception) {
+             // @phpstan-ignore-next-line variable.undefined
 -            throw new DisplayException("Could not parse provided allocation IP address ({$underlying}): {$exception->getMessage()}", $exception);
 +            throw new DisplayException("Die angegebene IP-Adresse für die Port-Zuweisung ({$underlying}) konnte nicht verarbeitet werden: {$exception->getMessage()}", $exception);
          }
  
          $this->connection->beginTransaction();
 diff --git a/app/Services/Backups/InitiateBackupService.php b/app/Services/Backups/InitiateBackupService.php
-index be8f966..e0ab717 100644
+index a1ecd38..aa62179 100644
 --- a/app/Services/Backups/InitiateBackupService.php
 +++ b/app/Services/Backups/InitiateBackupService.php
 @@ -80,7 +80,7 @@ class InitiateBackupService
@@ -1328,22 +1328,22 @@ index be8f966..e0ab717 100644
 -                $message = sprintf('Only %d backups may be generated within a %d second span of time.', $limit, $period);
 +                $message = sprintf('Es dürfen nur %d Backups innerhalb von %d Sekunden erstellt werden.', $limit, $period);
  
-                 throw new TooManyRequestsHttpException(CarbonImmutable::now()->diffInSeconds($previous->last()->created_at->addSeconds($period)), $message);
+                 throw new TooManyRequestsHttpException((int) CarbonImmutable::now()->diffInSeconds($previous->last()->created_at->addSeconds($period)), $message);
              }
-@@ -112,7 +112,7 @@ class InitiateBackupService
+@@ -111,7 +111,7 @@ class InitiateBackupService
              $backup = $this->repository->create([
                  'server_id' => $server->id,
                  'uuid' => Uuid::uuid4()->toString(),
 -                'name' => trim($name) ?: sprintf('Backup at %s', CarbonImmutable::now()->toDateTimeString()),
 +                'name' => trim($name) ?: sprintf('Backup vom %s', CarbonImmutable::now()->toDateTimeString()),
-                 'ignored_files' => array_values($this->ignoredFiles ?? []),
+                 'ignored_files' => array_values($this->ignoredFiles),
                  'disk' => $this->backupManager->getDefaultAdapter(),
                  'is_locked' => $this->isLocked,
 diff --git a/app/Services/Databases/DatabaseManagementService.php b/app/Services/Databases/DatabaseManagementService.php
-index b70cb8b..7045983 100644
+index 1cabddb..a690176 100644
 --- a/app/Services/Databases/DatabaseManagementService.php
 +++ b/app/Services/Databases/DatabaseManagementService.php
-@@ -164,7 +164,7 @@ class DatabaseManagementService
+@@ -166,7 +166,7 @@ class DatabaseManagementService
              ->exists();
  
          if ($exists) {
@@ -1353,7 +1353,7 @@ index b70cb8b..7045983 100644
  
          $database = (new Database())->forceFill($data);
 diff --git a/app/Services/Eggs/EggParserService.php b/app/Services/Eggs/EggParserService.php
-index 6d8545b..f6543eb 100644
+index 75add23..1ee08a7 100644
 --- a/app/Services/Eggs/EggParserService.php
 +++ b/app/Services/Eggs/EggParserService.php
 @@ -19,13 +19,13 @@ class EggParserService
@@ -1373,7 +1373,7 @@ index 6d8545b..f6543eb 100644
  
          return $this->convertToV2($parsed);
 diff --git a/app/Services/Eggs/Variables/VariableCreationService.php b/app/Services/Eggs/Variables/VariableCreationService.php
-index a7e19f6..0acfc64 100644
+index 601a351..3954acc 100644
 --- a/app/Services/Eggs/Variables/VariableCreationService.php
 +++ b/app/Services/Eggs/Variables/VariableCreationService.php
 @@ -38,7 +38,7 @@ class VariableCreationService
@@ -1386,12 +1386,12 @@ index a7e19f6..0acfc64 100644
  
          if (!empty($data['rules'] ?? '')) {
 diff --git a/app/Services/Schedules/ProcessScheduleService.php b/app/Services/Schedules/ProcessScheduleService.php
-index cfbc7e5..ba830eb 100644
+index ddaa10b..9969fce 100644
 --- a/app/Services/Schedules/ProcessScheduleService.php
 +++ b/app/Services/Schedules/ProcessScheduleService.php
-@@ -31,7 +31,7 @@ class ProcessScheduleService
+@@ -29,7 +29,7 @@ class ProcessScheduleService
+     {
          $task = $schedule->tasks()->orderBy('sequence_id')->first();
- 
          if (is_null($task)) {
 -            throw new DisplayException('Cannot process schedule for task execution: no tasks are registered.');
 +            throw new DisplayException('Der Zeitplan kann nicht ausgeführt werden: Es sind keine Aufgaben hinterlegt.');
@@ -1399,7 +1399,7 @@ index cfbc7e5..ba830eb 100644
  
          $this->connection->transaction(function () use ($schedule, $task) {
 diff --git a/app/Services/Servers/BuildModificationService.php b/app/Services/Servers/BuildModificationService.php
-index 05553d7..40f5de1 100644
+index 620dedd..592b719 100644
 --- a/app/Services/Servers/BuildModificationService.php
 +++ b/app/Services/Servers/BuildModificationService.php
 @@ -40,7 +40,7 @@ class BuildModificationService
@@ -1421,7 +1421,7 @@ index 05553d7..40f5de1 100644
  
                      // Update the default allocation to be the first allocation that we are creating.
 diff --git a/app/Services/Servers/SuspensionService.php b/app/Services/Servers/SuspensionService.php
-index d11ace2..490e9f7 100644
+index eb9237c..33adfa7 100644
 --- a/app/Services/Servers/SuspensionService.php
 +++ b/app/Services/Servers/SuspensionService.php
 @@ -39,7 +39,7 @@ class SuspensionService
@@ -1434,7 +1434,7 @@ index d11ace2..490e9f7 100644
  
          // Update the server's suspension status.
 diff --git a/public/themes/pterodactyl/css/pterodactyl.css b/public/themes/pterodactyl/css/pterodactyl.css
-index 8e3580f..c18f538 100644
+index f9b5fd0..3952c8a 100644
 --- a/public/themes/pterodactyl/css/pterodactyl.css
 +++ b/public/themes/pterodactyl/css/pterodactyl.css
 @@ -462,7 +462,7 @@ label.control-label > span {
@@ -1447,7 +1447,7 @@ index 8e3580f..c18f538 100644
  }
  
 diff --git a/public/themes/pterodactyl/js/admin/new-server.js b/public/themes/pterodactyl/js/admin/new-server.js
-index db138cb..7edf4a8 100644
+index 1437c04..a345516 100644
 --- a/public/themes/pterodactyl/js/admin/new-server.js
 +++ b/public/themes/pterodactyl/js/admin/new-server.js
 @@ -19,27 +19,27 @@
@@ -1502,7 +1502,7 @@ index db138cb..7edf4a8 100644
              $.map(_.get(objectChain, 'packs', []), function (item, i) {
                  return {
                      id: item.id,
-@@ -114,14 +114,14 @@ $('#pEggId').on('change', function (event) {
+@@ -120,14 +120,14 @@ $('#pEggId').on('change', function (event) {
      $.each(_.get(objectChain, 'variables', []), function (i, item) {
          variableIds[item.env_variable] = 'var_ref_' + item.id;
  
@@ -1510,17 +1510,17 @@ index db138cb..7edf4a8 100644
 +        let isRequired = (item.required === 1) ? '<span class="label label-danger">Pflichtfeld</span> ' : '';
          let dataAppend = ' \
              <div class="form-group col-sm-6"> \
-                 <label for="var_ref_' + item.id + '" class="control-label">' + isRequired + item.name + '</label> \
-                 <input type="text" id="var_ref_' + item.id + '" autocomplete="off" name="environment[' + item.env_variable + ']" class="form-control" value="' + item.default_value + '" /> \
-                 <p class="text-muted small">' + item.description + '<br /> \
--                <strong>Access in Startup:</strong> <code>{{' + item.env_variable + '}}</code><br /> \
--                <strong>Validation Rules:</strong> <code>' + item.rules + '</code></small></p> \
-+                <strong>Variable im Startbefehl:</strong> <code>{{' + item.env_variable + '}}</code><br /> \
-+                <strong>Eingaberegeln:</strong> <code>' + item.rules + '</code></small></p> \
+                 <label for="var_ref_' + escapeHtml(item.id) + '" class="control-label">' + isRequired + escapeHtml(item.name) + '</label> \
+                 <input type="text" id="var_ref_' + escapeHtml(item.id) + '" autocomplete="off" name="environment[' + escapeHtml(item.env_variable) + ']" class="form-control" value="' + escapeHtml(item.default_value) + '" /> \
+                 <p class="text-muted small">' + escapeHtml(item.description) + '<br /> \
+-                <strong>Access in Startup:</strong> <code>{{' + escapeHtml(item.env_variable) + '}}</code><br /> \
+-                <strong>Validation Rules:</strong> <code>' + escapeHtml(item.rules) + '</code></small></p> \
++                <strong>Variable im Startbefehl:</strong> <code>{{' + escapeHtml(item.env_variable) + '}}</code><br /> \
++                <strong>Eingaberegeln:</strong> <code>' + escapeHtml(item.rules) + '</code></small></p> \
              </div> \
          ';
          $('#appendVariablesTo').append(dataAppend);
-@@ -154,7 +154,7 @@ function updateAdditionalAllocations() {
+@@ -160,7 +160,7 @@ function updateAdditionalAllocations() {
  
              $('#pAllocationAdditional').html('').select2({
                  data: allocations,
@@ -1529,7 +1529,7 @@ index db138cb..7edf4a8 100644
              });
          }
      });
-@@ -194,7 +194,7 @@ function initUserIdSelect(data) {
+@@ -200,7 +200,7 @@ function initUserIdSelect(data) {
              if (data.loading) return escapeHtml(data.text);
  
              return '<div class="user-block"> \
@@ -1538,7 +1538,7 @@ index db138cb..7edf4a8 100644
                  <span class="username"> \
                      <a href="#">' + escapeHtml(data.name_first) + ' ' + escapeHtml(data.name_last) +'</a> \
                  </span> \
-@@ -204,7 +204,7 @@ function initUserIdSelect(data) {
+@@ -210,7 +210,7 @@ function initUserIdSelect(data) {
          templateSelection: function (data) {
              return '<div> \
                  <span> \
@@ -1548,45 +1548,48 @@ index db138cb..7edf4a8 100644
                  <span style="padding-left:5px;"> \
                      ' + escapeHtml(data.name_first) + ' ' + escapeHtml(data.name_last) + ' (<strong>' + escapeHtml(data.email) + '</strong>) \
 diff --git a/public/themes/pterodactyl/js/admin/server/transfer.js b/public/themes/pterodactyl/js/admin/server/transfer.js
-index 5c2664a..819a78e 100644
+index 6f12a4e..be5465c 100644
 --- a/public/themes/pterodactyl/js/admin/server/transfer.js
 +++ b/public/themes/pterodactyl/js/admin/server/transfer.js
-@@ -1,14 +1,14 @@
- $(document).ready(function () {
+@@ -2,17 +2,17 @@ $(document).ready(function () {
+     const $modal = $('#transferServerModal');
+ 
      $('#pNodeId').select2({
 -        placeholder: 'Select a Node',
 +        placeholder: 'Wähle eine Node aus',
+         dropdownParent: $modal,
      }).change();
  
      $('#pAllocation').select2({
 -        placeholder: 'Select a Default Allocation',
 +        placeholder: 'Wähle einen primären Port aus',
+         dropdownParent: $modal,
      });
  
      $('#pAllocationAdditional').select2({
 -        placeholder: 'Select Additional Allocations',
 +        placeholder: 'Wähle weitere Ports aus',
+         dropdownParent: $modal,
      });
  });
- 
-@@ -19,7 +19,7 @@ $('#pNodeId').on('change', function () {
+@@ -25,7 +25,7 @@ $('#pNodeId').on('change', function () {
          if (v.id == currentNode) {
              $('#pAllocation').html('').select2({
                  data: v.allocations,
 -                placeholder: 'Select a Default Allocation',
 +                placeholder: 'Wähle einen primären Port aus',
+                 dropdownParent: $modal,
              });
  
-             updateAdditionalAllocations();
-@@ -49,7 +49,7 @@ function updateAdditionalAllocations() {
+@@ -57,7 +57,7 @@ function updateAdditionalAllocations() {
  
              $('#pAllocationAdditional').html('').select2({
                  data: allocations,
 -                placeholder: 'Select Additional Allocations',
 +                placeholder: 'Wähle weitere Ports aus',
+                 dropdownParent: $modal,
              });
          }
-     });
 diff --git a/resources/lang/de.json b/resources/lang/de.json
 new file mode 100644
 index 0000000..c385d14
@@ -2574,7 +2577,7 @@ index 37557a6..70b41e2 100644
      );
  };
 diff --git a/resources/scripts/components/NavigationBar.tsx b/resources/scripts/components/NavigationBar.tsx
-index 89180b1..98d53c6 100644
+index 6142f62..f09b8c6 100644
 --- a/resources/scripts/components/NavigationBar.tsx
 +++ b/resources/scripts/components/NavigationBar.tsx
 @@ -67,20 +67,20 @@ export default () => {
@@ -2779,7 +2782,7 @@ index 6274981..6b8f1d0 100644
 +            | Übersetzt von&nbsp;
 +            <a
 +                rel={'noopener nofollow noreferrer'}
-+                href={'https://germandactyl.de'}
++                href={'https://github.com/hahn1315/Multicatyl'}
 +                target={'_blank'}
 +                css={tw`no-underline text-neutral-500 hover:text-neutral-300`}
 +            >
@@ -2983,10 +2986,10 @@ index 6d01029..5f0aa10 100644
              </div>
          </>
 diff --git a/resources/scripts/components/dashboard/DashboardContainer.tsx b/resources/scripts/components/dashboard/DashboardContainer.tsx
-index 25e0e4d..205b38b 100644
+index 23ad2e3..fedab92 100644
 --- a/resources/scripts/components/dashboard/DashboardContainer.tsx
 +++ b/resources/scripts/components/dashboard/DashboardContainer.tsx
-@@ -53,7 +53,7 @@ export default () => {
+@@ -57,7 +57,7 @@ export default () => {
              {rootAdmin && (
                  <div css={tw`mb-2 flex justify-end items-center`}>
                      <p css={tw`uppercase text-xs text-neutral-400 mr-2`}>
@@ -2995,7 +2998,7 @@ index 25e0e4d..205b38b 100644
                      </p>
                      <Switch
                          name={'show_all_servers'}
-@@ -74,8 +74,8 @@ export default () => {
+@@ -78,8 +78,8 @@ export default () => {
                          ) : (
                              <p css={tw`text-center text-sm text-neutral-400`}>
                                  {showOnlyAdmin
@@ -3165,7 +3168,7 @@ index 9c27304..6b0a894 100644
                      </Form>
                  )}
 diff --git a/resources/scripts/components/dashboard/forms/DisableTOTPDialog.tsx b/resources/scripts/components/dashboard/forms/DisableTOTPDialog.tsx
-index 125376e..cd1c86e 100644
+index 61354df..a536aee 100644
 --- a/resources/scripts/components/dashboard/forms/DisableTOTPDialog.tsx
 +++ b/resources/scripts/components/dashboard/forms/DisableTOTPDialog.tsx
 @@ -41,7 +41,7 @@ const DisableTOTPDialog = () => {
@@ -3178,7 +3181,7 @@ index 125376e..cd1c86e 100644
              <Input.Text
                  id={'totp-password'}
 @@ -51,14 +51,10 @@ const DisableTOTPDialog = () => {
-                 onChange={(e) => setPassword(e.currentTarget.value)}
+                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.currentTarget.value)}
              />
              <Dialog.Footer>
 -                <Button.Text onClick={close}>Cancel</Button.Text>
@@ -3234,7 +3237,7 @@ index 3e2d0ba..ca7cf2f 100644
          </Dialog>
      );
 diff --git a/resources/scripts/components/dashboard/forms/SetupTOTPDialog.tsx b/resources/scripts/components/dashboard/forms/SetupTOTPDialog.tsx
-index 836b2ef..da1780d 100644
+index 6eb0cac..37811a4 100644
 --- a/resources/scripts/components/dashboard/forms/SetupTOTPDialog.tsx
 +++ b/resources/scripts/components/dashboard/forms/SetupTOTPDialog.tsx
 @@ -70,12 +70,12 @@ const ConfigureTwoFactorForm = ({ onTokens }: Props) => {
@@ -3263,7 +3266,7 @@ index 836b2ef..da1780d 100644
              <Input.Text
                  variant={Input.Text.Variants.Loose}
 @@ -100,13 +100,13 @@ const ConfigureTwoFactorForm = ({ onTokens }: Props) => {
-                 onChange={(e) => setPassword(e.currentTarget.value)}
+                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.currentTarget.value)}
              />
              <Dialog.Footer>
 -                <Button.Text onClick={close}>Cancel</Button.Text>
@@ -3569,10 +3572,10 @@ index 52f9f9e..1a3a6df 100644
                  <Button color={'red'} css={tw`w-full sm:w-auto mt-4 sm:mt-0 sm:ml-4`} onClick={() => onConfirmed()}>
                      {buttonText}
 diff --git a/resources/scripts/components/elements/CopyOnClick.tsx b/resources/scripts/components/elements/CopyOnClick.tsx
-index 431e9c8..0fecf91 100644
+index b01b1b1..430affa 100644
 --- a/resources/scripts/components/elements/CopyOnClick.tsx
 +++ b/resources/scripts/components/elements/CopyOnClick.tsx
-@@ -51,8 +51,8 @@ const CopyOnClick = ({ text, showInNotification = true, children }: CopyOnClickP
+@@ -52,8 +52,8 @@ const CopyOnClick = ({ text, showInNotification = true, children }: CopyOnClickP
                              <div className={'rounded-md py-3 px-4 text-gray-200 bg-neutral-600/95 shadow'}>
                                  <p>
                                      {showInNotification
@@ -3608,7 +3611,7 @@ index a4df195..24aee0d 100644
 +                        &nbsp;&copy; 2015 - {new Date().getFullYear()} | Übersetzt von&nbsp;
 +                        <a
 +                            rel={'noopener nofollow noreferrer'}
-+                            href={'https://germandactyl.de'}
++                            href={'https://github.com/hahn1315/Multicatyl'}
 +                            target={'_blank'}
 +                            css={tw`no-underline text-neutral-500 hover:text-neutral-300`}
 +                        >
@@ -3775,12 +3778,12 @@ index 0484065..96d0a2f 100644
              {pagination.totalPages > 1 && (
                  <div className={'flex space-x-1'}>
 diff --git a/resources/scripts/components/server/ConflictStateRenderer.tsx b/resources/scripts/components/server/ConflictStateRenderer.tsx
-index 95e70bb..114da2b 100644
+index d090b73..38bcba4 100644
 --- a/resources/scripts/components/server/ConflictStateRenderer.tsx
 +++ b/resources/scripts/components/server/ConflictStateRenderer.tsx
 @@ -14,30 +14,30 @@ export default () => {
  
-     return status === 'installing' || status === 'install_failed' ? (
+     return status === 'installing' || status === 'install_failed' || status === 'reinstall_failed' ? (
          <ScreenBlock
 -            title={'Running Installer'}
 +            title={'Installation läuft'}
@@ -3811,7 +3814,7 @@ index 95e70bb..114da2b 100644
              image={ServerRestoreSvg}
              message={
                  isTransferring
--                    ? 'Your server is being transfered to a new node, please check back later.'
+-                    ? 'Your server is being transferred to a new node, please check back later.'
 -                    : 'Your server is currently being restored from a backup, please check back in a few minutes.'
 +                    ? 'Dein Server wird gerade auf eine neue Node übertragen. Bitte schau später noch einmal vorbei.'
 +                    : 'Dein Server wird gerade aus einem Backup wiederhergestellt. Bitte schau in ein paar Minuten noch einmal vorbei.'
@@ -3870,10 +3873,19 @@ index 6623de0..9490dd3 100644
      );
  };
 diff --git a/resources/scripts/components/server/WebsocketHandler.tsx b/resources/scripts/components/server/WebsocketHandler.tsx
-index 2772013..e618922 100644
+index 19994fb..8500916 100644
 --- a/resources/scripts/components/server/WebsocketHandler.tsx
 +++ b/resources/scripts/components/server/WebsocketHandler.tsx
-@@ -54,7 +54,7 @@ export default () => {
+@@ -35,7 +35,7 @@ export default () => {
+         socket.on('auth success', () => setConnectionState(true));
+         socket.on('SOCKET_CLOSE', () => setConnectionState(false));
+         socket.on('SOCKET_CONNECT_ERROR', () => {
+-            setError('Failed to connect to websocket instance after multiple attempts: try refreshing the page.');
++            setError('Die Verbindung zum Websocket ist nach mehreren Versuchen fehlgeschlagen: Lade die Seite neu.');
+         });
+         socket.on('SOCKET_ERROR', () => {
+             setError('connecting');
+@@ -57,7 +57,7 @@ export default () => {
                  updateToken(uuid, socket);
              } else {
                  setError(
@@ -3882,7 +3894,7 @@ index 2772013..e618922 100644
                  );
              }
          });
-@@ -112,7 +112,7 @@ export default () => {
+@@ -115,7 +115,7 @@ export default () => {
                          <>
                              <Spinner size={'small'} />
                              <p css={tw`ml-2 text-sm text-red-100`}>
@@ -4108,10 +4120,10 @@ index fef0150..64eeacc 100644
          </>
      );
 diff --git a/resources/scripts/components/server/console/Console.tsx b/resources/scripts/components/server/console/Console.tsx
-index 25f0743..6cdc3f2 100644
+index 0879d20..ecf5bd5 100644
 --- a/resources/scripts/components/server/console/Console.tsx
 +++ b/resources/scripts/components/server/console/Console.tsx
-@@ -52,7 +52,7 @@ const terminalProps: ITerminalOptions = {
+@@ -53,7 +53,7 @@ const terminalProps: ITerminalOptions = {
  };
  
  export default () => {
@@ -4120,7 +4132,7 @@ index 25f0743..6cdc3f2 100644
      const ref = useRef<HTMLDivElement>(null);
      const terminal = useMemo(() => new Terminal({ ...terminalProps }), []);
      const fitAddon = new FitAddon();
-@@ -79,7 +79,7 @@ export default () => {
+@@ -81,7 +81,7 @@ export default () => {
          switch (status) {
              // Sent by either the source or target node if a failure occurs.
              case 'failure':
@@ -4129,7 +4141,7 @@ index 25f0743..6cdc3f2 100644
                  return;
          }
      };
-@@ -90,7 +90,7 @@ export default () => {
+@@ -92,7 +92,7 @@ export default () => {
          );
  
      const handlePowerChangeEvent = (state: string) =>
@@ -4138,7 +4150,7 @@ index 25f0743..6cdc3f2 100644
  
      const handleCommandKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
          if (e.key === 'ArrowUp') {
-@@ -206,8 +206,8 @@ export default () => {
+@@ -213,8 +213,8 @@ export default () => {
                      <input
                          className={classNames('peer', styles.command_input)}
                          type={'text'}
@@ -4193,7 +4205,7 @@ index f5f8189..c8402cf 100644
              </Can>
          </div>
 diff --git a/resources/scripts/components/server/console/ServerConsoleContainer.tsx b/resources/scripts/components/server/console/ServerConsoleContainer.tsx
-index c3af78f..ab30ebb 100644
+index de7ba3b..a1cb4e6 100644
 --- a/resources/scripts/components/server/console/ServerConsoleContainer.tsx
 +++ b/resources/scripts/components/server/console/ServerConsoleContainer.tsx
 @@ -22,14 +22,14 @@ const ServerConsoleContainer = () => {
@@ -4416,7 +4428,7 @@ index 24c19e0..a7790b6 100644
      );
  };
 diff --git a/resources/scripts/components/server/databases/DatabaseRow.tsx b/resources/scripts/components/server/databases/DatabaseRow.tsx
-index 9d2c05a..facdadc 100644
+index 017ff56..bafdf79 100644
 --- a/resources/scripts/components/server/databases/DatabaseRow.tsx
 +++ b/resources/scripts/components/server/databases/DatabaseRow.tsx
 @@ -40,8 +40,8 @@ export default ({ database, className }: Props) => {
@@ -4493,7 +4505,7 @@ index 9d2c05a..facdadc 100644
                      <div css={tw`mt-6`}>
 -                        <Label>Password</Label>
 +                        <Label>Passwort</Label>
-                         <CopyOnClick text={database.password}>
+                         <CopyOnClick text={database.password} showInNotification={false}>
                              <Input type={'text'} readOnly value={database.password} />
                          </CopyOnClick>
                      </div>
@@ -4501,7 +4513,7 @@ index 9d2c05a..facdadc 100644
                  <div css={tw`mt-6`}>
 -                    <Label>JDBC Connection String</Label>
 +                    <Label>JDBC-Verbindungs-String</Label>
-                     <CopyOnClick text={jdbcConnectionString}>
+                     <CopyOnClick text={jdbcConnectionString} showInNotification={false}>
                          <Input type={'text'} readOnly value={jdbcConnectionString} />
                      </CopyOnClick>
 @@ -135,7 +136,7 @@ export default ({ database, className }: Props) => {
@@ -4629,6 +4641,33 @@ index f56ae7c..8a6f331 100644
                          </Button>
                      </div>
                  </Form>
+diff --git a/resources/scripts/components/server/features/HytaleOauthRequireFeature.tsx b/resources/scripts/components/server/features/HytaleOauthRequireFeature.tsx
+index 9192fd3..9b5b5fb 100644
+--- a/resources/scripts/components/server/features/HytaleOauthRequireFeature.tsx
++++ b/resources/scripts/components/server/features/HytaleOauthRequireFeature.tsx
+@@ -55,17 +55,17 @@ const HytaleOauthRequireFeature = () => {
+             showSpinnerOverlay={false}
+         >
+             <FlashMessageRender key={'feature:hytaleOauth'} css={tw`mb-4`} />
+-            <h2 css={tw`text-2xl mb-4 text-neutral-100`}>Authentication Required</h2>
++            <h2 css={tw`text-2xl mb-4 text-neutral-100`}>Authentifizierung erforderlich</h2>
+             <p css={tw`text-neutral-200`}>
+-                You need to authenticate with your Hytale account to download or update server files. Please log in to
+-                continue.
++                Du musst dich mit deinem Hytale-Konto authentifizieren, um Serverdateien herunterzuladen oder zu
++                aktualisieren. Bitte melde dich an, um fortzufahren.
+             </p>
+             <div css={tw`mt-8 sm:flex items-center justify-end`}>
+                 <Button isSecondary onClick={() => setVisible(false)} css={tw`w-full sm:w-auto border-transparent`}>
+-                    Cancel
++                    Abbrechen
+                 </Button>
+                 <Button onClick={handleLogin} css={tw`mt-4 sm:mt-0 sm:ml-4 w-full sm:w-auto`}>
+-                    Log in
++                    Anmelden
+                 </Button>
+             </div>
+         </Modal>
 diff --git a/resources/scripts/components/server/features/JavaVersionModalFeature.tsx b/resources/scripts/components/server/features/JavaVersionModalFeature.tsx
 index 91902f0..f2b0387 100644
 --- a/resources/scripts/components/server/features/JavaVersionModalFeature.tsx
@@ -4778,7 +4817,7 @@ index 81acba5..fab96d2 100644
                      </div>
                  </>
 diff --git a/resources/scripts/components/server/features/eula/EulaModalFeature.tsx b/resources/scripts/components/server/features/eula/EulaModalFeature.tsx
-index fd7afe1..2c57a1b 100644
+index 574a6aa..8dd5ca9 100644
 --- a/resources/scripts/components/server/features/eula/EulaModalFeature.tsx
 +++ b/resources/scripts/components/server/features/eula/EulaModalFeature.tsx
 @@ -65,9 +65,9 @@ const EulaModalFeature = () => {
@@ -4824,7 +4863,7 @@ index 27a474d..0ec1e22 100644
                          </div>
                      </Form>
 diff --git a/resources/scripts/components/server/files/FileDropdownMenu.tsx b/resources/scripts/components/server/files/FileDropdownMenu.tsx
-index fd89295..a61675a 100644
+index 0edb542..54bb20e 100644
 --- a/resources/scripts/components/server/files/FileDropdownMenu.tsx
 +++ b/resources/scripts/components/server/files/FileDropdownMenu.tsx
 @@ -132,12 +132,13 @@ const FileDropdownMenu = ({ file }: { file: FileObject }) => {
@@ -4882,7 +4921,7 @@ index fd89295..a61675a 100644
              </DropdownMenu>
          </>
 diff --git a/resources/scripts/components/server/files/FileEditContainer.tsx b/resources/scripts/components/server/files/FileEditContainer.tsx
-index 28ba91d..a5177fe 100644
+index de44493..eb4f22c 100644
 --- a/resources/scripts/components/server/files/FileEditContainer.tsx
 +++ b/resources/scripts/components/server/files/FileEditContainer.tsx
 @@ -94,10 +94,10 @@ export default () => {
@@ -4993,7 +5032,7 @@ index 3e1c2df..008e86a 100644
                          className={'flex items-center justify-center w-10 h-10'}
                          onClick={() => (open.value = true)}
 diff --git a/resources/scripts/components/server/files/FileNameModal.tsx b/resources/scripts/components/server/files/FileNameModal.tsx
-index 04781ba..fafbd65 100644
+index 3d0fb16..4c7333d 100644
 --- a/resources/scripts/components/server/files/FileNameModal.tsx
 +++ b/resources/scripts/components/server/files/FileNameModal.tsx
 @@ -29,7 +29,9 @@ export default ({ onFileNamed, onDismissed, ...props }: Props) => {
@@ -5024,7 +5063,7 @@ index 04781ba..fafbd65 100644
                      </Form>
                  </Modal>
 diff --git a/resources/scripts/components/server/files/FileObjectRow.tsx b/resources/scripts/components/server/files/FileObjectRow.tsx
-index 8032dab..e650fe4 100644
+index c25930e..2a134b1 100644
 --- a/resources/scripts/components/server/files/FileObjectRow.tsx
 +++ b/resources/scripts/components/server/files/FileObjectRow.tsx
 @@ -2,6 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -5035,7 +5074,7 @@ index 8032dab..e650fe4 100644
  import React, { memo } from 'react';
  import { FileObject } from '@/api/server/files/loadDirectory';
  import FileDropdownMenu from '@/components/server/files/FileDropdownMenu';
-@@ -57,8 +58,8 @@ const FileObjectRow = ({ file }: { file: FileObject }) => (
+@@ -58,8 +59,8 @@ const FileObjectRow = ({ file }: { file: FileObject }) => (
              {file.isFile && <div css={tw`w-1/6 text-right mr-4 hidden sm:block`}>{bytesToString(file.size)}</div>}
              <div css={tw`w-1/5 text-right mr-4 hidden md:block`} title={file.modifiedAt.toString()}>
                  {Math.abs(differenceInHours(file.modifiedAt, new Date())) > 48
@@ -5047,7 +5086,7 @@ index 8032dab..e650fe4 100644
          </Clickable>
          <FileDropdownMenu file={file} />
 diff --git a/resources/scripts/components/server/files/MassActionsBar.tsx b/resources/scripts/components/server/files/MassActionsBar.tsx
-index 44230f2..63def57 100644
+index 5d6ff42..910add9 100644
 --- a/resources/scripts/components/server/files/MassActionsBar.tsx
 +++ b/resources/scripts/components/server/files/MassActionsBar.tsx
 @@ -33,7 +33,7 @@ const MassActionsBar = () => {
@@ -5097,7 +5136,7 @@ index 44230f2..63def57 100644
                  {showMove && (
                      <RenameFileModal
 @@ -96,10 +96,10 @@ const MassActionsBar = () => {
-                     <div className={'fixed bottom-0 mb-6 flex justify-center w-full z-50'}>
+                     <div className={'pointer-events-none fixed bottom-0 mb-6 flex justify-center w-full z-50'}>
                          <Fade timeout={75} in={selectedFiles.length > 0} unmountOnExit>
                              <div css={tw`flex items-center space-x-4 pointer-events-auto rounded p-4 bg-black/50`}>
 -                                <Button onClick={() => setShowMove(true)}>Move</Button>
@@ -5111,7 +5150,7 @@ index 44230f2..63def57 100644
                              </div>
                          </Fade>
 diff --git a/resources/scripts/components/server/files/NewDirectoryButton.tsx b/resources/scripts/components/server/files/NewDirectoryButton.tsx
-index ff74357..a848451 100644
+index f7531a3..d87bb4a 100644
 --- a/resources/scripts/components/server/files/NewDirectoryButton.tsx
 +++ b/resources/scripts/components/server/files/NewDirectoryButton.tsx
 @@ -21,7 +21,7 @@ interface Values {
@@ -5164,7 +5203,7 @@ index ff74357..a848451 100644
          </>
      );
 diff --git a/resources/scripts/components/server/files/RenameFileModal.tsx b/resources/scripts/components/server/files/RenameFileModal.tsx
-index 4f67533..cf143c3 100644
+index 08c9918..ff71df8 100644
 --- a/resources/scripts/components/server/files/RenameFileModal.tsx
 +++ b/resources/scripts/components/server/files/RenameFileModal.tsx
 @@ -66,22 +66,22 @@ const RenameFileModal = ({ files, useMoveTerminology, ...props }: OwnProps) => {
@@ -5195,14 +5234,14 @@ index 4f67533..cf143c3 100644
                              </p>
                          )}
 diff --git a/resources/scripts/components/server/files/UploadButton.tsx b/resources/scripts/components/server/files/UploadButton.tsx
-index 9ab889b..5ca000e 100644
+index 31fee06..d125957 100644
 --- a/resources/scripts/components/server/files/UploadButton.tsx
 +++ b/resources/scripts/components/server/files/UploadButton.tsx
 @@ -65,7 +65,7 @@ export default ({ className }: WithClassname) => {
          clearAndAddHttpError();
          const list = Array.from(files);
-         if (list.some((file) => !file.size || (!file.type && file.size === 4096))) {
--            return addError('Folder uploads are not supported at this time.', 'Error');
+         if (list.some((file) => !file.type && (!file.size || file.size === 4096))) {
+-            return addError('Folder uploads are not supported.', 'Error');
 +            return addError('Ordner können nicht hochgeladen werden.', 'Fehler');
          }
  
@@ -6102,15 +6141,15 @@ index 35bb9a6..c2eeb81 100644
                  {data.variables.map((variable) => (
                      <VariableBox key={variable.envVariable} variable={variable} />
 diff --git a/resources/scripts/components/server/startup/VariableBox.tsx b/resources/scripts/components/server/startup/VariableBox.tsx
-index ad73615..f2ed381 100644
+index cffadd8..4626a63 100644
 --- a/resources/scripts/components/server/startup/VariableBox.tsx
 +++ b/resources/scripts/components/server/startup/VariableBox.tsx
-@@ -63,7 +63,7 @@ const VariableBox = ({ variable }: Props) => {
+@@ -62,7 +62,7 @@ const VariableBox = ({ variable }: Props) => {
              title={
-                 <p css={tw`text-sm uppercase`}>
+                 <p className='text-sm uppercase'>
                      {!variable.isEditable && (
--                        <span css={tw`bg-neutral-700 text-xs py-1 px-2 rounded-full mr-2 mb-1`}>Read Only</span>
-+                        <span css={tw`bg-neutral-700 text-xs py-1 px-2 rounded-full mr-2 mb-1`}>Nur lesen</span>
+-                        <span className='bg-neutral-700 text-xs py-1 px-2 rounded-full mr-2 mb-1'>Read Only</span>
++                        <span className='bg-neutral-700 text-xs py-1 px-2 rounded-full mr-2 mb-1'>Nur lesen</span>
                      )}
                      {variable.name}
                  </p>
@@ -6283,14 +6322,14 @@ index cb7da2b..649074c 100644
          >
              {children}
 diff --git a/resources/scripts/i18n.ts b/resources/scripts/i18n.ts
-index c36879e..ba1088d 100644
+index ee56cd8..9bcac55 100644
 --- a/resources/scripts/i18n.ts
 +++ b/resources/scripts/i18n.ts
 @@ -8,11 +8,14 @@ import I18NextMultiloadBackendAdapter from 'i18next-multiload-backend-adapter';
  // the URL to allow cache busting to occur whenever the front-end is rebuilt.
  const hash = module.hot ? Date.now().toString(16) : process.env.WEBPACK_BUILD_HASH;
  
-+// Use the language of the logged-in user, falling back to German (GermanDactyl).
++// Use the language of the logged-in user, falling back to German (Multicatyl).
 +const language = (window as Window & { PterodactylUser?: { language?: string } }).PterodactylUser?.language || 'de';
 +
  i18n.use(I18NextMultiloadBackendAdapter)
@@ -6429,7 +6468,7 @@ index 088aca2..caac16e 100644
                      message: httpErrorToHuman(payload.error),
                  },
 diff --git a/resources/views/admin/api/index.blade.php b/resources/views/admin/api/index.blade.php
-index d863c57..22fd638 100644
+index 4658ee9..979444a 100644
 --- a/resources/views/admin/api/index.blade.php
 +++ b/resources/views/admin/api/index.blade.php
 @@ -1,14 +1,14 @@
@@ -6450,7 +6489,7 @@ index d863c57..22fd638 100644
      </ol>
  @endsection
  
-@@ -17,18 +17,18 @@
+@@ -17,19 +17,19 @@
          <div class="col-xs-12">
              <div class="box box-primary">
                  <div class="box-header with-border">
@@ -6468,14 +6507,16 @@ index d863c57..22fd638 100644
 -                            <th>Memo</th>
 -                            <th>Last Used</th>
 -                            <th>Created</th>
+-                            <th>Created by</th>
 +                            <th>API-Schlüssel</th>
 +                            <th>Notiz</th>
 +                            <th>Zuletzt genutzt</th>
 +                            <th>Erstellt</th>
++                            <th>Erstellt von</th>
                              <th></th>
                          </tr>
                          @foreach($keys as $key)
-@@ -66,12 +66,13 @@
+@@ -76,12 +76,13 @@
                  event.preventDefault();
                  swal({
                      type: 'error',
@@ -6492,7 +6533,7 @@ index d863c57..22fd638 100644
                      confirmButtonColor: '#d9534f',
                      showLoaderOnConfirm: true
                  }, function () {
-@@ -85,15 +86,15 @@
+@@ -95,15 +96,15 @@
                          swal({
                              type: 'success',
                              title: '',
@@ -6841,7 +6882,7 @@ index e105751..7a2c10a 100644
                              </td>
                          </tr>
 diff --git a/resources/views/admin/eggs/new.blade.php b/resources/views/admin/eggs/new.blade.php
-index 9a0a078..122ac21 100644
+index b349751..4b957f2 100644
 --- a/resources/views/admin/eggs/new.blade.php
 +++ b/resources/views/admin/eggs/new.blade.php
 @@ -1,15 +1,15 @@
@@ -6918,13 +6959,13 @@ index 9a0a078..122ac21 100644
                                          </strong>
                                      </p>
                                  </div>
-@@ -63,14 +63,14 @@
+@@ -63,21 +63,21 @@
                          </div>
                          <div class="col-sm-6">
                              <div class="form-group">
 -                                <label for="pDockerImage" class="control-label">Docker Images</label>
 +                                <label for="pDockerImage" class="control-label">Docker-Images</label>
-                                 <textarea id="pDockerImages" name="docker_images" rows="4" placeholder="quay.io/pterodactyl/service" class="form-control">{{ old('docker_images') }}</textarea>
+                                 <textarea id="pDockerImages" name="docker_images" rows="4" placeholder="ghcr.io/pterodactyl/yolks" class="form-control">{{ old('docker_images') }}</textarea>
 -                                <p class="text-muted small">The docker images available to servers using this egg. Enter one per line. Users will be able to select from this list of images if more than one value is provided.</p>
 +                                <p class="text-muted small">Die Docker-Images, die für Server, die dieses Egg verwenden, verfügbar sind. Gib einen Wert pro Zeile ein. Wenn mehr als ein Wert angegeben wird, können die Benutzer aus dieser Liste von Images auswählen.</p>
                              </div>
@@ -6935,9 +6976,18 @@ index 9a0a078..122ac21 100644
 -                                <p class="text-muted small">The default startup command that should be used for new servers created with this Egg. You can change this per-server as needed.</p>
 +                                <p class="text-muted small">Der Standard-Startbefehl für neue Server, die mit diesem Egg erstellt werden. Du kannst ihn bei Bedarf für jeden Server einzeln ändern.</p>
                              </div>
+                             <div class="form-group">
+-                                <label for="pConfigFeatures" class="control-label">Features</label>
++                                <label for="pConfigFeatures" class="control-label">Funktionen</label>
+                                 <div>
+                                     <select class="form-control" name="features[]" id="pConfigFeatures" multiple>
+                                     </select>
+-                                    <p class="text-muted small">Additional features belonging to the egg. Useful for configuring additional panel modifications.</p>
++                                    <p class="text-muted small">Zusätzliche Funktionen dieses Eggs. Nützlich für die Konfiguration weiterer Panel-Anpassungen.</p>
+                                 </div>
+                             </div>
                          </div>
-                     </div>
-@@ -80,51 +80,51 @@
+@@ -88,51 +88,51 @@
          <div class="col-xs-12">
              <div class="box">
                  <div class="box-header with-border">
@@ -7003,7 +7053,7 @@ index 9a0a078..122ac21 100644
                  </div>
              </div>
          </div>
-@@ -141,7 +141,7 @@
+@@ -149,7 +149,7 @@
          $('#pConfigFrom').select2();
      });
      $('#pNestId').on('change', function (event) {
@@ -7289,7 +7339,7 @@ index fbc1478..0bb5364 100644
              $(this).find('i').html('');
          });
 diff --git a/resources/views/admin/eggs/view.blade.php b/resources/views/admin/eggs/view.blade.php
-index b999d2a..fd389c7 100644
+index 0f1e652..b75e984 100644
 --- a/resources/views/admin/eggs/view.blade.php
 +++ b/resources/views/admin/eggs/view.blade.php
 @@ -19,9 +19,9 @@
@@ -7388,7 +7438,7 @@ index b999d2a..fd389c7 100644
                                          </strong>
                                      </p>
                                  </div>
-@@ -105,14 +105,14 @@
+@@ -105,24 +105,24 @@
                          </div>
                          <div class="col-sm-6">
                              <div class="form-group">
@@ -7405,9 +7455,21 @@ index b999d2a..fd389c7 100644
 -                                <p class="text-muted small">The default startup command that should be used for new servers using this Egg.</p>
 +                                <p class="text-muted small">Der Standard-Startbefehl für neue Server, die dieses Egg verwenden.</p>
                              </div>
+                             <div class="form-group">
+-                                <label for="pConfigFeatures" class="control-label">Features</label>
++                                <label for="pConfigFeatures" class="control-label">Funktionen</label>
+                                 <div>
+                                     <select class="form-control" name="features[]" id="pConfigFeatures" multiple>
+                                         @foreach(($egg->features ?? []) as $feature)
+                                             <option value="{{ $feature }}" selected>{{ $feature }}</option>
+                                         @endforeach
+                                     </select>
+-                                    <p class="text-muted small">Additional features belonging to the egg. Useful for configuring additional panel modifications.</p>
++                                    <p class="text-muted small">Zusätzliche Funktionen dieses Eggs. Nützlich für die Konfiguration weiterer Panel-Anpassungen.</p>
+                                 </div>
+                             </div>
                          </div>
-                     </div>
-@@ -122,56 +122,56 @@
+@@ -133,56 +133,56 @@
          <div class="col-xs-12">
              <div class="box">
                  <div class="box-header with-border">
@@ -7480,7 +7542,7 @@ index b999d2a..fd389c7 100644
                      <button id="deleteButton" type="submit" name="_method" value="DELETE" class="btn btn-danger btn-sm muted muted-hover">
                          <i class="fa fa-trash-o"></i>
                      </button>
-@@ -187,7 +187,7 @@
+@@ -198,7 +198,7 @@
      <script>
      $('#pConfigFrom').select2();
      $('#deleteButton').on('mouseenter', function (event) {
@@ -7490,7 +7552,7 @@ index b999d2a..fd389c7 100644
          $(this).find('i').html('');
      });
 diff --git a/resources/views/admin/index.blade.php b/resources/views/admin/index.blade.php
-index ed26a92..647d388 100644
+index 817766e..0b9fda0 100644
 --- a/resources/views/admin/index.blade.php
 +++ b/resources/views/admin/index.blade.php
 @@ -5,10 +5,10 @@
@@ -7519,7 +7581,7 @@ index ed26a92..647d388 100644
 +                    Du nutzt die Pterodactyl-Panel-Version <code>{{ config('app.version') }}</code>. Dein Panel ist auf dem neuesten Stand!
                  @else
 -                    Your panel is <strong>not up-to-date!</strong> The latest version is <a href="https://github.com/Pterodactyl/Panel/releases/v{{ $version->getPanel() }}" target="_blank"><code>{{ $version->getPanel() }}</code></a> and you are currently running version <code>{{ config('app.version') }}</code>.
-+                    Dein Panel ist <strong>nicht aktuell!</strong> Die neueste Version ist <a href="https://github.com/Pterodactyl/Panel/releases/v{{ $version->getPanel() }}" target="_blank"><code>{{ $version->getPanel() }}</code></a>, du nutzt derzeit die Version <code>{{ config('app.version') }}</code>. <hr>WARNUNG: Du nutzt GermanDactyl für die Übersetzung. Für die neueste Version steht möglicherweise noch keine Übersetzung zur Verfügung!
++                    Dein Panel ist <strong>nicht aktuell!</strong> Die neueste Version ist <a href="https://github.com/Pterodactyl/Panel/releases/v{{ $version->getPanel() }}" target="_blank"><code>{{ $version->getPanel() }}</code></a>, du nutzt derzeit die Version <code>{{ config('app.version') }}</code>. <hr>WARNUNG: Du nutzt Multicatyl für die Übersetzung. Für die neueste Version steht möglicherweise noch keine Übersetzung zur Verfügung!
                  @endif
              </div>
          </div>
@@ -7536,7 +7598,7 @@ index ed26a92..647d388 100644
      </div>
      <div class="clearfix visible-xs-block">&nbsp;</div>
      <div class="col-xs-6 col-sm-3 text-center">
-         <a href="https://github.com/pterodactyl/panel"><button class="btn btn-primary" style="width:100%;"><i class="fa fa-fw fa-support"></i> Github</button></a>
+         <a href="https://github.com/pterodactyl/panel"><button class="btn btn-primary" style="width:100%;"><i class="fa fa-fw fa-support"></i> GitHub</button></a>
      </div>
      <div class="col-xs-6 col-sm-3 text-center">
 -        <a href="{{ $version->getDonations() }}"><button class="btn btn-success" style="width:100%;"><i class="fa fa-fw fa-money"></i> Support the Project</button></a>
@@ -8870,7 +8932,7 @@ index 1bbf15f..a240ad3 100644
              });
          });
 diff --git a/resources/views/admin/nodes/view/index.blade.php b/resources/views/admin/nodes/view/index.blade.php
-index 2d0bb32..7a39549 100644
+index defa0d3..080ad81 100644
 --- a/resources/views/admin/nodes/view/index.blade.php
 +++ b/resources/views/admin/nodes/view/index.blade.php
 @@ -5,7 +5,7 @@
@@ -9002,7 +9064,7 @@ index 2d0bb32..7a39549 100644
                              </div>
                          </div>
 diff --git a/resources/views/admin/nodes/view/servers.blade.php b/resources/views/admin/nodes/view/servers.blade.php
-index b8b9ee5..2aa6ea8 100644
+index f718f0a..ff53e81 100644
 --- a/resources/views/admin/nodes/view/servers.blade.php
 +++ b/resources/views/admin/nodes/view/servers.blade.php
 @@ -1,16 +1,16 @@
@@ -9046,8 +9108,8 @@ index b8b9ee5..2aa6ea8 100644
      <div class="col-sm-12">
          <div class="box box-primary">
              <div class="box-header with-border">
--                <h3 class="box-title">Process Manager</h3>
-+                <h3 class="box-title">Prozessmanager</h3>
+-                <h3 class="box-title">Server List</h3>
++                <h3 class="box-title">Serverliste</h3>
              </div>
              <div class="box-body table-responsive no-padding">
                  <table class="table table-hover">
@@ -9063,7 +9125,7 @@ index b8b9ee5..2aa6ea8 100644
                      @foreach($servers as $server)
                          <tr data-server="{{ $server->uuid }}">
 diff --git a/resources/views/admin/nodes/view/settings.blade.php b/resources/views/admin/nodes/view/settings.blade.php
-index bfc9d8c..d369a94 100644
+index b5ca476..8f0084e 100644
 --- a/resources/views/admin/nodes/view/settings.blade.php
 +++ b/resources/views/admin/nodes/view/settings.blade.php
 @@ -1,16 +1,16 @@
@@ -9199,12 +9261,12 @@ index bfc9d8c..d369a94 100644
 +                        <label class="form-label"><span class="label label-warning"><i class="fa fa-wrench"></i></span> Wartungsmodus</label>
                          <div>
                              <div class="radio radio-success radio-inline">
-                                 <input type="radio" id="pMaintenanceFalse" value="0" name="maintenance_mode" {{ (old('behind_proxy', $node->maintenance_mode) == false) ? 'checked' : '' }}>
+                                 <input type="radio" id="pMaintenanceFalse" value="0" name="maintenance_mode" {{ (old('maintenance_mode', $node->maintenance_mode) == false) ? 'checked' : '' }}>
 -                                <label for="pMaintenanceFalse"> Disabled</label>
 +                                <label for="pMaintenanceFalse"> Deaktiviert</label>
                              </div>
                              <div class="radio radio-warning radio-inline">
-                                 <input type="radio" id="pMaintenanceTrue" value="1" name="maintenance_mode" {{ (old('behind_proxy', $node->maintenance_mode) == true) ? 'checked' : '' }}>
+                                 <input type="radio" id="pMaintenanceTrue" value="1" name="maintenance_mode" {{ (old('maintenance_mode', $node->maintenance_mode) == true) ? 'checked' : '' }}>
 -                                <label for="pMaintenanceTrue"> Enabled</label>
 +                                <label for="pMaintenanceTrue"> Aktiviert</label>
                              </div>
@@ -10491,7 +10553,7 @@ index f94c6d4..d35379c 100644
                          </div>
                      </div>
 diff --git a/resources/views/admin/servers/view/manage.blade.php b/resources/views/admin/servers/view/manage.blade.php
-index e6177a4..e581c96 100644
+index 5b3dec9..4730b68 100644
 --- a/resources/views/admin/servers/view/manage.blade.php
 +++ b/resources/views/admin/servers/view/manage.blade.php
 @@ -1,16 +1,16 @@
@@ -10750,7 +10812,7 @@ index 36ca98d..284f6ae 100644
  
                                      <td class="col-sm-1 middle">
 diff --git a/resources/views/admin/servers/view/startup.blade.php b/resources/views/admin/servers/view/startup.blade.php
-index 0533029..8f500d7 100644
+index f213b19..f3fa71c 100644
 --- a/resources/views/admin/servers/view/startup.blade.php
 +++ b/resources/views/admin/servers/view/startup.blade.php
 @@ -1,16 +1,16 @@
@@ -10861,16 +10923,16 @@ index 0533029..8f500d7 100644
                      </div>
                  </div>
              </div>
-@@ -108,7 +108,7 @@
-     {!! Theme::js('vendor/lodash/lodash.js') !!}
-     <script>
+@@ -114,7 +114,7 @@
+     }
+ 
      $(document).ready(function () {
 -        $('#pEggId').select2({placeholder: 'Select a Nest Egg'}).on('change', function () {
 +        $('#pEggId').select2({placeholder: 'Wähle ein Egg aus'}).on('change', function () {
              var selectedEgg = _.isNull($(this).val()) ? $(this).find('option').first().val() : $(this).val();
              var parentChain = _.get(Pterodactyl.nests, $("#pNestId").val());
              var objectChain = _.get(parentChain, 'eggs.' + selectedEgg);
-@@ -136,7 +136,7 @@
+@@ -142,7 +142,7 @@
              }
  
              if (!_.get(objectChain, 'startup', false)) {
@@ -10879,7 +10941,7 @@ index 0533029..8f500d7 100644
              } else {
                  $('#pDefaultStartupCommand').val(_.get(objectChain, 'startup'));
              }
-@@ -144,7 +144,7 @@
+@@ -150,7 +150,7 @@
              $('#appendVariablesTo').html('');
              $.each(_.get(objectChain, 'variables', []), function (i, item) {
                  var setValue = _.get(Pterodactyl.server_variables, item.env_variable, item.default_value);
@@ -10888,18 +10950,18 @@ index 0533029..8f500d7 100644
                  var dataAppend = ' \
                      <div class="col-xs-12"> \
                          <div class="box"> \
-@@ -156,8 +156,8 @@
-                                 <p class="no-margin small text-muted">' + item.description + '</p> \
+@@ -162,8 +162,8 @@
+                                 <p class="no-margin small text-muted">' + escapeHtml(item.description) + '</p> \
                              </div> \
                              <div class="box-footer"> \
--                                <p class="no-margin text-muted small"><strong>Startup Command Variable:</strong> <code>' + item.env_variable + '</code></p> \
--                                <p class="no-margin text-muted small"><strong>Input Rules:</strong> <code>' + item.rules + '</code></p> \
-+                                <p class="no-margin text-muted small"><strong>Variable im Startbefehl:</strong> <code>' + item.env_variable + '</code></p> \
-+                                <p class="no-margin text-muted small"><strong>Eingaberegeln:</strong> <code>' + item.rules + '</code></p> \
+-                                <p class="no-margin text-muted small"><strong>Startup Command Variable:</strong> <code>' + escapeHtml(item.env_variable) + '</code></p> \
+-                                <p class="no-margin text-muted small"><strong>Input Rules:</strong> <code>' + escapeHtml(item.rules) + '</code></p> \
++                                <p class="no-margin text-muted small"><strong>Variable im Startbefehl:</strong> <code>' + escapeHtml(item.env_variable) + '</code></p> \
++                                <p class="no-margin text-muted small"><strong>Eingaberegeln:</strong> <code>' + escapeHtml(item.rules) + '</code></p> \
                              </div> \
                          </div> \
                      </div>';
-@@ -165,7 +165,7 @@
+@@ -171,7 +171,7 @@
              });
          });
  
@@ -11123,7 +11185,7 @@ index 489646d..74a70e4 100644
                                          @endforeach
                                      </select>
 -                                    <p class="text-muted"><small>The default language to use when rendering UI components.</small></p>
-+                                    <p class="text-muted"><small>Die Standardsprache für die Darstellung der Oberfläche. Hinweis: Die fest eingebauten Texte der Oberfläche sind durch GermanDactyl immer auf Deutsch; die Auswahl betrifft Texte aus den Sprachdateien (z. B. Aktivitätsprotokoll, Fehlermeldungen und E-Mails).</small></p>
++                                    <p class="text-muted"><small>Die Standardsprache für die Darstellung der Oberfläche. Hinweis: Die fest eingebauten Texte der Oberfläche sind durch Multicatyl immer auf Deutsch; die Auswahl betrifft Texte aus den Sprachdateien (z. B. Aktivitätsprotokoll, Fehlermeldungen und E-Mails).</small></p>
                                  </div>
                              </div>
                          </div>
@@ -11446,7 +11508,7 @@ index 2ff5016..78b04bc 100644
                                  @endforeach
                              </select>
 -                            <p class="text-muted"><small>The default language to use when rendering the Panel for this user.</small></p>
-+                            <p class="text-muted"><small>Die Standardsprache, in der das Panel für diesen Benutzer angezeigt wird. Hinweis: Die fest eingebauten Texte der Oberfläche sind durch GermanDactyl immer auf Deutsch.</small></p>
++                            <p class="text-muted"><small>Die Standardsprache, in der das Panel für diesen Benutzer angezeigt wird. Hinweis: Die fest eingebauten Texte der Oberfläche sind durch Multicatyl immer auf Deutsch.</small></p>
                          </div>
                      </div>
                  </div>
@@ -11503,14 +11565,14 @@ index 2ff5016..78b04bc 100644
                      return false;
                  }
 diff --git a/resources/views/admin/users/view.blade.php b/resources/views/admin/users/view.blade.php
-index f042d89..7bdb4e6 100644
+index f2a0332..7bdb4e6 100644
 --- a/resources/views/admin/users/view.blade.php
 +++ b/resources/views/admin/users/view.blade.php
 @@ -1,14 +1,14 @@
  @extends('layouts.admin')
  
  @section('title')
--    Manager User: {{ $user->username }}
+-    Manage User: {{ $user->username }}
 +    Benutzer verwalten: {{ $user->username }}
  @endsection
  
@@ -11569,7 +11631,7 @@ index f042d89..7bdb4e6 100644
                                  @endforeach
                              </select>
 -                            <p class="text-muted"><small>The default language to use when rendering the Panel for this user.</small></p>
-+                            <p class="text-muted"><small>Die Standardsprache, in der das Panel für diesen Benutzer angezeigt wird. Hinweis: Die fest eingebauten Texte der Oberfläche sind durch GermanDactyl immer auf Deutsch.</small></p>
++                            <p class="text-muted"><small>Die Standardsprache, in der das Panel für diesen Benutzer angezeigt wird. Hinweis: Die fest eingebauten Texte der Oberfläche sind durch Multicatyl immer auf Deutsch.</small></p>
                          </div>
                      </div>
                  </div>
@@ -11638,7 +11700,7 @@ index f042d89..7bdb4e6 100644
              </div>
          </div>
 diff --git a/resources/views/layouts/admin.blade.php b/resources/views/layouts/admin.blade.php
-index 1543ddf..408c78a 100644
+index 20ca084..fb0d7df 100644
 --- a/resources/views/layouts/admin.blade.php
 +++ b/resources/views/layouts/admin.blade.php
 @@ -43,7 +43,7 @@
@@ -11741,7 +11803,7 @@ index 1543ddf..408c78a 100644
                      <strong><i class="fa fa-fw fa-clock-o"></i></strong> {{ round(microtime(true) - LARAVEL_START, 3) }}s
                  </div>
 -                Copyright &copy; 2015 - {{ date('Y') }} <a href="https://pterodactyl.io/">Pterodactyl Software</a>.
-+                Copyright &copy; 2015 - {{ date('Y') }} <a href="https://pterodactyl.io/">Pterodactyl Software</a> | Übersetzt von <a href="https://germandactyl.de/">Pavl21</a>.
++                Copyright &copy; 2015 - {{ date('Y') }} <a href="https://pterodactyl.io/">Pterodactyl Software</a> | Übersetzung: <a href="https://github.com/hahn1315/Multicatyl">Multicatyl</a>.
              </footer>
          </div>
          @section('footer-scripts')

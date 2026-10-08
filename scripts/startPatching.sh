@@ -13,6 +13,9 @@ set -euo pipefail
 
 readonly PANEL_REPO=pterodactyl/panel
 readonly PANEL_DIRS=(resources app routes database public)
+# Sprache der Patches (Unterordner von patches/), z. B. LANGUAGE=de
+readonly PATCH_LANG="${LANGUAGE:-de}"
+readonly PATCH_DIR="patches/$PATCH_LANG"
 
 RED=$'\033[1;31m'
 GREEN=$'\033[0;32m'
@@ -45,7 +48,7 @@ previous_patch() {
         if [ "$(printf '%s\n%s\n' "$ver" "$target" | sort -V | head -n 1)" = "$ver" ]; then
             best=$patch
         fi
-    done < <(find patches -maxdepth 1 -name 'v*.patch' | sort -V)
+    done < <(find "$PATCH_DIR" -maxdepth 1 -name 'v*.patch' | sort -V)
     printf '%s\n' "$best"
 }
 
@@ -111,5 +114,5 @@ else
 fi
 
 echo ""
-echo "Du bist jetzt im Patch-Modus. Ändere keine Dateien von GermanDactyl selbst, sondern nur noch Übersetzungen."
+echo "Du bist jetzt im Patch-Modus. Ändere keine Dateien von Multicatyl selbst, sondern nur noch Übersetzungen."
 echo "Alle Änderungen in ${PANEL_DIRS[*]} landen im Patch. Führe ./scripts/createPatch.sh aus, sobald du fertig bist."
