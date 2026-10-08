@@ -831,6 +831,12 @@ Statuszeile und diesen Bereichen:</p>
 <li><strong>Behoben:</strong> <code>Job for nginx.service failed</code> beim Paketschritt, wenn eine fehlerhafte <code>pterodactyl.conf</code> aus einem
   abgebrochenen Lauf in <code>sites-enabled</code> lag. Reste werden vor dem Start entfernt, die Konfiguration wird geprüft, ein
   belegter Port 80 (z. B. Apache) wird im Fehlerdialog genannt.</li>
+<li><strong>Behoben:</strong> Der Build der Übersetzung scheiterte mit Blueprint (<code>error:0308010C:digital envelope routines</code>),
+  weil Blueprints <code>css-loader 5</code> auf Node 22 den OpenSSL-Legacy-Provider braucht. Der Installer erkennt das jetzt
+  vor dem Build und beim Fehler in beiden Schreibweisen.</li>
+<li><strong>Besser:</strong> Bricht die Installation erst nach dem fertigen Panel ab (Übersetzung, Wings, Absicherung), wird beim
+  nächsten Start fortgesetzt statt alles zu löschen. Zugangsdaten werden direkt nach dem Anlegen des Kontos gesichert,
+  die Übersetzung kann nachgeholt werden.</li>
 <li><strong>Behoben:</strong> Der Neustart nach einem Abbruch entfernt auch die nginx-Reste. Ein Panel-Ordner ohne <code>.env</code>, etwa nach
   einem Abbruch von GermanDactyl Setup, wird als unvollständige Installation erkannt.</li>
 <li><strong>Sicherer:</strong> Die Übersetzung wird mit Signatur- und Prüfsummenprüfung angewendet, mit Backup und Rollback.</li>
