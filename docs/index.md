@@ -12,6 +12,11 @@ Aktuell enthalten: **Deutsch** (`de`) für Panel-Version **v1.15.1**.
     In der [Versionsverwaltung](manager/index.html) siehst du auf einen Blick, welche Panel-Version aktuell ist,
     baust dir den passenden Installationsbefehl zusammen und behältst den Patch-Stand deiner eigenen Panels im Blick.
 
+## Kann ich hierüber auch Pterodactyl installieren?
+
+Ja, mit [Multidactyl Setup](guides/setup.md): Panel, Wings, SSL, Admin-Konto und Absicherung über eine Textoberfläche
+in der SSH-Sitzung, danach eine Verwaltung für Updates, Probleme und Backups.
+
 ## Was Multidactyl ausmacht
 
 - **Signierte Patches:** Jeder Patch wird vor dem Anwenden gegen eine GPG-signierte Prüfsummenliste geprüft.

@@ -80,6 +80,7 @@ FORCE_VERSION=""
 PATCH_LANG=$DEFAULT_LANG
 MODE=install
 ASSUME_YES=0
+ASSUME_PARTIAL=0
 
 PTERODACTYL_PATH=""
 PANEL_VERSION=""   # Version laut config/app.php
@@ -136,6 +137,8 @@ Optionen:
   -s            Status anzeigen: Panel-Version, Sprache, installierter Patch
   -l            Verfügbare Sprachen und Patches auflisten (kein Panel, kein root)
   -y            Ohne 10 Sekunden Wartezeit starten
+  -f            Passt der Patch nicht vollständig, nicht passende Stellen ohne
+                Rückfrage überspringen (für Skripte, z. B. Multidactyl Setup)
   -V            Version dieses Skripts anzeigen
   -h            Diese Hilfe anzeigen
 
@@ -248,7 +251,7 @@ trap 'exit 130' INT TERM
 
 parse_options() {
     local opt
-    while getopts ":d:L:v:ucslyVh" opt; do
+    while getopts ":d:L:v:ucslyfVh" opt; do
         case "$opt" in
             d) USER_PATH=$OPTARG ;;
             L) PATCH_LANG=$OPTARG ;;
@@ -258,6 +261,7 @@ parse_options() {
             s) MODE=status ;;
             l) MODE=list ;;
             y) ASSUME_YES=1 ;;
+            f) ASSUME_PARTIAL=1 ;;
             V) printf 'Multidactyl-Installer %s\n' "$SCRIPT_VERSION"; exit 0 ;;
             h) show_help; exit 0 ;;
             :)
@@ -790,7 +794,10 @@ apply_patch() {
         else
             send_warn "Möglicherweise hat ein Addon oder Theme diese Dateien verändert."
         fi
-        if ask_yes_no "Soll der Patch trotzdem teilweise angewendet werden? Nicht passende Stellen bleiben englisch."; then
+        if [ "$ASSUME_PARTIAL" = 1 ]; then
+            send_warn "Nicht passende Stellen werden übersprungen (-f)."
+            use_reject=1
+        elif ask_yes_no "Soll der Patch trotzdem teilweise angewendet werden? Nicht passende Stellen bleiben englisch."; then
             use_reject=1
         else
             send_error "Abgebrochen. An deinem Panel wurde nichts verändert."

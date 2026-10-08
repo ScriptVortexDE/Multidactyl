@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.1.0 – 2026-10-08
+
+### Multidactyl Setup (neu)
+
+- Kompletter TUI-Installer für Pterodactyl Panel, Wings und Pelican unter `setup/`, übernommen von GermanDactyl Setup
+  (pavl21/pterodactyl-gui-installer, mit Zustimmung des Autors) und eigenständig weitergeführt. Alle Skripte und
+  Bibliotheken werden aus diesem Repository geladen.
+- Behoben: `server_tokens` lag im `http`-Kontext und kollidierte auf Debian 13 („directive is duplicate“), die
+  Installation brach beim SSL-Schritt ab. Jetzt in den `server`-Blöcken.
+- Behoben: `listen 443 ssl http2;` (veraltet seit nginx 1.25.1) wird versionsabhängig durch `http2 on;` ersetzt.
+- Übersetzung läuft über `scripts/install.sh` mit Signaturprüfung, Backup und Rollback; Sprache wählbar (`GD_PATCH_LANG`).
+- Migration: Konfiguration aus `/etc/germandactyl` wird beim ersten Start übernommen.
+- Kurzbefehle `multidactyl` und `mdt`.
+
+### Installer
+
+- Neue Option `-f`: nicht passende Stellen ohne Rückfrage überspringen (für Skripte).
+
 ## 1.0.0 – 2026-10-08
 
 Erste Version von **Multidactyl**, ein eigenständiges Projekt auf Basis der deutschen Übersetzung von

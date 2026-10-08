@@ -51,6 +51,7 @@ nav:
   - Versionsverwaltung: manager/index.html
   - Installation: installation.md
   - Deinstallation: uninstall.md
+  - Multidactyl Setup: guides/setup.md
   - Anleitungen:
       - Update ausführen: guides/update.md
       - Übersetzungen einreichen: guides/contribute.md

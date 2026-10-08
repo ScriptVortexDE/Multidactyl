@@ -36,6 +36,17 @@ Alle Details, Voraussetzungen und die manuelle Installation stehen in der [Dokum
 | 1.13.x, 1.14.x, 1.15.0 | kein eigener Patch – bitte auf 1.15.1 aktualisieren |
 | 1.15.1 (aktuell) | v1.15.1 |
 
+## Multidactyl Setup: Panel und Wings installieren
+
+Noch kein Panel? Das Setup richtet Pterodactyl Panel, Wings, SSL, Admin-Konto und Absicherung über eine Textoberfläche ein
+und bietet danach eine Verwaltung (Updates, Problembehandlung, Backups, Deinstallation). Auch Pelican (Beta).
+
+```shell
+sudo bash -c "$(curl -sSL https://raw.githubusercontent.com/ScriptVortexDE/Multidactyl/main/setup/installer.sh)"
+```
+
+Details in [`setup/README.md`](setup/README.md) und in der [Dokumentation](https://scriptvortexde.github.io/Multidactyl/guides/setup/).
+
 ## Versionsverwaltung im Browser
 
 [`docs/manager/index.html`](docs/manager/index.html) (online unter `/manager/` der Dokumentation) zeigt
@@ -63,4 +74,5 @@ Neue Panel-Version oder neue Sprache? Die Anleitung steht unter [Übersetzungen 
 
 ## Lizenz und Herkunft
 
+Multidactyl Setup basiert auf GermanDactyl Setup (pavl21/pterodactyl-gui-installer), mit Zustimmung des Autors übernommen.
 Apache-Lizenz 2.0, siehe [`LICENSE`](LICENSE). Die deutschen Übersetzungen in `patches/de/` basieren auf [GermanDactyl](https://github.com/pavl21/GermanDactyl) von Paul Schwarz und stehen unter MIT, siehe [`LICENSE-GermanDactyl`](LICENSE-GermanDactyl). Multidactyl ist davon unabhängig: eigene Patch-Quelle, eigener Signaturschlüssel, eigene Dokumentation.
