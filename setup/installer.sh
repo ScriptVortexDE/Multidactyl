@@ -139,6 +139,9 @@ gd_resume_translation() {
     gd_translation_steps 10
     gd_progress 100 "Übersetzung abgeschlossen."
     gd_gauge_close
+    if [ "${GD_TRANSLATION_FAILED:-0}" = "1" ]; then
+        gd_msg "✖ Übersetzung fehlgeschlagen" "$(gd_translation_failed_text)\n\nDie Einrichtung geht trotzdem weiter." 12 78
+    fi
 }
 
 gd_resume_install() {
@@ -227,6 +230,7 @@ gd_fresh_install() {
 
     gd_security_ask
     gd_blueprint_ask
+    gd_translation_ask
 
     # Reste einer früheren Installation in der Datenbank?
     if command -v mariadb >/dev/null 2>&1 && gd_panel_db_has_tables; then
@@ -294,6 +298,7 @@ gd_fresh_install() {
     else
         done_text="Dein Panel ist einsatzbereit: https://${GD_DOMAIN}\n\nDamit du Gameserver erstellen kannst, brauchst du noch Wings. Starte dieses Skript dazu einfach erneut und wähle 'Wings installieren'."
     fi
+    [ "${GD_TRANSLATION_FAILED:-0}" = "1" ] && done_text+="\n\n⚠ $(gd_translation_failed_text)"
     [ "$GD_SEC_UFW" = true ] && done_text+="\n\nDie Firewall ist aktiv. Weitere Ports gibst du in der Verwaltung unter 'Gameserver & Wings → Ports freigeben' frei."
     done_text+="\n\nDie Verwaltung startest du künftig einfach mit dem Befehl: $(gd_shortcut_hint)"
     gd_msg "✔ Installation erfolgreich" "$done_text" 20 78

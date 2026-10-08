@@ -237,10 +237,12 @@ gd_menu_extensions() {
     while true; do
         c=$(gd_submenu "❖ Erweiterungen & Aussehen" "Erweiterungen und Themes werden über Blueprint installiert." \
             "1" "❖ Blueprint & Erweiterungen" \
-            "2" "✎ Themes / Original-Oberfläche wiederherstellen") || return
+            "2" "✎ Themes / Original-Oberfläche wiederherstellen" \
+            "3" "⌘ Übersetzung anwenden / nachholen ($( [ -n "$(gd_conf_get GD_TRANSLATION)" ] && echo "v$(gd_conf_get GD_TRANSLATION)" || echo 'nicht angewendet'))") || return
         case "$c" in
             1) gd_blueprint_menu ;;
             2) gd_run theme-verwaltung.sh ;;
+            3) gd_translation_menu ;;
             *) return ;;
         esac
     done

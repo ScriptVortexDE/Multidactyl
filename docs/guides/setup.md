@@ -90,6 +90,9 @@ Multidactyl Setup basiert auf GermanDactyl Setup und behält den kompletten Funk
 - **Besser:** Bricht die Installation erst nach dem fertigen Panel ab (Übersetzung, Wings, Absicherung), wird beim
   nächsten Start fortgesetzt statt alles zu löschen. Zugangsdaten werden direkt nach dem Anlegen des Kontos gesichert,
   die Übersetzung kann nachgeholt werden.
+- **Neu:** Die Übersetzung ist eine eigene Ja/Nein-Abfrage im Setup, wie Firewall und Blueprint. Bei „Nein“
+  bleibt das Panel auf Englisch. Scheitert die Übersetzung, bricht die Installation nicht mehr ab; das Panel läuft
+  dann auf Englisch, und die Übersetzung lässt sich in der Verwaltung unter „Erweiterungen & Aussehen“ nachholen.
 - **Behoben:** Der Neustart nach einem Abbruch entfernt auch die nginx-Reste. Ein Panel-Ordner ohne `.env`, etwa nach
   einem Abbruch von GermanDactyl Setup, wird als unvollständige Installation erkannt.
 - **Sicherer:** Die Übersetzung wird mit Signatur- und Prüfsummenprüfung angewendet, mit Backup und Rollback.

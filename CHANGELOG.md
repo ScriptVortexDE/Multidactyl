@@ -11,6 +11,8 @@
 
 ### Multidactyl Setup
 
+- Übersetzung ist eine eigene Ja/Nein-Abfrage (wie Firewall, Blueprint). Scheitert sie, läuft die Installation
+  weiter (Panel auf Englisch) und meldet es am Ende; in der Verwaltung gibt es „Übersetzung anwenden / nachholen“.
 - Abbruch nach fertigem Panel (z. B. bei der Übersetzung) führt nicht mehr zur Neuinstallation: Der nächste Start
   setzt fort, holt die Übersetzung nach und richtet Wings/Absicherung ein. Zugangsdaten werden direkt nach dem
   Anlegen des Admin-Kontos gesichert.

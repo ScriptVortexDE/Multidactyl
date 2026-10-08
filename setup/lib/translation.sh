@@ -168,11 +168,62 @@ gd_panel_build() {
     chown -R www-data:www-data "$dir"
 }
 
+gd_translation_ask() {
+    # Fragt, ob die Übersetzung angewendet werden soll. Setzt GD_APPLY_PATCH (true/false).
+    # Nur sinnvoll, wenn es für GD_PANEL_VERSION einen Patch gibt (sonst bleibt GD_APPLY_PATCH=false).
+    [ "${GD_APPLY_PATCH:-false}" = "true" ] || return 0
+    local hint=""
+    [ "${GD_BLUEPRINT:-false}" = "true" ] && hint="\n\nHinweis: Mit Blueprint wird die Oberfläche zweimal gebaut, und einzelne Bereiche können englisch bleiben."
+    if gd_yesno "⌘ Übersetzung" "Soll das Panel übersetzt werden?\n\nSprache: $GD_PATCH_LANG (Multidactyl-Patch für v$GD_PANEL_VERSION, signiert)\nBei 'Nein' bleibt die Oberfläche auf Englisch. Du kannst die Übersetzung später jederzeit in der Verwaltung unter 'Erweiterungen & Aussehen' nachholen.${hint}" 15 76; then
+        GD_APPLY_PATCH=true
+    else
+        GD_APPLY_PATCH=false
+    fi
+    return 0
+}
+
 gd_translation_steps() {
-    # gd_translation_steps <start-prozent> – Übersetzungs-Schritte innerhalb eines offenen Fortschrittsbalkens
+    # gd_translation_steps <start-prozent> – Übersetzungs-Schritte innerhalb eines offenen Fortschrittsbalkens.
+    # Scheitert die Übersetzung, bricht die Installation NICHT ab: Das Panel läuft dann auf Englisch,
+    # GD_TRANSLATION_FAILED=1 wird gesetzt und die Übersetzung kann in der Verwaltung nachgeholt werden.
     local p="${1:-85}"
+    GD_TRANSLATION_FAILED=0
     gd_step "$p" "Übersetzung: Node.js ${GD_NODE_MAJOR} und yarn werden vorbereitet..." gd_install_node
-    gd_step $((p + 2)) "Übersetzung ($GD_PATCH_LANG, v$GD_PANEL_VERSION) wird geprüft, angewendet und die Oberfläche gebaut – das dauert einige Minuten..." gd_patch_apply "$GD_PANEL_VERSION"
-    gd_conf_set GD_TRANSLATION "$GD_PANEL_VERSION"
-    gd_conf_set GD_TRANSLATION_LANG "$GD_PATCH_LANG"
+    gd_progress $((p + 2)) "Übersetzung ($GD_PATCH_LANG, v$GD_PANEL_VERSION) wird geprüft, angewendet und die Oberfläche gebaut – das dauert einige Minuten..."
+    if gd_patch_apply "$GD_PANEL_VERSION" >> "$GD_LOG" 2>&1; then
+        gd_conf_set GD_TRANSLATION "$GD_PANEL_VERSION"
+        gd_conf_set GD_TRANSLATION_LANG "$GD_PATCH_LANG"
+    else
+        GD_TRANSLATION_FAILED=1
+        gd_log "ÜBERSETZUNG FEHLGESCHLAGEN: Das Panel bleibt auf Englisch (Backup wurde vom Installer zurückgespielt). Nachholen über die Verwaltung."
+    fi
+    return 0
+}
+
+gd_translation_failed_text() {
+    # Hinweistext für Abschlussdialoge, wenn die Übersetzung fehlgeschlagen ist
+    echo "Die Übersetzung konnte nicht angewendet werden – das Panel läuft auf Englisch. Die Ursache steht in /var/log/multidactyl.log. Nachholen: Verwaltung → 'Erweiterungen & Aussehen' → 'Übersetzung anwenden'."
+}
+
+gd_translation_menu() {
+    # Verwaltung: Übersetzung anwenden, erneut anwenden oder nachholen
+    local ver cur
+    ver="$(gd_panel_installed_version)"
+    cur="$(gd_conf_get GD_TRANSLATION)"
+    [ -n "$ver" ] || { gd_msg "Übersetzung" "Die Panel-Version konnte nicht ermittelt werden." 8 60; return 1; }
+    if ! gd_patch_exists "$ver"; then
+        gd_msg "⌘ Übersetzung" "Für Panel v$ver gibt es noch keinen Multidactyl-Patch ($GD_PATCH_LANG).\n\nVerfügbare Patches: $(gd_patch_latest) und älter. Aktualisiere das Panel auf eine unterstützte Version oder warte auf den Patch." 12 72
+        return 1
+    fi
+    gd_yesno "⌘ Übersetzung anwenden" "Panel: v$ver\nÜbersetzung: $GD_PATCH_LANG $( [ -n "$cur" ] && echo "(aktuell angewendet: v$cur)" || echo "(noch nicht angewendet)")\n\nDer Patch wird signiert geladen, ein Backup angelegt und die Oberfläche neu gebaut (einige Minuten). Das Panel ist dabei kurz im Wartungsmodus.\n\nJetzt anwenden?" 15 74 || return 0
+    GD_PANEL_VERSION="$ver"
+    gd_gauge_open "⌘ Übersetzung wird angewendet" "Vorbereitung..."
+    gd_translation_steps 10
+    gd_progress 100 "Fertig."
+    gd_gauge_close
+    if [ "${GD_TRANSLATION_FAILED:-0}" = "1" ]; then
+        gd_msg "✖ Übersetzung fehlgeschlagen" "$(gd_translation_failed_text)\n\nLetzte Zeilen aus /var/log/multidactyl.log:\n$(tail -n 8 /var/log/multidactyl.log 2>/dev/null | cut -c1-100)" 22 100
+        return 1
+    fi
+    gd_msg "✔ Übersetzung angewendet" "Das Panel ist jetzt übersetzt ($GD_PATCH_LANG, v$ver). Lade die Seite im Browser mit Strg + F5 neu." 9 70
 }
