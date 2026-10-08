@@ -1,0 +1,62 @@
+site_name: GermanDactyl Dokumentation
+site_url: https://germandactyl.de/
+copyright: Copyright &copy; 2023–2026 Paul Schwarz
+
+repo_name: GermanDactyl
+repo_url: https://github.com/pavl21/GermanDactyl
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: de
+  logo: assets/images/logo.png
+  features:
+    - toc.integrate
+    - content.code.annotate
+  favicon: assets/images/logo.png
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Zum dunklen Modus wechseln
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Zum hellen Modus wechseln
+
+extra:
+  generator: true
+  social:
+    - icon: fontawesome/brands/tiktok
+      link: https://www.tiktok.com/@paul_schwarz_
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/Paul_Schwarz_
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/6R38NnTCct
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+nav:
+  - Start: index.md
+  - Installation: installation.md
+  - Deinstallation: uninstall.md
+  - GermanDactyl Setup: guides/setup.md
+  - Anleitungen:
+      - Update ausführen: guides/update.md
+      - Übersetzungen einreichen: guides/contribute.md
+  - Fehlerbehebung: troubleshooting.md
+  - FAQ: faq.md

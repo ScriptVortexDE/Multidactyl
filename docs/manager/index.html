@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GermanDactyl Manager</title>
+<meta name="description" content="Versionsverwaltung für GermanDactyl: Panel-Versionen, passende Patches, Befehls-Generator und Status deiner eigenen Pterodactyl-Panels.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: schmale Lesespalte (max 1040px), Abschnitte als ruhige Blöcke, nur Befehle und Statuschips heben sich ab. */
+:root {
+  --bg: #f3f5f9;
+  --surface: #ffffff;
+  --surface-2: #e9edf4;
+  --fg: #141a26;
+  --fg-muted: #5b6577;
+  --line: #d3d9e4;
+  --accent: #1f5fd6;
+  --accent-fg: #ffffff;
+  --accent-soft: #e2ebfb;
+  --ok: #1d7a4a;
+  --ok-soft: #dcf3e6;
+  --warn: #9a5a00;
+  --warn-soft: #fbeccf;
+  --bad: #b42323;
+  --bad-soft: #fadede;
+  --code-bg: #10151f;
+  --code-fg: #e7ecf5;
+  --font-body: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+  --radius: 10px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1420; --surface: #171d2b; --surface-2: #1f2737; --fg: #e8ecf4; --fg-muted: #98a3b8;
+    --line: #2b3447; --accent: #6b9cff; --accent-fg: #0b1222; --accent-soft: #1d2b4a;
+    --ok: #5fd395; --ok-soft: #16311f; --warn: #f0b24a; --warn-soft: #3a2b0f; --bad: #ff7b7b; --bad-soft: #3d1818;
+    --code-bg: #0a0e16; --code-fg: #e7ecf5; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1420; --surface: #171d2b; --surface-2: #1f2737; --fg: #e8ecf4; --fg-muted: #98a3b8;
+  --line: #2b3447; --accent: #6b9cff; --accent-fg: #0b1222; --accent-soft: #1d2b4a;
+  --ok: #5fd395; --ok-soft: #16311f; --warn: #f0b24a; --warn-soft: #3a2b0f; --bad: #ff7b7b; --bad-soft: #3d1818;
+  --code-bg: #0a0e16; --code-fg: #e7ecf5; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; padding-block: 0 48px; }
+h1, h2, h3 { line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.35rem; font-weight: 700; }
+h3 { font-size: 1.05rem; font-weight: 700; }
+p { margin: 0; max-width: 70ch; }
+a { color: var(--accent); }
+code, pre, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+code { background: var(--surface-2); padding: 0.1em 0.4em; border-radius: 4px; }
+.muted { color: var(--fg-muted); }
+.eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-muted); }
+.small { font-size: 0.86rem; }
+
+/* Header */
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+.top-inner { max-width: 1040px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.05rem; }
+.brand svg { width: 30px; height: 30px; flex: none; }
+nav.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+nav.chips a { text-decoration: none; color: var(--fg); font-size: 0.86rem; font-weight: 600; padding: 6px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
+nav.chips a:hover, nav.chips a:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; }
+
+/* Hero / status tiles */
+.hero { padding-block: 36px 8px; display: grid; gap: 10px; }
+.hero p { max-width: 62ch; color: var(--fg-muted); font-size: 1.05rem; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-block: 22px 8px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 4px; min-width: 0; }
+.tile .val { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.tile .sub { font-size: 0.82rem; color: var(--fg-muted); }
+
+section { padding-block: 34px 6px; border-top: 1px solid var(--line); margin-top: 26px; display: grid; gap: 16px; }
+section > header { display: grid; gap: 6px; }
+section > header p { color: var(--fg-muted); }
+
+/* Chips */
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.chip.ok { background: var(--ok-soft); color: var(--ok); }
+.chip.warn { background: var(--warn-soft); color: var(--warn); }
+.chip.bad { background: var(--bad-soft); color: var(--bad); }
+.chip.info { background: var(--accent-soft); color: var(--accent); }
+.chip.neutral { background: var(--surface-2); color: var(--fg-muted); }
+
+/* Tables */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+th { font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-muted); font-weight: 700; background: var(--surface-2); }
+tr:last-child td { border-bottom: 0; }
+td.mono, th.mono { font-variant-numeric: tabular-nums; }
+tr.current td { background: color-mix(in srgb, var(--accent-soft) 55%, var(--surface)); }
+.sha { font-family: var(--font-mono); font-size: 0.74rem; color: var(--fg-muted); word-break: break-all; }
+
+/* Forms */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: grid; gap: 14px; min-width: 0; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+label.field { display: grid; gap: 5px; font-size: 0.86rem; font-weight: 600; min-width: 0; }
+input[type="text"], select, textarea { font: inherit; font-size: 0.95rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--fg); width: 100%; min-width: 0; }
+input[type="text"]:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+textarea { font-family: var(--font-mono); font-size: 0.82rem; min-height: 120px; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg label { cursor: pointer; }
+.seg input { position: absolute; opacity: 0; width: 0; height: 0; }
+.seg span { display: inline-block; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); font-size: 0.88rem; font-weight: 600; }
+.seg input:checked + span { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 1px; }
+.check { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 600; }
+.check input { width: 17px; height: 17px; accent-color: var(--accent); }
+button { font: inherit; font-weight: 700; font-size: 0.9rem; padding: 9px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; }
+button.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+button.danger { color: var(--bad); border-color: var(--bad); background: transparent; }
+button.ghost { background: transparent; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* Code blocks */
+.cmd { position: relative; background: var(--code-bg); color: var(--code-fg); border-radius: var(--radius); padding: 14px 110px 14px 16px; overflow-x: auto; }
+.cmd pre { margin: 0; font-family: var(--font-mono); font-size: 0.84rem; line-height: 1.55; white-space: pre; }
+.cmd .copy { position: absolute; top: 10px; right: 10px; background: #2a3448; color: #e7ecf5; border: 1px solid #3b475e; font-size: 0.78rem; padding: 6px 10px; }
+.cmd .copy.done { background: var(--ok); color: #fff; border-color: var(--ok); }
+.cmd-note { font-size: 0.86rem; color: var(--fg-muted); }
+
+/* Steps */
+ol.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; counter-reset: s; }
+ol.steps li { display: grid; grid-template-columns: 34px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--line); counter-increment: s; }
+ol.steps li:last-child { border-bottom: 0; }
+ol.steps li::before { content: counter(s); font-family: var(--font-mono); font-weight: 600; font-size: 0.8rem; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+ol.steps b { display: block; }
+
+details { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 0; }
+details summary { cursor: pointer; padding: 12px 16px; font-weight: 700; list-style: none; display: flex; justify-content: space-between; gap: 10px; }
+details summary::-webkit-details-marker { display: none; }
+details summary::after { content: "+"; color: var(--fg-muted); font-weight: 400; }
+details[open] summary::after { content: "–"; }
+details .body { padding: 0 16px 14px; display: grid; gap: 8px; color: var(--fg-muted); font-size: 0.93rem; }
+details .body code { color: var(--fg); }
+.notice { border-left: 3px solid var(--warn); background: var(--warn-soft); color: var(--fg); padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 0.9rem; }
+.notice.info { border-color: var(--accent); background: var(--accent-soft); }
+.empty { color: var(--fg-muted); font-size: 0.9rem; padding: 12px 14px; }
+.row-actions { display: flex; gap: 6px; }
+.row-actions button { padding: 4px 9px; font-size: 0.78rem; }
+footer { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 0.86rem; color: var(--fg-muted); }
+footer a { color: var(--fg-muted); }
+.sr { position: absolute; left: -9999px; }
+@media (prefers-reduced-motion: no-preference) { button, .chip { transition: background 0.15s, color 0.15s; } }
+@media (max-width: 520px) { .cmd { padding-right: 16px; padding-top: 44px; } th, td { padding: 8px 10px; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--accent)"/><path d="M8 22 L16 8 L24 22 Z" fill="var(--accent-fg)" opacity=".95"/><circle cx="16" cy="19" r="3" fill="var(--accent)"/></svg>
+      GermanDactyl Manager
+    </div>
+    <nav class="chips" aria-label="Bereiche">
+      <a href="#versionen">Versionen</a>
+      <a href="#befehl">Befehl bauen</a>
+      <a href="#panels">Meine Panels</a>
+      <a href="#ablauf">Ablauf</a>
+      <a href="#sicherheit">Sicherheit</a>
+      <a href="#hilfe">Hilfe</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <span class="eyebrow">Versionsverwaltung für das Pterodactyl Panel</span>
+    <h1>Welche Panel-Version, welcher Patch, welcher Befehl.</h1>
+    <p>GermanDactyl übersetzt das Pterodactyl Panel ins Deutsche. Hier siehst du, ob deine Panel-Version unterstützt wird, baust dir den passenden Installationsbefehl zusammen und behältst den Stand deiner eigenen Panels im Blick.</p>
+  </div>
+
+  <div class="tiles" id="tiles">
+    <div class="tile"><span class="eyebrow">Aktuelles Panel-Release</span><span class="val mono" id="t-panel">v1.15.1</span><span class="sub" id="t-panel-sub">Pterodactyl, 14.08.2026</span></div>
+    <div class="tile"><span class="eyebrow">Neuester Patch</span><span class="val mono" id="t-patch">v1.15.1</span><span class="sub" id="t-patch-sub">passt zum aktuellen Release</span></div>
+    <div class="tile"><span class="eyebrow">Patches gesamt</span><span class="val mono" id="t-count">4</span><span class="sub">signiert, SHA-256-geprüft</span></div>
+    <div class="tile"><span class="eyebrow">Datenstand</span><span class="val" id="t-data" style="font-size:1.1rem">eingebettet</span><span class="sub" id="t-data-sub">08.10.2026 · Live-Abgleich läuft…</span></div>
+  </div>
+
+  <!-- ============================ Versionen ============================ -->
+  <section id="versionen">
+    <header>
+      <h2>Unterstützte Versionen</h2>
+      <p>Jeder Patch ist für genau eine Panel-Version gebaut. Für Versionen ohne eigenen Patch aktualisierst du das Panel am besten zuerst auf die aktuelle Version.</p>
+    </header>
+    <div class="table-wrap">
+      <table id="version-table">
+        <thead><tr><th>Pterodactyl Panel</th><th>GermanDactyl-Patch</th><th>Status</th><th>Prüfsumme (SHA-256)</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="small muted">Meldet dein Panel die Version <code>canary</code>, wurde es per Git installiert. Dann gibst du die Version beim Installieren mit <code>-v</code> an.</p>
+  </section>
+
+  <!-- ============================ Befehl ============================ -->
+  <section id="befehl">
+    <header>
+      <h2>Befehl zusammenbauen</h2>
+      <p>Wähle, was du tun möchtest. Der Befehl wird unten passend erzeugt und lässt sich direkt kopieren.</p>
+    </header>
+    <div class="panel">
+      <div class="seg" role="radiogroup" aria-label="Aktion">
+        <label><input type="radio" name="action" value="install" id="a-install" checked><span>Installieren</span></label>
+        <label><input type="radio" name="action" value="check" id="a-check"><span>Nur prüfen (-c)</span></label>
+        <label><input type="radio" name="action" value="status" id="a-status"><span>Status (-s)</span></label>
+        <label><input type="radio" name="action" value="update" id="a-update"><span>Panel-Update + GermanDactyl</span></label>
+        <label><input type="radio" name="action" value="uninstall" id="a-uninstall"><span>Deinstallieren (-u)</span></label>
+        <label><input type="radio" name="action" value="list" id="a-list"><span>Patches auflisten (-l)</span></label>
+      </div>
+      <div class="grid-2">
+        <label class="field">Panel-Pfad
+          <input type="text" id="f-path" value="/var/www/pterodactyl" placeholder="/var/www/pterodactyl" spellcheck="false">
+        </label>
+        <label class="field">Patch-Version
+          <select id="f-version"><option value="">automatisch (aus config/app.php)</option></select>
+        </label>
+      </div>
+      <div class="actions">
+        <label class="check"><input type="checkbox" id="f-yes"> Ohne 10-Sekunden-Wartezeit starten (-y)</label>
+      </div>
+      <div class="cmd"><button class="copy" type="button" id="copy-cmd">Kopieren</button><pre id="cmd-out"></pre></div>
+      <p class="cmd-note" id="cmd-note"></p>
+    </div>
+
+    <details>
+      <summary>Alle Optionen des Installers</summary>
+      <div class="body">
+        <div class="table-wrap"><table>
+          <thead><tr><th>Option</th><th>Bedeutung</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">-d &lt;pfad&gt;</td><td>Pfad zum Panel (Standard <code>/var/www/pterodactyl</code>)</td></tr>
+            <tr><td class="mono">-v &lt;version&gt;</td><td>Patch-Version erzwingen, z. B. bei <code>canary</code></td></tr>
+            <tr><td class="mono">-c</td><td>Nur prüfen: Signatur, Prüfsumme, <code>git apply --check</code>. Verändert nichts. Exit-Code 2, wenn der Patch nicht passt</td></tr>
+            <tr><td class="mono">-s</td><td>Status: Panel-Version, Sprache, installierter Patch, Backups, verfügbare Patches</td></tr>
+            <tr><td class="mono">-l</td><td>Verfügbare Patches auflisten (ohne Panel, ohne root)</td></tr>
+            <tr><td class="mono">-u</td><td>GermanDactyl entfernen, zurück zu Englisch</td></tr>
+            <tr><td class="mono">-y</td><td>Ohne Wartezeit starten</td></tr>
+            <tr><td class="mono">-V</td><td>Version des Installers anzeigen</td></tr>
+            <tr><td class="mono">-h</td><td>Hilfe</td></tr>
+          </tbody>
+        </table></div>
+        <p>Die Optionen <code>-c</code>, <code>-s</code>, <code>-l</code> und <code>-V</code> gibt es ab Installer 2.0.0.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============================ Meine Panels ============================ -->
+  <section id="panels">
+    <header>
+      <h2>Meine Panels</h2>
+      <p>Trage deine Server ein und sieh auf einen Blick, wo ein Panel-Update oder ein erneuter GermanDactyl-Lauf ansteht. Die Liste bleibt nur in diesem Browser gespeichert.</p>
+    </header>
+    <div class="panel">
+      <div class="grid-2">
+        <label class="field">Name<input type="text" id="p-name" placeholder="z. B. Hauptpanel"></label>
+        <label class="field">Domain / Host<input type="text" id="p-host" placeholder="panel.deinedomain.de" spellcheck="false"></label>
+        <label class="field">Panel-Version<input type="text" id="p-panel" placeholder="1.15.1" spellcheck="false"></label>
+        <label class="field">Installierter Patch<input type="text" id="p-patch" placeholder="1.15.1 oder leer" spellcheck="false"></label>
+      </div>
+      <div class="actions">
+        <button class="primary" type="button" id="p-add">Panel hinzufügen</button>
+        <button type="button" id="p-export">Liste exportieren</button>
+        <button type="button" id="p-import">Liste importieren</button>
+        <span class="small muted" id="p-msg"></span>
+      </div>
+      <div id="p-io" hidden>
+        <label class="field">JSON (zum Sichern kopieren, zum Wiederherstellen einfügen und „Übernehmen“ klicken)
+          <textarea id="p-json" spellcheck="false"></textarea>
+        </label>
+        <div class="actions"><button class="primary" type="button" id="p-apply">Übernehmen</button><button class="ghost" type="button" id="p-close">Schließen</button></div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table id="panel-table">
+        <thead><tr><th>Name</th><th>Host</th><th class="mono">Panel</th><th class="mono">Patch</th><th>Status</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="empty" id="p-empty" hidden>Noch keine Panels eingetragen. Füge oben dein erstes Panel hinzu.</div>
+    </div>
+    <p class="small muted" id="p-example-note" hidden>Die angezeigten Zeilen sind Beispiele. Sobald du ein eigenes Panel einträgst, verschwinden sie.</p>
+  </section>
+
+  <!-- ============================ Ablauf ============================ -->
+  <section id="ablauf">
+    <header>
+      <h2>Was der Installer macht</h2>
+      <p>Jeder Lauf folgt derselben Reihenfolge. Schlägt der Build fehl, wird das Backup automatisch zurückgespielt.</p>
+    </header>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Installation</h3>
+        <ol class="steps">
+          <li><span><b>Prüfungen</b> root, Panel-Pfad, Panel-Version, Distribution, Node.js ≥ 22, Yarn</span></li>
+          <li><span><b>Patch laden und verifizieren</b> SHA-256 gegen signierte Liste, Signatur mit gpgv</span></li>
+          <li><span><b>Backup</b> nach <code>/var/backups/germandactyl/</code></span></li>
+          <li><span><b>Wartungsmodus</b> <code>php artisan down</code></span></li>
+          <li><span><b>Patch anwenden</b> <code>git apply</code>, bei Teil-Konflikten optional mit <code>--reject</code></span></li>
+          <li><span><b>Build</b> <code>yarn install --frozen-lockfile</code>, <code>yarn run build:production</code></span></li>
+          <li><span><b>Sprache</b> <code>APP_LOCALE=de</code>, Panel-Standard und Benutzer auf Deutsch</span></li>
+          <li><span><b>Abschluss</b> Caches leeren, Rechte setzen, Queue neu starten, Wartungsmodus beenden</span></li>
+        </ol>
+      </div>
+      <div class="panel">
+        <h3>Voraussetzungen</h3>
+        <ul style="margin:0; padding-left:18px; display:grid; gap:6px; font-size:0.93rem">
+          <li>Pterodactyl Panel aus dem Release-Tarball</li>
+          <li>Ubuntu 22.04/24.04 oder Debian 11/12/13</li>
+          <li>PHP 8.2 oder 8.3</li>
+          <li>Node.js ≥ 22 (wird bei Bedarf installiert)</li>
+          <li>Mindestens 2 GB RAM inkl. Swap für den Build</li>
+          <li>root-Rechte</li>
+        </ul>
+        <div class="notice">Add-ons und Themes, die dieselben Dateien verändern, können den Patch blockieren. Mit <code>-c</code> siehst du vorher, welche Dateien betroffen wären.</div>
+        <h3>Wichtige Pfade</h3>
+        <div class="table-wrap"><table>
+          <tbody>
+            <tr><td>Log</td><td class="mono">/var/log/germandactyl.log</td></tr>
+            <tr><td>Backups</td><td class="mono">/var/backups/germandactyl/</td></tr>
+            <tr><td>Abgelehnte Hunks</td><td class="mono">/var/backups/germandactyl/rejects-v&lt;version&gt;-&lt;zeit&gt;/</td></tr>
+            <tr><td>Patch-Download</td><td class="mono">https://patch.germandactyl.de/&lt;version&gt;</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ Sicherheit ============================ -->
+  <section id="sicherheit">
+    <header>
+      <h2>Signatur und Prüfsummen</h2>
+      <p>Der Installer wendet nur Patches an, deren SHA-256-Prüfsumme in der signierten Liste steht. Die Signatur prüft er gegen den fest im Skript hinterlegten Schlüssel.</p>
+    </header>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Signaturschlüssel</h3>
+        <p class="small muted">GermanDactyl Patch Signing · EdDSA · Fingerabdruck</p>
+        <div class="cmd"><button class="copy" type="button" data-copy="2CB69766DC1E05E8D805D4C0DF5A303D401576B8">Kopieren</button><pre>2CB6 9766 DC1E 05E8 D805  D4C0 DF5A 303D 4015 76B8</pre></div>
+        <p class="small muted">Öffentlicher Schlüssel: <a href="https://github.com/pavl21/GermanDactyl/blob/main/patches/germandactyl-signing-key.asc" target="_blank" rel="noopener">patches/germandactyl-signing-key.asc</a></p>
+      </div>
+      <div class="panel">
+        <h3>Manuell prüfen</h3>
+        <p class="small muted">Im Ordner <code>patches/</code> eines Checkouts:</p>
+        <div class="cmd"><button class="copy" type="button" data-copy="gpg --import germandactyl-signing-key.asc
+gpg --verify SHA256SUMS.asc SHA256SUMS &amp;&amp; sha256sum --ignore-missing -c SHA256SUMS">Kopieren</button><pre>gpg --import germandactyl-signing-key.asc
+gpg --verify SHA256SUMS.asc SHA256SUMS \
+  &amp;&amp; sha256sum --ignore-missing -c SHA256SUMS</pre></div>
+        <p class="small muted">Nur einen heruntergeladenen Patch prüfen:</p>
+        <div class="cmd"><button class="copy" type="button" data-copy="sha256sum /tmp/germandactyl.patch">Kopieren</button><pre>sha256sum /tmp/germandactyl.patch</pre></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ Hilfe ============================ -->
+  <section id="hilfe">
+    <header>
+      <h2>Fehlerbehebung</h2>
+      <p>Die häufigsten Meldungen und was du dagegen tun kannst.</p>
+    </header>
+    <details><summary>Unter … wurde kein Pterodactyl-Panel gefunden</summary><div class="body">
+      <p>Das Panel liegt nicht unter <code>/var/www/pterodactyl</code>. Gib den Pfad mit <code>-d /dein/pfad</code> an. Stimmt der Pfad, prüfe, ob <code>config/app.php</code> lesbar ist.</p>
+    </div></details>
+    <details><summary>Für die Panel-Version … gibt es noch keinen GermanDactyl-Patch</summary><div class="body">
+      <p>Schau in die Versionstabelle oben. Für 1.13.x, 1.14.x und 1.15.0 aktualisierst du das Panel auf 1.15.1. Meldet das Panel <code>canary</code>, gib die Version mit <code>-v</code> an.</p>
+    </div></details>
+    <details><summary>Der Patch passt nicht vollständig zu deinem Panel</summary><div class="body">
+      <p>Entweder ist GermanDactyl bereits installiert (dann <code>-u</code> und erneut installieren), oder ein Add-on hat die Dateien verändert. Mit <code>-c</code> siehst du die betroffenen Dateien, ohne etwas zu ändern. Bei wenigen Dateien kannst du den Patch teilweise anwenden lassen; die abgelehnten Stellen landen als <code>.rej</code> im Backup-Ordner.</p>
+    </div></details>
+    <details><summary>Der Build ist fehlgeschlagen</summary><div class="body">
+      <p>Das Backup wird automatisch zurückgespielt. Häufige Ursachen: zu wenig RAM (mindestens 2 GB, sonst Swap anlegen) oder eine zu alte Node-Version (<code>node -v</code> muss 22 oder neuer zeigen). Details stehen in <code>/var/log/germandactyl.log</code>.</p>
+    </div></details>
+    <details><summary>Nach einem Panel-Update ist alles wieder Englisch</summary><div class="body">
+      <p>Das Update überschreibt die Übersetzung. Führe GermanDactyl danach einfach erneut aus. Der Befehl „Panel-Update + GermanDactyl“ oben zeigt die komplette Reihenfolge.</p>
+    </div></details>
+    <details><summary>Das Panel ist nur noch weiß</summary><div class="body">
+      <p>Meist bringt ein Theme oder Add-on eigene Dateien mit. Entpacke das offizielle Release-Tarball deiner Version neu (siehe Deinstallation in der Dokumentation), sichere vorher eigene Änderungen und führe GermanDactyl danach erneut aus.</p>
+    </div></details>
+    <div class="notice info">Unbekannter Fehler? Eröffne ein <a href="https://github.com/pavl21/GermanDactyl/issues" target="_blank" rel="noopener">Issue</a> mit den letzten 50 Zeilen aus <code>/var/log/germandactyl.log</code> oder frag im <a href="https://discord.gg/6R38NnTCct" target="_blank" rel="noopener">Discord</a>.</div>
+  </section>
+
+  <footer>
+    <span>GermanDactyl · MIT-Lizenz · <a href="https://germandactyl.de/" target="_blank" rel="noopener">Dokumentation</a> · <a href="https://github.com/pavl21/GermanDactyl" target="_blank" rel="noopener">GitHub</a></span>
+    <span id="foot-stand">Manager 2.0.0</span>
+  </footer>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  // --------------------------------------------------------------- Daten
+  // Eingebetteter Stand (08.10.2026). Wird, wenn möglich, live von GitHub ergänzt.
+  const DATA = {
+    stand: '08.10.2026',
+    panelLatest: { version: '1.15.1', date: '14.08.2026' },
+    patches: [
+      { version: '1.11.2', sha: 'fa1d5d7639417aa5e426f0e9b1767dda22b9ae2717c61b041ea5b39a0f3b770b' },
+      { version: '1.11.3', sha: '296411330f990a87a73039db215f166ce40f4704547c91d063179d49d45d88e2' },
+      { version: '1.12.2', sha: 'a4c9a3d0764b2e87a26dd2dbfea4a5c70bf266cda813c5c6ce0aeeb9ab0699ee' },
+      { version: '1.15.1', sha: '944704b64836dd3d5e747292b7063eb35716b333abe1cb68bea44874443f758e' }
+    ],
+    // Panel-Releases ohne eigenen Patch (werden in der Tabelle als Hinweis gezeigt)
+    unsupported: ['1.12.3', '1.12.4', '1.13.0', '1.14.0', '1.14.1', '1.15.0']
+  };
+  const INSTALL_URL = 'https://install.germandactyl.de/';
+  const PATCH_URL = 'https://patch.germandactyl.de/';
+  const RAW = 'https://raw.githubusercontent.com/pavl21/GermanDactyl/main/patches/';
+  const STORAGE_KEY = 'gd-manager-panels';
+
+  const $ = (sel) => document.querySelector(sel);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  function cmpVersion(a, b) {
+    const pa = String(a).replace(/^v/, '').split('.').map(Number);
+    const pb = String(b).replace(/^v/, '').split('.').map(Number);
+    for (let i = 0; i < 3; i++) {
+      const x = pa[i] || 0, y = pb[i] || 0;
+      if (x !== y) return x - y;
+    }
+    return 0;
+  }
+  const normV = (v) => String(v || '').trim().replace(/^v/i, '');
+  const isVersion = (v) => /^\d+\.\d+\.\d+$/.test(v);
+  const patchFor = (v) => DATA.patches.find((p) => p.version === v);
+  const latestPatch = () => DATA.patches.slice().sort(cmpVersion).pop();
+
+  // --------------------------------------------------------------- Tiles + Tabelle
+  function renderTiles(live) {
+    const lp = latestPatch();
+    $('#t-panel').textContent = 'v' + DATA.panelLatest.version;
+    $('#t-panel-sub').textContent = 'Pterodactyl, ' + DATA.panelLatest.date;
+    $('#t-patch').textContent = 'v' + lp.version;
+    $('#t-patch-sub').textContent = lp.version === DATA.panelLatest.version
+      ? 'passt zum aktuellen Release'
+      : 'Panel ' + DATA.panelLatest.version + ' hat noch keinen Patch';
+    $('#t-count').textContent = DATA.patches.length;
+    $('#t-data').textContent = live ? 'live' : 'eingebettet';
+    $('#t-data-sub').textContent = live
+      ? 'GitHub-API, gerade abgerufen'
+      : DATA.stand + ' · Live-Abgleich nicht möglich (offline oder gesperrt)';
+  }
+
+  function renderVersionTable() {
+    const rows = [];
+    const all = new Set([...DATA.patches.map((p) => p.version), ...DATA.unsupported, DATA.panelLatest.version]);
+    [...all].sort(cmpVersion).forEach((v) => {
+      const p = patchFor(v);
+      const isLatest = v === DATA.panelLatest.version;
+      let status, cls = '';
+      if (p && isLatest) { status = '<span class="chip ok">aktuell</span>'; cls = 'current'; }
+      else if (p) { status = '<span class="chip neutral">älter, Patch vorhanden</span>'; }
+      else if (isLatest) { status = '<span class="chip warn">neues Release, Patch folgt</span>'; }
+      else { status = '<span class="chip warn">kein Patch, auf ' + esc(latestPatch().version) + ' aktualisieren</span>'; }
+      rows.push('<tr class="' + cls + '">'
+        + '<td class="mono">' + esc(v) + '</td>'
+        + '<td class="mono">' + (p ? 'v' + esc(p.version) : '<span class="muted">–</span>') + '</td>'
+        + '<td>' + status + '</td>'
+        + '<td>' + (p ? '<span class="sha">' + esc(p.sha) + '</span>' : '') + '</td>'
+        + '<td>' + (p ? '<a href="' + PATCH_URL + esc(p.version) + '" target="_blank" rel="noopener" class="small">Patch</a>' : '') + '</td>'
+        + '</tr>');
+    });
+    $('#version-table tbody').innerHTML = rows.join('');
+
+    const sel = $('#f-version');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">automatisch (aus config/app.php)</option>'
+      + DATA.patches.slice().sort(cmpVersion).reverse().map((p) => '<option value="' + esc(p.version) + '">v' + esc(p.version) + ' erzwingen (-v)</option>').join('');
+    sel.value = cur;
+  }
+
+  // --------------------------------------------------------------- Befehl
+  function buildCommand() {
+    const action = document.querySelector('input[name="action"]:checked').value;
+    const path = $('#f-path').value.trim();
+    const version = $('#f-version').value;
+    const yes = $('#f-yes').checked;
+    const opts = [];
+    if (path && path !== '/var/www/pterodactyl') opts.push('-d ' + shellQuote(path));
+    if (version) opts.push('-v ' + version);
+    const base = 'curl -sSL ' + INSTALL_URL + ' | sudo bash -s --';
+    const join = (extra) => [base, ...extra, ...opts].join(' ').trim();
+    let cmd = '', note = '';
+    switch (action) {
+      case 'install':
+        cmd = join(yes ? ['-y'] : []);
+        note = 'Legt ein Backup an, wendet den Patch an, baut das Panel und stellt die Sprache auf Deutsch.';
+        break;
+      case 'check':
+        cmd = join(['-c']);
+        note = 'Verändert nichts. Exit-Code 0: Patch passt. Exit-Code 2: betroffene Dateien werden angezeigt.';
+        break;
+      case 'status':
+        cmd = join(['-s']);
+        note = 'Zeigt Panel-Version, APP_LOCALE, installierten Patch, Backups und verfügbare Patches.';
+        break;
+      case 'list':
+        cmd = base + ' -l';
+        note = 'Braucht weder Panel noch root. Listet alle Patches auf dem Server auf.';
+        break;
+      case 'uninstall':
+        cmd = join(['-u', ...(yes ? ['-y'] : [])]);
+        note = 'Macht den Patch rückgängig (oder entpackt das Original-Release) und stellt Englisch wieder ein.';
+        break;
+      case 'update': {
+        const p = path || '/var/www/pterodactyl';
+        cmd = [
+          '# 1. Panel aktualisieren (offizielle Anleitung, Kurzfassung)',
+          'cd ' + shellQuote(p),
+          'php artisan down',
+          'curl -L https://github.com/pterodactyl/panel/releases/latest/download/panel.tar.gz | tar -xz',
+          'chmod -R 755 storage/* bootstrap/cache',
+          'composer install --no-dev --optimize-autoloader',
+          'php artisan view:clear && php artisan config:clear',
+          'php artisan migrate --seed --force',
+          '',
+          '# 2. GermanDactyl erneut ausführen',
+          join(['-y']),
+          '',
+          '# 3. Abschließen',
+          'php artisan queue:restart',
+          'php artisan up'
+        ].join('\n');
+        note = 'Vorher prüfen, ob es für das neue Panel-Release schon einen Patch gibt (Tabelle oben).';
+        break;
+      }
+    }
+    $('#cmd-out').textContent = cmd;
+    $('#cmd-note').textContent = note;
+  }
+  function shellQuote(s) { return /^[A-Za-z0-9_\/.\-]+$/.test(s) ? s : "'" + s.replace(/'/g, "'\\''") + "'"; }
+
+  // --------------------------------------------------------------- Kopieren
+  function wireCopy(btn, getText) {
+    btn.addEventListener('click', () => {
+      const text = getText();
+      const done = () => { btn.textContent = 'Kopiert'; btn.classList.add('done'); setTimeout(() => { btn.textContent = 'Kopieren'; btn.classList.remove('done'); }, 1600); };
+      const fallback = () => {
+        const pre = btn.parentElement.querySelector('pre');
+        if (!pre) return;
+        const r = document.createRange(); r.selectNodeContents(pre);
+        const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+        btn.textContent = 'Markiert'; setTimeout(() => { btn.textContent = 'Kopieren'; }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(fallback);
+      else fallback();
+    });
+  }
+  wireCopy($('#copy-cmd'), () => $('#cmd-out').textContent);
+  document.querySelectorAll('button[data-copy]').forEach((b) => wireCopy(b, () => b.getAttribute('data-copy')));
+
+  // --------------------------------------------------------------- Meine Panels
+  const EXAMPLES = [
+    { name: 'Beispiel: Hauptpanel', host: 'panel.beispiel.de', panel: '1.15.1', patch: '1.15.1', example: true },
+    { name: 'Beispiel: Testserver', host: 'test.beispiel.de', panel: '1.14.1', patch: '', example: true }
+  ];
+  function loadPanels() {
+    try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) { const v = JSON.parse(raw); if (Array.isArray(v)) return v; } } catch (e) { /* Speicher nicht verfügbar */ }
+    return [];
+  }
+  function savePanels(list) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); return true; } catch (e) { return false; }
+  }
+  function panelStatus(p) {
+    const pv = normV(p.panel), pt = normV(p.patch);
+    const latest = DATA.panelLatest.version;
+    if (!isVersion(pv)) return { cls: 'neutral', text: 'Panel-Version unklar' };
+    if (pt && pt === pv) {
+      if (cmpVersion(pv, latest) < 0) return { cls: 'info', text: 'Panel-Update auf ' + latest + ' möglich' };
+      return { cls: 'ok', text: 'aktuell und übersetzt' };
+    }
+    if (pt && pt !== pv) return { cls: 'bad', text: 'Patch ' + pt + ' passt nicht zu Panel ' + pv };
+    if (patchFor(pv)) return { cls: 'warn', text: 'GermanDactyl ausführen (Patch ' + pv + ' vorhanden)' };
+    return { cls: 'bad', text: 'kein Patch für ' + pv + ', Panel auf ' + latestPatch().version + ' aktualisieren' };
+  }
+  function renderPanels() {
+    let list = loadPanels();
+    const usingExamples = list.length === 0;
+    if (usingExamples) list = EXAMPLES;
+    $('#p-example-note').hidden = !usingExamples;
+    $('#p-empty').hidden = true;
+    $('#panel-table tbody').innerHTML = list.map((p, i) => {
+      const st = panelStatus(p);
+      return '<tr>'
+        + '<td>' + esc(p.name || '–') + '</td>'
+        + '<td class="mono">' + esc(p.host || '–') + '</td>'
+        + '<td class="mono">' + esc(normV(p.panel) || '–') + '</td>'
+        + '<td class="mono">' + esc(normV(p.patch) || '–') + '</td>'
+        + '<td><span class="chip ' + st.cls + '">' + esc(st.text) + '</span></td>'
+        + '<td><div class="row-actions">'
+        + (usingExamples ? '' : '<button type="button" data-edit="' + i + '">Bearbeiten</button><button type="button" class="danger" data-del="' + i + '">Löschen</button>')
+        + '</div></td></tr>';
+    }).join('');
+  }
+  function setMsg(t) { $('#p-msg').textContent = t; if (t) setTimeout(() => { if ($('#p-msg').textContent === t) $('#p-msg').textContent = ''; }, 3500); }
+
+  $('#p-add').addEventListener('click', () => {
+    const p = { name: $('#p-name').value.trim(), host: $('#p-host').value.trim(), panel: normV($('#p-panel').value), patch: normV($('#p-patch').value) };
+    if (!p.name && !p.host) { setMsg('Bitte mindestens Name oder Host angeben.'); return; }
+    if (p.panel && !isVersion(p.panel)) { setMsg('Panel-Version bitte als 1.15.1 angeben.'); return; }
+    if (p.patch && !isVersion(p.patch)) { setMsg('Patch-Version bitte als 1.15.1 angeben.'); return; }
+    const list = loadPanels(); list.push(p);
+    setMsg(savePanels(list) ? 'Gespeichert.' : 'Hinzugefügt, konnte aber nicht dauerhaft gespeichert werden (Browser-Speicher gesperrt).');
+    ['#p-name', '#p-host', '#p-panel', '#p-patch'].forEach((s) => { $(s).value = ''; });
+    renderPanels();
+  });
+  $('#panel-table').addEventListener('click', (e) => {
+    const del = e.target.closest('[data-del]'), edit = e.target.closest('[data-edit]');
+    if (del) { const list = loadPanels(); list.splice(Number(del.dataset.del), 1); savePanels(list); renderPanels(); setMsg('Eintrag gelöscht.'); }
+    if (edit) {
+      const list = loadPanels(); const p = list[Number(edit.dataset.edit)]; if (!p) return;
+      $('#p-name').value = p.name || ''; $('#p-host').value = p.host || ''; $('#p-panel').value = p.panel || ''; $('#p-patch').value = p.patch || '';
+      list.splice(Number(edit.dataset.edit), 1); savePanels(list); renderPanels();
+      $('#p-name').focus(); setMsg('Eintrag ins Formular geladen. Mit „Panel hinzufügen“ wieder speichern.');
+    }
+  });
+  $('#p-export').addEventListener('click', () => { $('#p-json').value = JSON.stringify(loadPanels(), null, 2); $('#p-io').hidden = false; $('#p-json').focus(); $('#p-json').select(); });
+  $('#p-import').addEventListener('click', () => { $('#p-json').value = ''; $('#p-io').hidden = false; $('#p-json').focus(); });
+  $('#p-close').addEventListener('click', () => { $('#p-io').hidden = true; });
+  $('#p-apply').addEventListener('click', () => {
+    try {
+      const v = JSON.parse($('#p-json').value);
+      if (!Array.isArray(v)) throw new Error('kein Array');
+      const clean = v.filter((x) => x && typeof x === 'object').map((x) => ({ name: String(x.name || ''), host: String(x.host || ''), panel: normV(x.panel), patch: normV(x.patch) }));
+      savePanels(clean); renderPanels(); $('#p-io').hidden = true; setMsg(clean.length + ' Einträge übernommen.');
+    } catch (e) { setMsg('Das ist kein gültiges JSON (erwartet wird eine Liste wie beim Export).'); }
+  });
+
+  // --------------------------------------------------------------- Live-Abgleich (optional)
+  async function refreshLive() {
+    const to = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+    try {
+      const [rel, dir, sums] = await Promise.all([
+        to(fetch('https://api.github.com/repos/pterodactyl/panel/releases/latest', { headers: { Accept: 'application/vnd.github+json' } }), 6000).then((r) => r.ok ? r.json() : Promise.reject(new Error(r.status))),
+        to(fetch('https://api.github.com/repos/pavl21/GermanDactyl/contents/patches'), 6000).then((r) => r.ok ? r.json() : Promise.reject(new Error(r.status))),
+        to(fetch(RAW + 'SHA256SUMS'), 6000).then((r) => r.ok ? r.text() : '')
+      ]);
+      const tag = String(rel.tag_name || '').replace(/^v/, '');
+      if (isVersion(tag)) {
+        const d = rel.published_at ? new Date(rel.published_at) : null;
+        DATA.panelLatest = { version: tag, date: d ? d.toLocaleDateString('de-DE') : DATA.panelLatest.date };
+      }
+      const shas = {};
+      sums.split('\n').forEach((l) => { const m = l.match(/^([0-9a-f]{64})\s+\*?v(\d+\.\d+\.\d+)\.patch/); if (m) shas[m[2]] = m[1]; });
+      const found = (Array.isArray(dir) ? dir : []).map((f) => (f.name.match(/^v(\d+\.\d+\.\d+)\.patch$/) || [])[1]).filter(Boolean);
+      if (found.length) DATA.patches = found.sort(cmpVersion).map((v) => ({ version: v, sha: shas[v] || (patchFor(v) || {}).sha || '' }));
+      renderTiles(true); renderVersionTable(); renderPanels(); buildCommand();
+    } catch (e) {
+      renderTiles(false);
+    }
+  }
+
+  // --------------------------------------------------------------- Start
+  renderTiles(false); renderVersionTable(); renderPanels(); buildCommand();
+  document.querySelectorAll('input[name="action"], #f-path, #f-version, #f-yes').forEach((el) => {
+    el.addEventListener('change', buildCommand); el.addEventListener('input', buildCommand);
+  });
+  refreshLive();
+})();
+</script>
+</body>
+</html>
