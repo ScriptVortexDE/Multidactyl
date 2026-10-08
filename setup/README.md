@@ -60,4 +60,7 @@ nur noch von hier.
   Prüfsummenprüfung, Backup und Rollback. Sprache über `GD_PATCH_LANG` (Standard `de`).
 - **Migration:** Server, die mit GermanDactyl Setup eingerichtet wurden, werden erkannt: Die Konfiguration aus
   `/etc/germandactyl` wird beim ersten Start übernommen.
+- **nginx-Start:** Reste eines abgebrochenen Laufs (`pterodactyl.conf` in `sites-enabled`) werden entfernt, die
+  Konfiguration wird vor dem Start geprüft, und bei Fehlern stehen `nginx -t`, das Journal und ein belegter Port 80
+  im Log und im Fehlerdialog. Vorher: `Job for nginx.service failed` ohne erkennbare Ursache.
 - **Kurzbefehle:** `multidactyl` und `mdt` statt `germandactyl` und `gmd`.

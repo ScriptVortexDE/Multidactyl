@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.1 – 2026-10-09
+
+### Multidactyl Setup
+
+- Behoben: `Job for nginx.service failed` beim Paketschritt, wenn eine fehlerhafte `pterodactyl.conf` aus einem
+  früheren Lauf in `sites-enabled` lag. Reste werden vor dem Start entfernt, die Konfiguration wird geprüft,
+  ein belegter Port 80 (z. B. Apache) wird gemeldet. Alle nginx-Neustarts laufen über denselben Helfer.
+- Neustart nach Abbruch entfernt auch die nginx-Reste; ein Panel-Ordner ohne `.env` (z. B. Abbruch von
+  GermanDactyl Setup) wird als unvollständige Installation erkannt.
+
 ## 1.1.0 – 2026-10-08
 
 ### Multidactyl Setup (neu)

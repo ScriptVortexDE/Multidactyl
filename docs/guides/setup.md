@@ -81,6 +81,11 @@ Multidactyl Setup basiert auf GermanDactyl Setup und behält den kompletten Funk
 
 - **Behoben:** Die Installation brach auf Debian 13 beim SSL-Schritt ab (`"server_tokens" directive is duplicate`).
 - **Behoben:** Die veraltete nginx-Form `listen 443 ssl http2;` wird auf neuen Versionen durch `http2 on;` ersetzt.
+- **Behoben:** `Job for nginx.service failed` beim Paketschritt, wenn eine fehlerhafte `pterodactyl.conf` aus einem
+  abgebrochenen Lauf in `sites-enabled` lag. Reste werden vor dem Start entfernt, die Konfiguration wird geprüft, ein
+  belegter Port 80 (z. B. Apache) wird im Fehlerdialog genannt.
+- **Behoben:** Der Neustart nach einem Abbruch entfernt auch die nginx-Reste. Ein Panel-Ordner ohne `.env`, etwa nach
+  einem Abbruch von GermanDactyl Setup, wird als unvollständige Installation erkannt.
 - **Sicherer:** Die Übersetzung wird mit Signatur- und Prüfsummenprüfung angewendet, mit Backup und Rollback.
 - **Unabhängig:** Alle Skripte werden aus diesem Repository geladen, nichts von fremden Servern.
 - **Mehrsprachig vorbereitet:** Sprache der Übersetzung über `GD_PATCH_LANG` (Standard `de`).
