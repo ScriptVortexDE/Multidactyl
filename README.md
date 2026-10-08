@@ -1,6 +1,6 @@
 # Multidactyl
 
-Multidactyl übersetzt das [Pterodactyl Panel](https://pterodactyl.io/) in andere Sprachen – signierte Patches, ein Installer mit Backup und Rollback und eine Web-Oberfläche zur Versionsverwaltung. Englisch bleibt dabei immer erhalten.
+Umfangreiches und einfaches Verwalten von Pterodactyl auf dem eigenen Server. Multidactyl übersetzt das [Pterodactyl Panel](https://pterodactyl.io/) in andere Sprachen – signierte Patches, ein Installer mit Backup und Rollback und eine Web-Oberfläche zur Versionsverwaltung. Englisch bleibt dabei immer erhalten.
 
 Aktuell enthalten: **Deutsch** (`de`) für Panel **v1.15.1** sowie die älteren Versionen 1.11.2, 1.11.3 und 1.12.2. Weitere Sprachen kommen einfach als neuer Ordner `patches/<sprache>/` dazu.
 
@@ -63,4 +63,4 @@ Neue Panel-Version oder neue Sprache? Die Anleitung steht unter [Übersetzungen 
 
 ## Lizenz und Herkunft
 
-MIT-Lizenz, siehe [`LICENSE`](LICENSE). Die deutschen Übersetzungen basieren auf [GermanDactyl](https://github.com/pavl21/GermanDactyl) von Paul Schwarz (MIT). Multidactyl ist davon unabhängig: eigene Patch-Quelle, eigener Signaturschlüssel, eigene Dokumentation.
+Apache-Lizenz 2.0, siehe [`LICENSE`](LICENSE). Die deutschen Übersetzungen in `patches/de/` basieren auf [GermanDactyl](https://github.com/pavl21/GermanDactyl) von Paul Schwarz und stehen unter MIT, siehe [`LICENSE-GermanDactyl`](LICENSE-GermanDactyl). Multidactyl ist davon unabhängig: eigene Patch-Quelle, eigener Signaturschlüssel, eigene Dokumentation.
