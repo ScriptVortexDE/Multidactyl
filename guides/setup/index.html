@@ -828,6 +828,11 @@ Statuszeile und diesen Bereichen:</p>
 <ul>
 <li><strong>Behoben:</strong> Die Installation brach auf Debian 13 beim SSL-Schritt ab (<code>"server_tokens" directive is duplicate</code>).</li>
 <li><strong>Behoben:</strong> Die veraltete nginx-Form <code>listen 443 ssl http2;</code> wird auf neuen Versionen durch <code>http2 on;</code> ersetzt.</li>
+<li><strong>Behoben:</strong> <code>Job for nginx.service failed</code> beim Paketschritt, wenn eine fehlerhafte <code>pterodactyl.conf</code> aus einem
+  abgebrochenen Lauf in <code>sites-enabled</code> lag. Reste werden vor dem Start entfernt, die Konfiguration wird geprüft, ein
+  belegter Port 80 (z. B. Apache) wird im Fehlerdialog genannt.</li>
+<li><strong>Behoben:</strong> Der Neustart nach einem Abbruch entfernt auch die nginx-Reste. Ein Panel-Ordner ohne <code>.env</code>, etwa nach
+  einem Abbruch von GermanDactyl Setup, wird als unvollständige Installation erkannt.</li>
 <li><strong>Sicherer:</strong> Die Übersetzung wird mit Signatur- und Prüfsummenprüfung angewendet, mit Backup und Rollback.</li>
 <li><strong>Unabhängig:</strong> Alle Skripte werden aus diesem Repository geladen, nichts von fremden Servern.</li>
 <li><strong>Mehrsprachig vorbereitet:</strong> Sprache der Übersetzung über <code>GD_PATCH_LANG</code> (Standard <code>de</code>).</li>
