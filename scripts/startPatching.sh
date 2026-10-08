@@ -114,5 +114,5 @@ else
 fi
 
 echo ""
-echo "Du bist jetzt im Patch-Modus. Ändere keine Dateien von Multicatyl selbst, sondern nur noch Übersetzungen."
+echo "Du bist jetzt im Patch-Modus. Ändere keine Dateien von Multidactyl selbst, sondern nur noch Übersetzungen."
 echo "Alle Änderungen in ${PANEL_DIRS[*]} landen im Patch. Führe ./scripts/createPatch.sh aus, sobald du fertig bist."

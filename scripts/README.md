@@ -1,10 +1,10 @@
 # Skripte
 
-In diesem Ordner liegen die Skripte für die Installation von Multicatyl und für das Erstellen neuer Patches.
+In diesem Ordner liegen die Skripte für die Installation von Multidactyl und für das Erstellen neuer Patches.
 
 | Skript | Zweck |
 | --- | --- |
-| [install.sh](install.sh) | Installiert Multicatyl in einem bestehenden Panel, entfernt es wieder (`-u`), prüft (`-c`) oder zeigt den Status (`-s`) |
+| [install.sh](install.sh) | Installiert Multidactyl in einem bestehenden Panel, entfernt es wieder (`-u`), prüft (`-c`) oder zeigt den Status (`-s`) |
 | [startPatching.sh](startPatching.sh) | Wechselt in den Patch-Modus, um eine neue Panel-Version zu übersetzen |
 | [createPatch.sh](createPatch.sh) | Erstellt aus den Änderungen den neuen Patch und verlässt den Patch-Modus |
 | [installAddon.sh](installAddon.sh) | **[Nicht fertig]** Installiert ein Addon |
@@ -12,7 +12,7 @@ In diesem Ordner liegen die Skripte für die Installation von Multicatyl und fü
 ## install.sh
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hahn1315/Multicatyl/main/scripts/install.sh | sudo bash -s -- [Optionen]
+curl -fsSL https://raw.githubusercontent.com/ScriptVortexDE/Multidactyl/main/scripts/install.sh | sudo bash -s -- [Optionen]
 ```
 
 | Option | Bedeutung |
@@ -20,7 +20,7 @@ curl -fsSL https://raw.githubusercontent.com/hahn1315/Multicatyl/main/scripts/in
 | `-d <pfad>` | Pfad zum Panel (Standard: `/var/www/pterodactyl`) |
 | `-L <sprache>` | Sprache des Patches, Standard `de` (Ordner `patches/<sprache>/`) |
 | `-v <version>` | Patch für diese Version verwenden, z. B. `-v 1.15.1`. Nötig bei Git-Installationen, die als `canary` erscheinen |
-| `-u` | Multicatyl entfernen und zurück zu Englisch wechseln |
+| `-u` | Multidactyl entfernen und zurück zu Englisch wechseln |
 | `-c` | Nur prüfen, ob der Patch passt (Signatur, `git apply --check`), nichts verändern. Exit-Code 2, wenn er nicht passt |
 | `-s` | Status: Panel-Version, Sprache, installierter Patch, Anzahl Backups, verfügbare Patches |
 | `-l` | Verfügbare Patches auflisten (ohne Panel, ohne root) |
@@ -32,15 +32,15 @@ Voraussetzungen: root-Rechte, PHP 8.2/8.3, etwa 2 GB RAM (inkl. Swap) für den B
 
 Das Skript
 
-- lädt den passenden Patch (`patches/<sprache>/v<version>.patch`, Quelle per `MULTICATYL_SOURCE` änderbar) und prüft seine Signatur: Die SHA-256-Prüfsumme muss in der signierten Liste `patches/de/SHA256SUMS` stehen (geprüft mit `gpgv` gegen den im Skript hinterlegten Schlüssel). Stimmt etwas nicht, bricht das Skript ohne Änderungen ab.
+- lädt den passenden Patch (`patches/<sprache>/v<version>.patch`, Quelle per `MULTIDACTYL_SOURCE` änderbar) und prüft seine Signatur: Die SHA-256-Prüfsumme muss in der signierten Liste `patches/de/SHA256SUMS` stehen (geprüft mit `gpgv` gegen den im Skript hinterlegten Schlüssel). Stimmt etwas nicht, bricht das Skript ohne Änderungen ab.
 - prüft den Patch mit `git apply --check`. Ist er schon installiert, bricht es ohne Änderungen ab.
-- sichert `app`, `resources`, `public`, `database`, `routes` und `config` nach `/var/backups/multicatyl/`.
+- sichert `app`, `resources`, `public`, `database`, `routes` und `config` nach `/var/backups/multidactyl/`.
 - versetzt das Panel während der Arbeiten in den Wartungsmodus.
 - wendet den Patch an und baut das Panel neu (`yarn install --frozen-lockfile`, `yarn run build:production`).
 - setzt die Sprache auf Deutsch: `APP_LOCALE=de` in der `.env`, `settings::app:locale` in der Datenbank, und alle Benutzer mit Englisch werden auf Deutsch umgestellt.
 - leert die Caches, setzt die Dateirechte und startet die Queue-Worker neu.
 
-Schlägt der Build fehl, spielt das Skript das Backup automatisch zurück. Alle Ausgaben landen in `/var/log/multicatyl.log`.
+Schlägt der Build fehl, spielt das Skript das Backup automatisch zurück. Alle Ausgaben landen in `/var/log/multidactyl.log`.
 
 ## Neuen Patch erstellen
 
@@ -59,7 +59,7 @@ LANGUAGE=de ./scripts/createPatch.sh [version]     # Standard: Version aus start
 `createPatch.sh` erzeugt nach jedem neuen Patch `patches/<sprache>/SHA256SUMS` und signiert die Liste mit GPG (`patches/SHA256SUMS.asc`). Nur signieren (z. B. nach einer Korrektur an einem Patch):
 
 ```bash
-MULTICATYL_SIGNING_KEY=<Fingerabdruck> ./scripts/createPatch.sh --sign
+MULTIDACTYL_SIGNING_KEY=<Fingerabdruck> ./scripts/createPatch.sh --sign
 ```
 
 Der Workflow „Patches prüfen“ verhindert, dass unsignierte oder veränderte Patches nach `main` gelangen – der Installer würde sie sonst ablehnen.

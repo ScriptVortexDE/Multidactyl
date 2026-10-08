@@ -25,21 +25,21 @@ LANGUAGE=de ./scripts/createPatch.sh [version]
 ```
 
 Für eine neue Sprache nimmst du einfach einen neuen Code (`LANGUAGE=fr`); der Ordner wird angelegt. Die Anleitung
-findest du unter [Übersetzungen einreichen](https://hahn1315.github.io/Multicatyl/guides/contribute/).
+findest du unter [Übersetzungen einreichen](https://scriptvortexde.github.io/Multidactyl/guides/contribute/).
 
 ## Signatur
 
-`multicatyl-signing-key.asc` ist der öffentliche Schlüssel, mit dem jede `SHA256SUMS` signiert ist. Der Installer
+`multidactyl-signing-key.asc` ist der öffentliche Schlüssel, mit dem jede `SHA256SUMS` signiert ist. Der Installer
 prüft Signatur und Prüfsumme vor jeder Installation und bricht sonst ab, ohne etwas zu verändern. Nach jeder
 Änderung an einem Patch neu signieren:
 
 ```shell
-LANGUAGE=de MULTICATYL_SIGNING_KEY=<Fingerabdruck> ./scripts/createPatch.sh --sign
+LANGUAGE=de MULTIDACTYL_SIGNING_KEY=<Fingerabdruck> ./scripts/createPatch.sh --sign
 ```
 
 Manuell prüfen (im Ordner `patches/de/`):
 
 ```shell
-gpg --import ../multicatyl-signing-key.asc
+gpg --import ../multidactyl-signing-key.asc
 gpg --verify SHA256SUMS.asc SHA256SUMS && sha256sum -c SHA256SUMS
 ```

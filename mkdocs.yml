@@ -1,9 +1,9 @@
-site_name: Multicatyl Dokumentation
-site_url: https://hahn1315.github.io/Multicatyl/
-copyright: Multicatyl – MIT-Lizenz. Übersetzungen basieren auf GermanDactyl (Paul Schwarz, MIT).
+site_name: Multidactyl Dokumentation
+site_url: https://scriptvortexde.github.io/Multidactyl/
+copyright: Multidactyl – MIT-Lizenz. Übersetzungen basieren auf GermanDactyl (Paul Schwarz, MIT).
 
-repo_name: Multicatyl
-repo_url: https://github.com/hahn1315/Multicatyl
+repo_name: Multidactyl
+repo_url: https://github.com/ScriptVortexDE/Multidactyl
 edit_uri: edit/main/docs/
 
 theme:
@@ -32,7 +32,7 @@ extra:
   generator: true
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/hahn1315/Multicatyl
+      link: https://github.com/ScriptVortexDE/Multidactyl
 
 markdown_extensions:
   - attr_list

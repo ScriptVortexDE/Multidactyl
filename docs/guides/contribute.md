@@ -1,10 +1,10 @@
 # Übersetzungen einreichen
 
-Vielen Dank, dass du Multicatyl verbessern möchtest! Das gilt für Korrekturen an Deutsch genauso wie für eine
+Vielen Dank, dass du Multidactyl verbessern möchtest! Das gilt für Korrekturen an Deutsch genauso wie für eine
 neue Sprache: Lege dafür einfach einen neuen Ordner `patches/<sprache>/` an und arbeite mit `LANGUAGE=<sprache>`.
 So läuft ein Beitrag ab:
 
-1. **Forke** das [Repository](https://github.com/hahn1315/Multicatyl) und klone deinen Fork.
+1. **Forke** das [Repository](https://github.com/ScriptVortexDE/Multidactyl) und klone deinen Fork.
 2. **Arbeitsstand vorbereiten:** Das Skript lädt die passende Panel-Version und wendet den vorhandenen Patch an.
     ```shell
     LANGUAGE=de ./scripts/startPatching.sh 1.15.1
@@ -41,4 +41,4 @@ So läuft ein Beitrag ab:
 | Subuser | Unterbenutzer |
 | Account | Konto |
 
-Fragen? Eröffne gerne ein [Issue](https://github.com/hahn1315/Multicatyl/issues).
+Fragen? Eröffne gerne ein [Issue](https://github.com/ScriptVortexDE/Multidactyl/issues).

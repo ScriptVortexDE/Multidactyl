@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Multicatyl Manager</title>
-<meta name="description" content="Versionsverwaltung für Multicatyl: Panel-Versionen, Sprachen, passende Patches, Befehls-Generator und Status deiner eigenen Pterodactyl-Panels.">
+<title>Multidactyl Manager</title>
+<meta name="description" content="Versionsverwaltung für Multidactyl: Panel-Versionen, Sprachen, passende Patches, Befehls-Generator und Status deiner eigenen Pterodactyl-Panels.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
@@ -154,7 +154,7 @@ footer a { color: var(--fg-muted); }
   <div class="top-inner">
     <div class="brand">
       <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--accent)"/><path d="M7 23 V9 l5 7 5-7 v14" fill="none" stroke="var(--accent-fg)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="24" cy="21" r="2.5" fill="var(--accent-fg)"/></svg>
-      Multicatyl Manager
+      Multidactyl Manager
     </div>
     <nav class="chips" aria-label="Bereiche">
       <a href="#versionen">Versionen</a>
@@ -171,7 +171,7 @@ footer a { color: var(--fg-muted); }
   <div class="hero">
     <span class="eyebrow">Versionsverwaltung für Pterodactyl-Übersetzungen</span>
     <h1>Welche Panel-Version, welche Sprache, welcher Befehl.</h1>
-    <p>Multicatyl übersetzt das Pterodactyl Panel per signiertem Patch. Hier siehst du, ob deine Panel-Version unterstützt wird, baust dir den passenden Installationsbefehl zusammen und behältst den Stand deiner eigenen Panels im Blick.</p>
+    <p>Multidactyl übersetzt das Pterodactyl Panel per signiertem Patch. Hier siehst du, ob deine Panel-Version unterstützt wird, baust dir den passenden Installationsbefehl zusammen und behältst den Stand deiner eigenen Panels im Blick.</p>
   </div>
 
   <div class="tiles" id="tiles">
@@ -212,7 +212,7 @@ footer a { color: var(--fg-muted); }
         <label><input type="radio" name="action" value="install" id="a-install" checked><span>Installieren</span></label>
         <label><input type="radio" name="action" value="check" id="a-check"><span>Nur prüfen (-c)</span></label>
         <label><input type="radio" name="action" value="status" id="a-status"><span>Status (-s)</span></label>
-        <label><input type="radio" name="action" value="update" id="a-update"><span>Panel-Update + Multicatyl</span></label>
+        <label><input type="radio" name="action" value="update" id="a-update"><span>Panel-Update + Multidactyl</span></label>
         <label><input type="radio" name="action" value="uninstall" id="a-uninstall"><span>Deinstallieren (-u)</span></label>
         <label><input type="radio" name="action" value="list" id="a-list"><span>Auflisten (-l)</span></label>
       </div>
@@ -229,7 +229,7 @@ footer a { color: var(--fg-muted); }
       </div>
       <div class="actions">
         <label class="check"><input type="checkbox" id="f-yes"> Ohne 10-Sekunden-Wartezeit starten (-y)</label>
-        <label class="check"><input type="checkbox" id="f-local"> Aus lokalem Checkout statt GitHub (MULTICATYL_SOURCE)</label>
+        <label class="check"><input type="checkbox" id="f-local"> Aus lokalem Checkout statt GitHub (MULTIDACTYL_SOURCE)</label>
       </div>
       <div class="cmd"><button class="copy" type="button" id="copy-cmd">Kopieren</button><pre id="cmd-out"></pre></div>
       <p class="cmd-note" id="cmd-note"></p>
@@ -247,11 +247,11 @@ footer a { color: var(--fg-muted); }
             <tr><td class="mono">-c</td><td>Nur prüfen: Signatur, Prüfsumme, <code>git apply --check</code>. Verändert nichts. Exit-Code 2, wenn der Patch nicht passt</td></tr>
             <tr><td class="mono">-s</td><td>Status: Panel-Version, Sprache, installierter Patch, Backups, verfügbare Patches</td></tr>
             <tr><td class="mono">-l</td><td>Verfügbare Sprachen und Patches auflisten (ohne Panel, ohne root)</td></tr>
-            <tr><td class="mono">-u</td><td>Multicatyl entfernen, zurück zu Englisch</td></tr>
+            <tr><td class="mono">-u</td><td>Multidactyl entfernen, zurück zu Englisch</td></tr>
             <tr><td class="mono">-y</td><td>Ohne Wartezeit starten</td></tr>
             <tr><td class="mono">-V</td><td>Version des Installers anzeigen</td></tr>
             <tr><td class="mono">-h</td><td>Hilfe</td></tr>
-            <tr><td class="mono">MULTICATYL_SOURCE</td><td>Umgebungsvariable: lokaler Ordner oder URL-Basis als Patch-Quelle (Signatur wird trotzdem geprüft)</td></tr>
+            <tr><td class="mono">MULTIDACTYL_SOURCE</td><td>Umgebungsvariable: lokaler Ordner oder URL-Basis als Patch-Quelle (Signatur wird trotzdem geprüft)</td></tr>
           </tbody>
         </table></div>
       </div>
@@ -262,7 +262,7 @@ footer a { color: var(--fg-muted); }
   <section id="panels">
     <header>
       <h2>Meine Panels</h2>
-      <p>Trage deine Server ein und sieh auf einen Blick, wo ein Panel-Update oder ein erneuter Multicatyl-Lauf ansteht. Die Liste bleibt nur in diesem Browser gespeichert.</p>
+      <p>Trage deine Server ein und sieh auf einen Blick, wo ein Panel-Update oder ein erneuter Multidactyl-Lauf ansteht. Die Liste bleibt nur in diesem Browser gespeichert.</p>
     </header>
     <div class="panel">
       <div class="grid-3">
@@ -306,7 +306,7 @@ footer a { color: var(--fg-muted); }
         <ol class="steps">
           <li><span><b>Prüfungen</b> root, Panel-Pfad, Panel-Version, Distribution, Node.js ≥ 22, Yarn</span></li>
           <li><span><b>Patch laden und verifizieren</b> SHA-256 gegen signierte Liste, Signatur mit gpgv</span></li>
-          <li><span><b>Backup</b> nach <code>/var/backups/multicatyl/</code></span></li>
+          <li><span><b>Backup</b> nach <code>/var/backups/multidactyl/</code></span></li>
           <li><span><b>Wartungsmodus</b> <code>php artisan down</code></span></li>
           <li><span><b>Patch anwenden</b> <code>git apply</code>, bei Teil-Konflikten optional mit <code>--reject</code></span></li>
           <li><span><b>Build</b> <code>yarn install --frozen-lockfile</code>, <code>yarn run build:production</code></span></li>
@@ -328,9 +328,9 @@ footer a { color: var(--fg-muted); }
         <h3>Wichtige Pfade</h3>
         <div class="table-wrap"><table>
           <tbody>
-            <tr><td>Log</td><td class="mono">/var/log/multicatyl.log</td></tr>
-            <tr><td>Backups</td><td class="mono">/var/backups/multicatyl/</td></tr>
-            <tr><td>Abgelehnte Hunks</td><td class="mono">/var/backups/multicatyl/rejects-v&lt;version&gt;-&lt;zeit&gt;/</td></tr>
+            <tr><td>Log</td><td class="mono">/var/log/multidactyl.log</td></tr>
+            <tr><td>Backups</td><td class="mono">/var/backups/multidactyl/</td></tr>
+            <tr><td>Abgelehnte Hunks</td><td class="mono">/var/backups/multidactyl/rejects-v&lt;version&gt;-&lt;zeit&gt;/</td></tr>
             <tr><td>Patch-Download</td><td class="mono" id="path-patch"></td></tr>
           </tbody>
         </table></div>
@@ -347,19 +347,19 @@ footer a { color: var(--fg-muted); }
     <div class="grid-2">
       <div class="panel">
         <h3>Signaturschlüssel</h3>
-        <p class="small muted">Multicatyl Patch Signing · EdDSA (ed25519) · Fingerabdruck</p>
+        <p class="small muted">Multidactyl Patch Signing · EdDSA (ed25519) · Fingerabdruck</p>
         <div class="cmd"><button class="copy" type="button" id="copy-fpr">Kopieren</button><pre id="fpr-out"></pre></div>
-        <p class="small muted">Öffentlicher Schlüssel: <a id="key-link" href="#" target="_blank" rel="noopener">patches/multicatyl-signing-key.asc</a></p>
+        <p class="small muted">Öffentlicher Schlüssel: <a id="key-link" href="#" target="_blank" rel="noopener">patches/multidactyl-signing-key.asc</a></p>
       </div>
       <div class="panel">
         <h3>Manuell prüfen</h3>
         <p class="small muted">Im Ordner <code>patches/&lt;sprache&gt;/</code> eines Checkouts:</p>
-        <div class="cmd"><button class="copy" type="button" data-copy="gpg --import ../multicatyl-signing-key.asc
-gpg --verify SHA256SUMS.asc SHA256SUMS &amp;&amp; sha256sum -c SHA256SUMS">Kopieren</button><pre>gpg --import ../multicatyl-signing-key.asc
+        <div class="cmd"><button class="copy" type="button" data-copy="gpg --import ../multidactyl-signing-key.asc
+gpg --verify SHA256SUMS.asc SHA256SUMS &amp;&amp; sha256sum -c SHA256SUMS">Kopieren</button><pre>gpg --import ../multidactyl-signing-key.asc
 gpg --verify SHA256SUMS.asc SHA256SUMS \
   &amp;&amp; sha256sum -c SHA256SUMS</pre></div>
         <p class="small muted">Nur einen heruntergeladenen Patch prüfen:</p>
-        <div class="cmd"><button class="copy" type="button" data-copy="sha256sum /tmp/multicatyl.patch">Kopieren</button><pre>sha256sum /tmp/multicatyl.patch</pre></div>
+        <div class="cmd"><button class="copy" type="button" data-copy="sha256sum /tmp/multidactyl.patch">Kopieren</button><pre>sha256sum /tmp/multidactyl.patch</pre></div>
       </div>
     </div>
   </section>
@@ -373,29 +373,29 @@ gpg --verify SHA256SUMS.asc SHA256SUMS \
     <details><summary>Unter … wurde kein Pterodactyl-Panel gefunden</summary><div class="body">
       <p>Das Panel liegt nicht unter <code>/var/www/pterodactyl</code>. Gib den Pfad mit <code>-d /dein/pfad</code> an. Stimmt der Pfad, prüfe, ob <code>config/app.php</code> lesbar ist.</p>
     </div></details>
-    <details><summary>Für die Panel-Version … gibt es noch keinen Multicatyl-Patch</summary><div class="body">
+    <details><summary>Für die Panel-Version … gibt es noch keinen Multidactyl-Patch</summary><div class="body">
       <p>Schau in die Versionstabelle oben und prüfe die gewählte Sprache. Für 1.13.x, 1.14.x und 1.15.0 aktualisierst du das Panel auf 1.15.1. Meldet das Panel <code>canary</code>, gib die Version mit <code>-v</code> an.</p>
     </div></details>
     <details><summary>Der Patch passt nicht vollständig zu deinem Panel</summary><div class="body">
-      <p>Entweder ist Multicatyl bereits installiert (dann <code>-u</code> und erneut installieren), oder ein Add-on hat die Dateien verändert. Mit <code>-c</code> siehst du die betroffenen Dateien, ohne etwas zu ändern. Bei wenigen Dateien kannst du den Patch teilweise anwenden lassen; die abgelehnten Stellen landen als <code>.rej</code> im Backup-Ordner.</p>
+      <p>Entweder ist Multidactyl bereits installiert (dann <code>-u</code> und erneut installieren), oder ein Add-on hat die Dateien verändert. Mit <code>-c</code> siehst du die betroffenen Dateien, ohne etwas zu ändern. Bei wenigen Dateien kannst du den Patch teilweise anwenden lassen; die abgelehnten Stellen landen als <code>.rej</code> im Backup-Ordner.</p>
     </div></details>
     <details><summary>Die Patch-Quelle ist nicht erreichbar</summary><div class="body">
-      <p>Der Server hat keinen Zugriff auf GitHub. Klone das Repository auf einem anderen Rechner, kopiere es auf den Server und setze <code>MULTICATYL_SOURCE</code> auf diesen Ordner (Option „Aus lokalem Checkout“ oben).</p>
+      <p>Der Server hat keinen Zugriff auf GitHub. Klone das Repository auf einem anderen Rechner, kopiere es auf den Server und setze <code>MULTIDACTYL_SOURCE</code> auf diesen Ordner (Option „Aus lokalem Checkout“ oben).</p>
     </div></details>
     <details><summary>Der Build ist fehlgeschlagen</summary><div class="body">
-      <p>Das Backup wird automatisch zurückgespielt. Häufige Ursachen: zu wenig RAM (mindestens 2 GB, sonst Swap anlegen) oder eine zu alte Node-Version (<code>node -v</code> muss 22 oder neuer zeigen). Details stehen in <code>/var/log/multicatyl.log</code>.</p>
+      <p>Das Backup wird automatisch zurückgespielt. Häufige Ursachen: zu wenig RAM (mindestens 2 GB, sonst Swap anlegen) oder eine zu alte Node-Version (<code>node -v</code> muss 22 oder neuer zeigen). Details stehen in <code>/var/log/multidactyl.log</code>.</p>
     </div></details>
     <details><summary>Nach einem Panel-Update ist alles wieder Englisch</summary><div class="body">
-      <p>Das Update überschreibt die Übersetzung. Führe Multicatyl danach einfach erneut aus. Der Befehl „Panel-Update + Multicatyl“ oben zeigt die komplette Reihenfolge.</p>
+      <p>Das Update überschreibt die Übersetzung. Führe Multidactyl danach einfach erneut aus. Der Befehl „Panel-Update + Multidactyl“ oben zeigt die komplette Reihenfolge.</p>
     </div></details>
     <details><summary>Das Panel ist nur noch weiß</summary><div class="body">
-      <p>Meist bringt ein Theme oder Add-on eigene Dateien mit. Entpacke das offizielle Release-Tarball deiner Version neu (siehe Deinstallation in der Dokumentation), sichere vorher eigene Änderungen und führe Multicatyl danach erneut aus.</p>
+      <p>Meist bringt ein Theme oder Add-on eigene Dateien mit. Entpacke das offizielle Release-Tarball deiner Version neu (siehe Deinstallation in der Dokumentation), sichere vorher eigene Änderungen und führe Multidactyl danach erneut aus.</p>
     </div></details>
-    <div class="notice info">Unbekannter Fehler? Eröffne ein <a id="issue-link" href="#" target="_blank" rel="noopener">Issue auf GitHub</a> mit den letzten 50 Zeilen aus <code>/var/log/multicatyl.log</code>.</div>
+    <div class="notice info">Unbekannter Fehler? Eröffne ein <a id="issue-link" href="#" target="_blank" rel="noopener">Issue auf GitHub</a> mit den letzten 50 Zeilen aus <code>/var/log/multidactyl.log</code>.</div>
   </section>
 
   <footer>
-    <span>Multicatyl · MIT-Lizenz · <a id="docs-link" href="#" target="_blank" rel="noopener">Dokumentation</a> · <a id="repo-link" href="#" target="_blank" rel="noopener">GitHub</a> · Übersetzungen basierend auf GermanDactyl (MIT)</span>
+    <span>Multidactyl · MIT-Lizenz · <a id="docs-link" href="#" target="_blank" rel="noopener">Dokumentation</a> · <a id="repo-link" href="#" target="_blank" rel="noopener">GitHub</a> · Übersetzungen basierend auf GermanDactyl (MIT)</span>
     <span id="foot-stand">Manager 1.0.0</span>
   </footer>
 </main>
@@ -406,14 +406,14 @@ gpg --verify SHA256SUMS.asc SHA256SUMS \
 
   // --------------------------------------------------------------- Konfiguration
   // Ein Ort für alles, was vom Repository abhängt.
-  const REPO = 'hahn1315/Multicatyl';
+  const REPO = 'ScriptVortexDE/Multidactyl';
   const BRANCH = 'main';
   const RAW = 'https://raw.githubusercontent.com/' + REPO + '/' + BRANCH;
   const INSTALL_URL = RAW + '/scripts/install.sh';
   const REPO_URL = 'https://github.com/' + REPO;
-  const DOCS_URL = 'https://hahn1315.github.io/Multicatyl/';
-  const SIGNING_FPR = 'E8DC06B31E40DC9A8F845730EDAA600187571616';
-  const STORAGE_KEY = 'multicatyl-manager-panels';
+  const DOCS_URL = 'https://scriptvortexde.github.io/Multidactyl/';
+  const SIGNING_FPR = 'DCE980AE97BDA4501FE7D8AF949F1BD17BC59545';
+  const STORAGE_KEY = 'multidactyl-manager-panels';
 
   // Eingebetteter Stand (08.10.2026). Wird, wenn möglich, live von GitHub ergänzt.
   const DATA = {
@@ -457,7 +457,7 @@ gpg --verify SHA256SUMS.asc SHA256SUMS \
 
   // --------------------------------------------------------------- Statische Links
   $('#path-patch').textContent = RAW + '/patches/<sprache>/v<version>.patch';
-  $('#key-link').href = REPO_URL + '/blob/' + BRANCH + '/patches/multicatyl-signing-key.asc';
+  $('#key-link').href = REPO_URL + '/blob/' + BRANCH + '/patches/multidactyl-signing-key.asc';
   $('#issue-link').href = REPO_URL + '/issues';
   $('#docs-link').href = DOCS_URL;
   $('#repo-link').href = REPO_URL;
@@ -527,9 +527,9 @@ gpg --verify SHA256SUMS.asc SHA256SUMS \
     if (lang && lang !== 'de') opts.push('-L ' + lang);
     if (version) opts.push('-v ' + version);
     const base = local
-      ? 'MULTICATYL_SOURCE=/opt/multicatyl sudo -E bash /opt/multicatyl/scripts/install.sh'
+      ? 'MULTIDACTYL_SOURCE=/opt/multidactyl sudo -E bash /opt/multidactyl/scripts/install.sh'
       : 'curl -fsSL ' + INSTALL_URL + ' | sudo bash -s --';
-    const prefix = local ? ['# Einmalig: Repository auf den Server holen', 'git clone ' + REPO_URL + '.git /opt/multicatyl', ''] : [];
+    const prefix = local ? ['# Einmalig: Repository auf den Server holen', 'git clone ' + REPO_URL + '.git /opt/multidactyl', ''] : [];
     const join = (extra) => [base, ...extra, ...opts].join(' ').trim();
     let cmd = '', note = '';
     switch (action) {
@@ -565,7 +565,7 @@ gpg --verify SHA256SUMS.asc SHA256SUMS \
           'php artisan view:clear && php artisan config:clear',
           'php artisan migrate --seed --force',
           '',
-          '# 2. Multicatyl erneut ausführen',
+          '# 2. Multidactyl erneut ausführen',
           ...prefix,
           join(['-y']),
           '',
@@ -620,7 +620,7 @@ gpg --verify SHA256SUMS.asc SHA256SUMS \
       return { cls: 'ok', text: 'aktuell und übersetzt' };
     }
     if (pt && pt !== pv) return { cls: 'bad', text: 'Patch ' + pt + ' passt nicht zu Panel ' + pv };
-    if (patchFor(l, pv)) return { cls: 'warn', text: 'Multicatyl ausführen (Patch ' + l + '/' + pv + ' vorhanden)' };
+    if (patchFor(l, pv)) return { cls: 'warn', text: 'Multidactyl ausführen (Patch ' + l + '/' + pv + ' vorhanden)' };
     return { cls: 'bad', text: 'kein Patch für ' + pv + (lp ? ', Panel auf ' + lp.version + ' aktualisieren' : '') };
   }
   function renderPanels() {

@@ -3,7 +3,7 @@
 Du möchtest zurück zur englischen Oberfläche? Das geht mit einem Befehl:
 
 ```shell
-curl -sSL https://raw.githubusercontent.com/hahn1315/Multicatyl/main/scripts/install.sh | sudo bash -s -- -u
+curl -sSL https://raw.githubusercontent.com/ScriptVortexDE/Multidactyl/main/scripts/install.sh | sudo bash -s -- -u
 ```
 
 Liegt dein Panel nicht unter `/var/www/pterodactyl`, gib den Pfad mit `-d <pfad>` an.

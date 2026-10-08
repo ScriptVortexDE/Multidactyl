@@ -13,7 +13,7 @@
 #   --sign   Nur patches/<sprache>/SHA256SUMS neu erzeugen und signieren
 #
 # Signiert wird mit GPG. Den Schlüssel wählst du über die Umgebungsvariable
-# MULTICATYL_SIGNING_KEY (Fingerabdruck); sonst nimmt GPG den Standardschlüssel.
+# MULTIDACTYL_SIGNING_KEY (Fingerabdruck); sonst nimmt GPG den Standardschlüssel.
 
 set -euo pipefail
 
@@ -57,7 +57,7 @@ sign_patches() {
 
     (cd "$PATCH_DIR" && sha256sum -- "${patches[@]}") >"$PATCH_DIR/SHA256SUMS"
 
-    [ -z "${MULTICATYL_SIGNING_KEY:-}" ] || key_opts=(--local-user "$MULTICATYL_SIGNING_KEY")
+    [ -z "${MULTIDACTYL_SIGNING_KEY:-}" ] || key_opts=(--local-user "$MULTIDACTYL_SIGNING_KEY")
     if ! gpg --batch --yes --armor --detach-sign "${key_opts[@]}" \
             --output "$PATCH_DIR/SHA256SUMS.asc" "$PATCH_DIR/SHA256SUMS"; then
         fail "Das Signieren ist fehlgeschlagen. Ohne gültige Signatur lehnt install.sh die Patches ab!

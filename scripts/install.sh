@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# Multicatyl – Installationsskript
+# Multidactyl – Installationsskript
 #
 # Übersetzt ein Pterodactyl-Panel in eine andere Sprache (Standard: Deutsch)
 # bzw. macht das mit -u wieder rückgängig. Gedacht für den Aufruf über:
 #
-#   curl -fsSL https://raw.githubusercontent.com/hahn1315/Multicatyl/main/scripts/install.sh | sudo bash -s -- [Optionen]
+#   curl -fsSL https://raw.githubusercontent.com/ScriptVortexDE/Multidactyl/main/scripts/install.sh | sudo bash -s -- [Optionen]
 #
 # Die Patches liegen im Repository unter patches/<sprache>/v<version>.patch.
-# Mit der Umgebungsvariable MULTICATYL_SOURCE kann eine andere Quelle gewählt
+# Mit der Umgebungsvariable MULTIDACTYL_SOURCE kann eine andere Quelle gewählt
 # werden: ein lokaler Ordner (z. B. ein Checkout) oder eine andere URL-Basis.
 #
 # Neben Installation (Standard) und Deinstallation (-u) gibt es drei Modi, die
@@ -32,24 +32,24 @@ set -Eeuo pipefail
 # ---------------------------------------------------------------------------
 
 readonly SCRIPT_VERSION="1.0.0"
-readonly PROJECT_NAME=Multicatyl
+readonly PROJECT_NAME=Multidactyl
 readonly DEFAULT_PATH=/var/www/pterodactyl
 readonly DEFAULT_LANG=de
 
-# Quelle der Patches: GitHub-Repository (Standard) oder MULTICATYL_SOURCE
+# Quelle der Patches: GitHub-Repository (Standard) oder MULTIDACTYL_SOURCE
 # (lokaler Ordner mit patches/<sprache>/ oder eine URL-Basis mit derselben Struktur).
-readonly REPO="${MULTICATYL_REPO:-hahn1315/Multicatyl}"
-readonly BRANCH="${MULTICATYL_BRANCH:-main}"
-readonly SOURCE="${MULTICATYL_SOURCE:-https://raw.githubusercontent.com/$REPO/$BRANCH}"
+readonly REPO="${MULTIDACTYL_REPO:-ScriptVortexDE/Multidactyl}"
+readonly BRANCH="${MULTIDACTYL_BRANCH:-main}"
+readonly SOURCE="${MULTIDACTYL_SOURCE:-https://raw.githubusercontent.com/$REPO/$BRANCH}"
 readonly PATCH_LIST_API="https://api.github.com/repos/$REPO/contents/patches"
 
 # Öffentlicher Schlüssel, mit dem patches/SHA256SUMS signiert wird.
 # SIGNING_KEY_FPR: Fingerabdruck (40 Hex-Zeichen, ohne Leerzeichen)
 # SIGNING_KEY_B64: gpg --export <Fingerabdruck> | base64 -w0
-readonly SIGNING_KEY_FPR="E8DC06B31E40DC9A8F845730EDAA600187571616"
-readonly SIGNING_KEY_B64="mDMEasgHwxYJKwYBBAHaRw8BAQdAQQavvHUv40KLHRexS1f3W1vCPiQGS8ipr/UstMSVQ4u0Pk11bHRpY2F0eWwgUGF0Y2ggU2lnbmluZyA8bXVsdGljYXR5bEB1c2Vycy5ub3JlcGx5LmdpdGh1Yi5jb20+iJAEExYKADgWIQTo3AazHkDcmo+EVzDtqmABh1cWFgUCasgHwwIbAwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgAAKCRDtqmABh1cWFuBlAQCMUYQC3AYUbwnEqHsyt6zLSNqxd/fAkZ7qs/7W61m68AD9E8wx4fF4BaJM15u7XG8uWgELIJFAmaFUOANX6U6hgwU="
+readonly SIGNING_KEY_FPR="DCE980AE97BDA4501FE7D8AF949F1BD17BC59545"
+readonly SIGNING_KEY_B64="mDMEasgKgBYJKwYBBAHaRw8BAQdANweeSlaeqyOuTiISx+iaT5FvWY3imvSJDSi23Z2bHAi0QE11bHRpZGFjdHlsIFBhdGNoIFNpZ25pbmcgPG11bHRpZGFjdHlsQHVzZXJzLm5vcmVwbHkuZ2l0aHViLmNvbT6IkAQTFgoAOBYhBNzpgK6XvaRQH+fYr5SfG9F7xZVFBQJqyAqAAhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAAoJEJSfG9F7xZVFMYcA+QFUqs64DgSkL/y8YY6Khge+gSqRZuX5Vy1eZSRhdDXGAP0dwvyMn4BOHP5c9WfilzQESkio0LBd49DObS6y63I4BA=="
 readonly PANEL_RELEASES=https://github.com/pterodactyl/panel/releases/download
-readonly BACKUP_ROOT=/var/backups/multicatyl
+readonly BACKUP_ROOT=/var/backups/multidactyl
 readonly MIN_NODE_MAJOR=22
 readonly MIN_MEMORY_MB=2048
 
@@ -120,10 +120,10 @@ send_error() {
 
 show_help() {
     cat <<EOF
-Multicatyl – Übersetzungen für das Pterodactyl-Panel
+Multidactyl – Übersetzungen für das Pterodactyl-Panel
 
 Verwendung:
-  curl -fsSL https://raw.githubusercontent.com/hahn1315/Multicatyl/main/scripts/install.sh | sudo bash -s -- [Optionen]
+  curl -fsSL https://raw.githubusercontent.com/ScriptVortexDE/Multidactyl/main/scripts/install.sh | sudo bash -s -- [Optionen]
   sudo bash install.sh [Optionen]
 
 Optionen:
@@ -131,7 +131,7 @@ Optionen:
   -L <sprache>  Sprache des Patches (Standard: $DEFAULT_LANG)
   -v <version>  Patch für diese Panel-Version verwenden, z. B. -v 1.15.1
                 (nötig bei Git-Installationen, die als "canary" erscheinen)
-  -u            Multicatyl deinstallieren und zurück zu Englisch wechseln
+  -u            Multidactyl deinstallieren und zurück zu Englisch wechseln
   -c            Nur prüfen, ob der Patch zum Panel passt (verändert nichts)
   -s            Status anzeigen: Panel-Version, Sprache, installierter Patch
   -l            Verfügbare Sprachen und Patches auflisten (kein Panel, kein root)
@@ -140,11 +140,11 @@ Optionen:
   -h            Diese Hilfe anzeigen
 
 Umgebung:
-  MULTICATYL_SOURCE  Alternative Patch-Quelle: lokaler Ordner oder URL-Basis
+  MULTIDACTYL_SOURCE  Alternative Patch-Quelle: lokaler Ordner oder URL-Basis
                      (Standard: $SOURCE)
 
 Bekannte Patches (de): $KNOWN_PATCHES_de
-Log-Datei: /var/log/multicatyl.log
+Log-Datei: /var/log/multidactyl.log
 Backups:   $BACKUP_ROOT
 EOF
 }
@@ -258,7 +258,7 @@ parse_options() {
             s) MODE=status ;;
             l) MODE=list ;;
             y) ASSUME_YES=1 ;;
-            V) printf 'Multicatyl-Installer %s\n' "$SCRIPT_VERSION"; exit 0 ;;
+            V) printf 'Multidactyl-Installer %s\n' "$SCRIPT_VERSION"; exit 0 ;;
             h) show_help; exit 0 ;;
             :)
                 show_help >&2
@@ -338,12 +338,12 @@ load_pterodactyl_path() {
 }
 
 init_log() {
-    LOG=/var/log/multicatyl.log
+    LOG=/var/log/multidactyl.log
     if ! { touch "$LOG" && [ -w "$LOG" ]; } 2>/dev/null; then
-        LOG="$PTERODACTYL_PATH/multicatyl.debug.log"
+        LOG="$PTERODACTYL_PATH/multidactyl.debug.log"
         touch "$LOG" || send_error "Die Log-Datei $LOG kann nicht angelegt werden."
     fi
-    printf '\n===== Multicatyl – %s – %s – Panel %s (%s), Patch %s/%s =====\n' \
+    printf '\n===== Multidactyl – %s – %s – Panel %s (%s), Patch %s/%s =====\n' \
         "$(date '+%Y-%m-%d %H:%M:%S')" "$MODE" "$PTERODACTYL_PATH" "$PANEL_VERSION" "$PATCH_LANG" "$VERSION" >>"$LOG"
 }
 
@@ -388,7 +388,7 @@ no_patch_error() {
 # DOWNLOAD_CODE ("invalid", wenn die Datei kein Patch ist).
 DOWNLOAD_CODE=""
 download_patch() {
-    PATCH_FILE="$TMP_DIR/multicatyl-$PATCH_LANG-v$VERSION.patch"
+    PATCH_FILE="$TMP_DIR/multidactyl-$PATCH_LANG-v$VERSION.patch"
 
     fetch_source "patches/$PATCH_LANG/v$VERSION.patch" "$PATCH_FILE" || true
     DOWNLOAD_CODE=$FETCH_CODE
@@ -472,7 +472,7 @@ find_patch() {
 
     if ! download_patch; then
         case "$DOWNLOAD_CODE" in
-            404)     no_patch_error "Für die Panel-Version ${BLUE}v$VERSION$RED gibt es noch keinen Multicatyl-Patch (Sprache: $PATCH_LANG)." ;;
+            404)     no_patch_error "Für die Panel-Version ${BLUE}v$VERSION$RED gibt es noch keinen Multidactyl-Patch (Sprache: $PATCH_LANG)." ;;
             000|"")  send_error "Die Patch-Quelle $SOURCE ist nicht erreichbar. Prüfe deine Internetverbindung." ;;
             invalid) send_error "Die heruntergeladene Datei ist kein gültiger Patch." ;;
             unverified) send_error "$VERIFY_ERROR
@@ -776,7 +776,7 @@ apply_patch() {
     local check_log="$TMP_DIR/check.log" use_reject=0
 
     if git apply "${APPLY_OPTS[@]}" --reverse --check "$PATCH_FILE" >/dev/null 2>&1; then
-        send_success "Multicatyl ($PATCH_LANG) ist für v$VERSION bereits installiert. Es gibt nichts zu tun."
+        send_success "Multidactyl ($PATCH_LANG) ist für v$VERSION bereits installiert. Es gibt nichts zu tun."
         send_info "Zum Entfernen: Skript mit -u starten."
         exit 0
     fi
@@ -786,7 +786,7 @@ apply_patch() {
         send_warn "Der Patch passt nicht vollständig zu deinem Panel. Betroffene Dateien:"
         show_failed_files "$check_log"
         if [ -d "$PTERODACTYL_PATH/resources/lang/$PATCH_LANG" ]; then
-            send_warn "Multicatyl scheint bereits (teilweise) installiert zu sein. Entferne es zuerst mit -u."
+            send_warn "Multidactyl scheint bereits (teilweise) installiert zu sein. Entferne es zuerst mit -u."
         else
             send_warn "Möglicherweise hat ein Addon oder Theme diese Dateien verändert."
         fi
@@ -846,7 +846,7 @@ do_install() {
     set_locale "$PATCH_LANG" en
     finish_panel
 
-    send_success "Multicatyl ($PATCH_LANG) wurde installiert. Viel Spaß mit deinem übersetzten Panel! :)"
+    send_success "Multidactyl ($PATCH_LANG) wurde installiert. Viel Spaß mit deinem übersetzten Panel! :)"
     send_info "Backup: $BACKUP_FILE"
 }
 
@@ -892,7 +892,7 @@ do_uninstall() {
     # Nicht installiert? Dann nur die Sprache zurückstellen.
     if [ -n "$PATCH_FILE" ] && [ ! -d "resources/lang/$PATCH_LANG" ] \
         && git apply "${APPLY_OPTS[@]}" --check "$PATCH_FILE" >/dev/null 2>&1; then
-        send_info "Multicatyl ist in diesem Panel nicht installiert. Es wird nur die Sprache auf Englisch zurückgestellt."
+        send_info "Multidactyl ist in diesem Panel nicht installiert. Es wird nur die Sprache auf Englisch zurückgestellt."
         set_locale en "$PATCH_LANG"
         run_logged php artisan config:clear || true
         exit 0
@@ -901,18 +901,18 @@ do_uninstall() {
     # 1. Patch sauber rückwärts anwenden (erhält Addons).
     if [ -n "$PATCH_FILE" ] && git apply "${APPLY_OPTS[@]}" --reverse --check "$PATCH_FILE" >/dev/null 2>&1; then
         method=reverse
-        send_info "Multicatyl wird entfernt, indem der Patch rückgängig gemacht wird."
+        send_info "Multidactyl wird entfernt, indem der Patch rückgängig gemacht wird."
     # 2. Originaldateien aus dem Release-Tarball.
     elif download_release; then
         method=tarball
-        send_info "Multicatyl wird entfernt, indem die Originaldateien von v$PANEL_VERSION neu entpackt werden."
+        send_info "Multidactyl wird entfernt, indem die Originaldateien von v$PANEL_VERSION neu entpackt werden."
         send_warn "Änderungen durch Addons oder Themes in app/ und resources/ gehen dabei verloren."
     # 3. Backup von der Installation.
     elif backup_src=$(latest_backup) && [ -n "$backup_src" ]; then
         method=backup
-        send_info "Multicatyl wird entfernt, indem das Backup $backup_src zurückgespielt wird."
+        send_info "Multidactyl wird entfernt, indem das Backup $backup_src zurückgespielt wird."
     else
-        send_error "Multicatyl kann nicht automatisch entfernt werden: Weder der Patch noch das Release-Archiv von v$PANEL_VERSION noch ein Backup sind verfügbar.
+        send_error "Multidactyl kann nicht automatisch entfernt werden: Weder der Patch noch das Release-Archiv von v$PANEL_VERSION noch ein Backup sind verfügbar.
   Lade das Panel-Release deiner Version neu herunter (siehe https://pterodactyl.io/panel/1.0/updating.html)."
     fi
 
@@ -960,7 +960,7 @@ do_uninstall() {
     finish_panel
     rm -f "$INSTALLED_PATCH"
 
-    send_success "Multicatyl wurde entfernt. Dein Panel ist wieder auf Englisch."
+    send_success "Multidactyl wurde entfernt. Dein Panel ist wieder auf Englisch."
     send_info "Backup des deutschen Stands: $BACKUP_FILE"
 }
 
@@ -981,7 +981,7 @@ do_check() {
     inspect_patch
 
     if git apply "${APPLY_OPTS[@]}" --reverse --check "$PATCH_FILE" >/dev/null 2>&1; then
-        send_success "Multicatyl v$VERSION ist bereits vollständig installiert."
+        send_success "Multidactyl v$VERSION ist bereits vollständig installiert."
         return 0
     fi
     if git apply "${APPLY_OPTS[@]}" --check "$PATCH_FILE" >"$check_log" 2>&1; then
@@ -994,7 +994,7 @@ do_check() {
     send_warn "Der Patch v$VERSION passt nicht vollständig zu deinem Panel. Betroffene Dateien:"
     show_failed_files "$check_log"
     if [ -d "resources/lang/$PATCH_LANG" ]; then
-        send_warn "Multicatyl scheint bereits (teilweise) installiert zu sein. Entferne es zuerst mit -u."
+        send_warn "Multidactyl scheint bereits (teilweise) installiert zu sein. Entferne es zuerst mit -u."
     else
         send_warn "Möglicherweise hat ein Addon oder Theme diese Dateien verändert."
     fi
@@ -1029,7 +1029,7 @@ do_status() {
     printf 'Installer:          %s\n' "$SCRIPT_VERSION"
     printf 'Panel-Pfad:         %s\n' "$PTERODACTYL_PATH"
     printf 'Panel-Version:      %s\n' "$PANEL_VERSION"
-    printf 'Multicatyl:       %s\n' "$state"
+    printf 'Multidactyl:       %s\n' "$state"
     printf 'APP_LOCALE:         %s\n' "${locale:-nicht gesetzt}"
     printf 'Backups:            %s unter %s\n' "$backups" "$BACKUP_ROOT"
     printf 'Sprache:            %s\n' "$PATCH_LANG"

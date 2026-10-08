@@ -1,13 +1,13 @@
-# Multicatyl
+# Multidactyl
 
-Multicatyl übersetzt das [Pterodactyl Panel](https://pterodactyl.io/) in andere Sprachen – signierte Patches, ein Installer mit Backup und Rollback und eine Web-Oberfläche zur Versionsverwaltung. Englisch bleibt dabei immer erhalten.
+Multidactyl übersetzt das [Pterodactyl Panel](https://pterodactyl.io/) in andere Sprachen – signierte Patches, ein Installer mit Backup und Rollback und eine Web-Oberfläche zur Versionsverwaltung. Englisch bleibt dabei immer erhalten.
 
 Aktuell enthalten: **Deutsch** (`de`) für Panel **v1.15.1** sowie die älteren Versionen 1.11.2, 1.11.3 und 1.12.2. Weitere Sprachen kommen einfach als neuer Ordner `patches/<sprache>/` dazu.
 
 ## Installation
 
 ```shell
-curl -fsSL https://raw.githubusercontent.com/hahn1315/Multicatyl/main/scripts/install.sh | sudo bash -s --
+curl -fsSL https://raw.githubusercontent.com/ScriptVortexDE/Multidactyl/main/scripts/install.sh | sudo bash -s --
 ```
 
 Der Installer erkennt die Panel-Version, lädt den passenden Patch, prüft Signatur und Prüfsumme, legt ein Backup an, wendet den Patch an, baut die Oberfläche neu und stellt die Sprache um. Schlägt der Build fehl, wird das Backup automatisch zurückgespielt.
@@ -24,7 +24,7 @@ Der Installer erkennt die Panel-Version, lädt den passenden Patch, prüft Signa
 | `-y` | ohne Wartezeit starten |
 | `-V` / `-h` | Version / Hilfe |
 
-Alle Details, Voraussetzungen und die manuelle Installation stehen in der [Dokumentation](https://hahn1315.github.io/Multicatyl/).
+Alle Details, Voraussetzungen und die manuelle Installation stehen in der [Dokumentation](https://scriptvortexde.github.io/Multidactyl/).
 
 ## Unterstützte Versionen
 
@@ -47,20 +47,20 @@ Alle Details, Voraussetzungen und die manuelle Installation stehen in der [Dokum
 
 ## Sicherheit
 
-Jeder Patch steht mit seiner SHA-256-Prüfsumme in `patches/<sprache>/SHA256SUMS`. Diese Liste ist mit GPG signiert (`SHA256SUMS.asc`), der öffentliche Schlüssel liegt in [`patches/multicatyl-signing-key.asc`](patches/multicatyl-signing-key.asc) und ist zusätzlich fest im Installer hinterlegt. Ein Patch, dessen Prüfsumme oder Signatur nicht stimmt, wird nicht angewendet.
+Jeder Patch steht mit seiner SHA-256-Prüfsumme in `patches/<sprache>/SHA256SUMS`. Diese Liste ist mit GPG signiert (`SHA256SUMS.asc`), der öffentliche Schlüssel liegt in [`patches/multidactyl-signing-key.asc`](patches/multidactyl-signing-key.asc) und ist zusätzlich fest im Installer hinterlegt. Ein Patch, dessen Prüfsumme oder Signatur nicht stimmt, wird nicht angewendet.
 
 ## Eigene Patch-Quelle
 
 Ohne Internet oder zum Testen eigener Patches kannst du einen lokalen Checkout als Quelle nutzen:
 
 ```shell
-MULTICATYL_SOURCE=/opt/multicatyl sudo -E bash /opt/multicatyl/scripts/install.sh -c
+MULTIDACTYL_SOURCE=/opt/multidactyl sudo -E bash /opt/multidactyl/scripts/install.sh -c
 ```
 
 ## Mitmachen
 
-Neue Panel-Version oder neue Sprache? Die Anleitung steht unter [Übersetzungen einreichen](https://hahn1315.github.io/Multicatyl/guides/contribute/). Fehler bitte als [Issue](https://github.com/hahn1315/Multicatyl/issues) melden.
+Neue Panel-Version oder neue Sprache? Die Anleitung steht unter [Übersetzungen einreichen](https://scriptvortexde.github.io/Multidactyl/guides/contribute/). Fehler bitte als [Issue](https://github.com/ScriptVortexDE/Multidactyl/issues) melden.
 
 ## Lizenz und Herkunft
 
-MIT-Lizenz, siehe [`LICENSE`](LICENSE). Die deutschen Übersetzungen basieren auf [GermanDactyl](https://github.com/pavl21/GermanDactyl) von Paul Schwarz (MIT). Multicatyl ist davon unabhängig: eigene Patch-Quelle, eigener Signaturschlüssel, eigene Dokumentation.
+MIT-Lizenz, siehe [`LICENSE`](LICENSE). Die deutschen Übersetzungen basieren auf [GermanDactyl](https://github.com/pavl21/GermanDactyl) von Paul Schwarz (MIT). Multidactyl ist davon unabhängig: eigene Patch-Quelle, eigener Signaturschlüssel, eigene Dokumentation.

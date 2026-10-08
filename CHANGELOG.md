@@ -2,21 +2,21 @@
 
 ## 1.0.0 – 2026-10-08
 
-Erste Version von **Multicatyl**, ein eigenständiges Projekt auf Basis der deutschen Übersetzung von
+Erste Version von **Multidactyl**, ein eigenständiges Projekt auf Basis der deutschen Übersetzung von
 GermanDactyl (MIT-Lizenz). Alles, was an die alte Infrastruktur gebunden war, wurde ersetzt.
 
 ### Unabhängigkeit
 
 - Patches, Prüfsummen und Installer werden direkt aus diesem Repository geladen
   (`raw.githubusercontent.com/<repo>/main/...`), keine fremden Domains mehr.
-- Eigener GPG-Signaturschlüssel, öffentlich unter `patches/multicatyl-signing-key.asc` und fest im Installer.
+- Eigener GPG-Signaturschlüssel, öffentlich unter `patches/multidactyl-signing-key.asc` und fest im Installer.
 - Eigene Dokumentation (MkDocs) ohne fremde Social-Links, Spenden-Links oder Domain.
-- Die Patches selbst tragen jetzt Multicatyl-Hinweise und verlinken auf dieses Projekt.
+- Die Patches selbst tragen jetzt Multidactyl-Hinweise und verlinken auf dieses Projekt.
 
 ### Neu gegenüber GermanDactyl
 
 - **Mehrsprachig:** Patches liegen unter `patches/<sprache>/`, der Installer wählt mit `-L <sprache>` (Standard `de`).
-- **Eigene Patch-Quelle:** `MULTICATYL_SOURCE` erlaubt einen lokalen Checkout oder eine andere URL-Basis, auch offline.
+- **Eigene Patch-Quelle:** `MULTIDACTYL_SOURCE` erlaubt einen lokalen Checkout oder eine andere URL-Basis, auch offline.
   Signatur und Prüfsummen werden trotzdem geprüft.
 - **Prüfmodus `-c`:** lädt und verifiziert den Patch und testet mit `git apply --check`, verändert nichts
   (Exit-Code 2, wenn er nicht passt).

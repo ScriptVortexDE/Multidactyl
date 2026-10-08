@@ -1,8 +1,8 @@
 # Fehlerbehebung
 
 Hier findest du alle Lösungen, die wir kennen. Tritt bei dir ein unbekannter Fehler auf, eröffne ein
-[Issue](https://github.com/hahn1315/Multicatyl/issues) und hänge einen Auszug aus `/var/log/multicatyl.log`
-(Fallback: `multicatyl.debug.log` im Panel-Ordner) an, damit wir dir helfen können.
+[Issue](https://github.com/ScriptVortexDE/Multidactyl/issues) und hänge einen Auszug aus `/var/log/multidactyl.log`
+(Fallback: `multidactyl.debug.log` im Panel-Ordner) an, damit wir dir helfen können.
 
 ??? error "Unter … wurde kein Pterodactyl-Panel gefunden. Gib den richtigen Pfad mit -d <pfad> an."
     Dieser Fehler tritt meistens auf, wenn Pterodactyl nicht unter `/var/www/pterodactyl` installiert wurde. Ist das
@@ -15,7 +15,7 @@ Hier findest du alle Lösungen, die wir kennen. Tritt bei dir ein unbekannter Fe
     Hast du das `sudo` vergessen? Der Installer muss als `root` laufen. Prüfe, ob du als `root` angemeldet bist oder
     ob im Befehl `sudo bash` steht.
 
-??? error "Für die Panel-Version … gibt es noch keinen Multicatyl-Patch."
+??? error "Für die Panel-Version … gibt es noch keinen Multidactyl-Patch."
     Für deine Panel-Version gibt es keinen eigenen Patch. Schau in die
     [Tabelle der unterstützten Versionen](installation.md#unterstutzte-versionen). Bei 1.13.x, 1.14.x oder 1.15.0
     [aktualisierst du das Panel](guides/update.md) am besten auf 1.15.1.
@@ -25,7 +25,7 @@ Hier findest du alle Lösungen, die wir kennen. Tritt bei dir ein unbekannter Fe
 ??? error "Der Patch passt nicht vollständig zu deinem Panel. Betroffene Dateien: …"
     Dafür gibt es meist zwei Gründe:
 
-    1. Die Datei wurde bereits von Multicatyl gepatcht.
+    1. Die Datei wurde bereits von Multidactyl gepatcht.
     2. Ein Add-on oder Theme hat Pterodactyl so verändert, dass der Patch die passende Stelle nicht findet.
 
     Bei zwei oder drei Dateien ist das nicht schlimm – du kannst sie manuell anpassen oder ignorieren. Bekommst du
@@ -36,10 +36,10 @@ Hier findest du alle Lösungen, die wir kennen. Tritt bei dir ein unbekannter Fe
     Mit `-c` prüft der Installer nur, ob der Patch zu deinem Panel passt, ohne etwas zu verändern:
 
     ```shell
-    curl -sSL https://raw.githubusercontent.com/hahn1315/Multicatyl/main/scripts/install.sh | sudo bash -s -- -c
+    curl -sSL https://raw.githubusercontent.com/ScriptVortexDE/Multidactyl/main/scripts/install.sh | sudo bash -s -- -c
     ```
 
-    Mit `-s` siehst du, ob und welche Version von Multicatyl aktuell installiert ist.
+    Mit `-s` siehst du, ob und welche Version von Multidactyl aktuell installiert ist.
 
 ??? error "Der Build ist fehlgeschlagen"
     Der Installer stellt in diesem Fall automatisch das Backup wieder her – dein Panel bleibt also auf dem alten
@@ -48,12 +48,12 @@ Hier findest du alle Lösungen, die wir kennen. Tritt bei dir ein unbekannter Fe
     - **Zu wenig Arbeitsspeicher:** Der Build braucht mindestens 2 GB RAM. Lege bei Bedarf eine Swap-Datei an.
     - **Falsche Node-Version:** Prüfe mit `node -v`, ob Node.js 22 oder neuer installiert ist.
 
-    Die genaue Fehlermeldung findest du in `/var/log/multicatyl.log` (Fallback: `multicatyl.debug.log` im Panel-Ordner). Die Backups liegen unter
-    `/var/backups/multicatyl/`.
+    Die genaue Fehlermeldung findest du in `/var/log/multidactyl.log` (Fallback: `multidactyl.debug.log` im Panel-Ordner). Die Backups liegen unter
+    `/var/backups/multidactyl/`.
 
 ??? error "Das Panel ist nach dem Update oder der Installation nur noch weiß"
     Meist liegt das an einem Theme oder Add-on, das du vorher genutzt hast und das eigene Dateien mitbringt.
 
     Am saubersten ist es, das offizielle Release-Tarball deiner Panel-Version neu zu entpacken, wie in der
     [Deinstallation](uninstall.md#manuell-zurucksetzen) beschrieben. Sichere vorher eigene Änderungen. Führe
-    danach Multicatyl erneut aus.
+    danach Multidactyl erneut aus.

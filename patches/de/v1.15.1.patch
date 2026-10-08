@@ -2817,7 +2817,7 @@ index 6274981..6b8f1d0 100644
 +            | Übersetzt von&nbsp;
 +            <a
 +                rel={'noopener nofollow noreferrer'}
-+                href={'https://github.com/hahn1315/Multicatyl'}
++                href={'https://github.com/ScriptVortexDE/Multidactyl'}
 +                target={'_blank'}
 +                css={tw`no-underline text-neutral-500 hover:text-neutral-300`}
 +            >
@@ -3653,7 +3653,7 @@ index a4df195..24aee0d 100644
 +                        &nbsp;&copy; 2015 - {new Date().getFullYear()} | Übersetzt von&nbsp;
 +                        <a
 +                            rel={'noopener nofollow noreferrer'}
-+                            href={'https://github.com/hahn1315/Multicatyl'}
++                            href={'https://github.com/ScriptVortexDE/Multidactyl'}
 +                            target={'_blank'}
 +                            css={tw`no-underline text-neutral-500 hover:text-neutral-300`}
 +                        >
@@ -6385,7 +6385,7 @@ index ee56cd8..9bcac55 100644
  // the URL to allow cache busting to occur whenever the front-end is rebuilt.
  const hash = module.hot ? Date.now().toString(16) : process.env.WEBPACK_BUILD_HASH;
  
-+// Use the language of the logged-in user, falling back to German (Multicatyl).
++// Use the language of the logged-in user, falling back to German (Multidactyl).
 +const language = (window as Window & { PterodactylUser?: { language?: string } }).PterodactylUser?.language || 'de';
 +
  i18n.use(I18NextMultiloadBackendAdapter)
@@ -7651,7 +7651,7 @@ index 9652532..147c9e0 100644
 +                    Du nutzt die Pterodactyl-Panel-Version <code>{{ config('app.version') }}</code>. Dein Panel ist auf dem neuesten Stand!
                  @else
 -                    Your panel is <strong>not up-to-date!</strong> The latest version is <a href="https://github.com/Pterodactyl/Panel/releases/v{{ $version->getPanel() }}" target="_blank"><code>{{ $version->getPanel() }}</code></a> and you are currently running version <code>{{ config('app.version') }}</code>. You can find instructions on how to update your panel <a href="https://pterodactyl.io/panel/1.0/updating.html">here</a>.
-+                    Dein Panel ist <strong>nicht aktuell!</strong> Die neueste Version ist <a href="https://github.com/Pterodactyl/Panel/releases/v{{ $version->getPanel() }}" target="_blank"><code>{{ $version->getPanel() }}</code></a>, du nutzt derzeit die Version <code>{{ config('app.version') }}</code>. Eine Anleitung zum Aktualisieren deines Panels findest du <a href="https://pterodactyl.io/panel/1.0/updating.html">hier</a>. <hr>WARNUNG: Du nutzt Multicatyl für die Übersetzung. Für die neueste Version steht möglicherweise noch keine Übersetzung zur Verfügung!
++                    Dein Panel ist <strong>nicht aktuell!</strong> Die neueste Version ist <a href="https://github.com/Pterodactyl/Panel/releases/v{{ $version->getPanel() }}" target="_blank"><code>{{ $version->getPanel() }}</code></a>, du nutzt derzeit die Version <code>{{ config('app.version') }}</code>. Eine Anleitung zum Aktualisieren deines Panels findest du <a href="https://pterodactyl.io/panel/1.0/updating.html">hier</a>. <hr>WARNUNG: Du nutzt Multidactyl für die Übersetzung. Für die neueste Version steht möglicherweise noch keine Übersetzung zur Verfügung!
                  @endif
              </div>
          </div>
@@ -11260,7 +11260,7 @@ index 489646d..74a70e4 100644
                                          @endforeach
                                      </select>
 -                                    <p class="text-muted"><small>The default language to use when rendering UI components.</small></p>
-+                                    <p class="text-muted"><small>Die Standardsprache für die Darstellung der Oberfläche. Hinweis: Die fest eingebauten Texte der Oberfläche sind durch Multicatyl immer auf Deutsch; die Auswahl betrifft Texte aus den Sprachdateien (z. B. Aktivitätsprotokoll, Fehlermeldungen und E-Mails).</small></p>
++                                    <p class="text-muted"><small>Die Standardsprache für die Darstellung der Oberfläche. Hinweis: Die fest eingebauten Texte der Oberfläche sind durch Multidactyl immer auf Deutsch; die Auswahl betrifft Texte aus den Sprachdateien (z. B. Aktivitätsprotokoll, Fehlermeldungen und E-Mails).</small></p>
                                  </div>
                              </div>
                          </div>
@@ -11583,7 +11583,7 @@ index 2ff5016..78b04bc 100644
                                  @endforeach
                              </select>
 -                            <p class="text-muted"><small>The default language to use when rendering the Panel for this user.</small></p>
-+                            <p class="text-muted"><small>Die Standardsprache, in der das Panel für diesen Benutzer angezeigt wird. Hinweis: Die fest eingebauten Texte der Oberfläche sind durch Multicatyl immer auf Deutsch.</small></p>
++                            <p class="text-muted"><small>Die Standardsprache, in der das Panel für diesen Benutzer angezeigt wird. Hinweis: Die fest eingebauten Texte der Oberfläche sind durch Multidactyl immer auf Deutsch.</small></p>
                          </div>
                      </div>
                  </div>
@@ -11706,7 +11706,7 @@ index f2a0332..7bdb4e6 100644
                                  @endforeach
                              </select>
 -                            <p class="text-muted"><small>The default language to use when rendering the Panel for this user.</small></p>
-+                            <p class="text-muted"><small>Die Standardsprache, in der das Panel für diesen Benutzer angezeigt wird. Hinweis: Die fest eingebauten Texte der Oberfläche sind durch Multicatyl immer auf Deutsch.</small></p>
++                            <p class="text-muted"><small>Die Standardsprache, in der das Panel für diesen Benutzer angezeigt wird. Hinweis: Die fest eingebauten Texte der Oberfläche sind durch Multidactyl immer auf Deutsch.</small></p>
                          </div>
                      </div>
                  </div>
@@ -11878,7 +11878,7 @@ index 20ca084..fb0d7df 100644
                      <strong><i class="fa fa-fw fa-clock-o"></i></strong> {{ round(microtime(true) - LARAVEL_START, 3) }}s
                  </div>
 -                Copyright &copy; 2015 - {{ date('Y') }} <a href="https://pterodactyl.io/">Pterodactyl Software</a>.
-+                Copyright &copy; 2015 - {{ date('Y') }} <a href="https://pterodactyl.io/">Pterodactyl Software</a> | Übersetzung: <a href="https://github.com/hahn1315/Multicatyl">Multicatyl</a>.
++                Copyright &copy; 2015 - {{ date('Y') }} <a href="https://pterodactyl.io/">Pterodactyl Software</a> | Übersetzung: <a href="https://github.com/ScriptVortexDE/Multidactyl">Multidactyl</a>.
              </footer>
          </div>
          @section('footer-scripts')
