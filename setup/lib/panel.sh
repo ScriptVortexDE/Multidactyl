@@ -38,12 +38,50 @@ gd_nginx_disable_default() {
     return 0
 }
 
+gd_nginx_stale_cleanup() {
+    # Reste eines früheren (abgebrochenen) Laufs entfernen: Eine fehlerhafte Panel-Konfiguration in
+    # sites-enabled verhindert sonst jeden Start von nginx ("Job for nginx.service failed").
+    # gd_nginx_stale_cleanup [konfigname] – Standard: pterodactyl.conf
+    local name="${1:-pterodactyl.conf}" f removed=0
+    for f in "/etc/nginx/sites-enabled/$name" "/etc/nginx/sites-available/$name"; do
+        [ -e "$f" ] || continue
+        rm -f "$f"
+        removed=1
+    done
+    [ "$removed" = 1 ] && echo "Alte nginx-Konfiguration $name aus einem früheren Lauf entfernt (wird neu angelegt)."
+    return 0
+}
+
+gd_nginx_restart() {
+    # Konfiguration prüfen, dann nginx neu starten. Bei Fehlern landet die tatsächliche Ursache im Log:
+    # Ausgabe von "nginx -t", die letzten Journal-Zeilen und ein belegter Port 80 (z. B. Apache).
+    # gd_nginx_restart [reload] – mit "reload" nur neu laden statt neu starten
+    local mode="${1:-restart}" out busy
+    gd_nginx_disable_default
+    if ! out="$(nginx -t 2>&1)"; then
+        echo "Die nginx-Konfiguration ist fehlerhaft:"
+        echo "$out"
+        return 1
+    fi
+    if systemctl "$mode" nginx; then
+        return 0
+    fi
+    echo "nginx konnte nicht gestartet werden ($mode). Letzte Meldungen des Dienstes:"
+    journalctl -u nginx -n 15 --no-pager -o cat 2>/dev/null
+    busy="$(ss -ltnp 2>/dev/null | awk '$4 ~ /:80$/ {print $NF}' | grep -oE 'users:\(\("[^"]+"' | cut -d'"' -f2 | sort -u | paste -sd, -)"
+    if [ -n "$busy" ] && [ "$busy" != "nginx" ]; then
+        echo "Port 80 ist bereits belegt von: $busy. Stoppe oder entferne diesen Dienst (z. B. 'apt-get remove apache2') und starte das Setup erneut."
+    fi
+    return 1
+}
+
 gd_panel_packages() {
     gd_apt_install mariadb-server mariadb-client nginx redis-server tar unzip git cron \
         certbot python3-certbot-nginx || return 1
     gd_nginx_disable_default
+    gd_nginx_stale_cleanup
     systemctl enable --now mariadb redis-server cron || return 1
-    systemctl enable nginx && systemctl restart nginx
+    systemctl enable nginx && gd_nginx_restart
 }
 
 gd_composer_install() {
@@ -88,7 +126,7 @@ server {
 EOF
     ln -sf /etc/nginx/sites-available/pterodactyl.conf /etc/nginx/sites-enabled/pterodactyl.conf
     gd_nginx_disable_default
-    nginx -t && systemctl reload nginx
+    gd_nginx_restart reload
 }
 
 gd_php_fpm_socket() {
@@ -181,7 +219,7 @@ $( [ -f /etc/nginx/snippets/multidactyl-phpmyadmin.conf ] && echo "    include s
 }
 EOF
     ln -sf /etc/nginx/sites-available/pterodactyl.conf /etc/nginx/sites-enabled/pterodactyl.conf
-    nginx -t && systemctl reload nginx
+    gd_nginx_restart reload
 }
 
 gd_certbot_issue() {
@@ -363,7 +401,7 @@ gd_php_migrate() {
         sed -i -E "s#unix:/run/php/php[0-9]+\.[0-9]+-fpm\.sock#unix:/run/php/php${GD_PHP_VERSION}-fpm.sock#" \
             /etc/nginx/sites-available/pterodactyl.conf
     fi
-    nginx -t && systemctl reload nginx
+    gd_nginx_restart reload
 }
 
 gd_panel_installed_version() {

@@ -329,10 +329,16 @@ if [ -f /etc/motd.sh ]; then
 fi
 
 # Abgebrochene Installation? Dann nicht die Verwaltung eines halbfertigen Panels öffnen, sondern neu installieren.
+# Ein Panel-Ordner ohne fertige Installation (keine .env) zählt ebenfalls als abgebrochen – z. B. nach einem
+# Abbruch von GermanDactyl Setup, dessen Zustand nicht übernommen wurde.
+if [ -d "$PTERO_DIR" ] && [ ! -f "$PTERO_DIR/.env" ] && [ "$(gd_conf_get INSTALL_STATE)" != "laeuft" ]; then
+    gd_conf_set INSTALL_STATE laeuft
+fi
 if [ -d "$PTERO_DIR" ] && [ "$(gd_conf_get INSTALL_STATE)" = "laeuft" ]; then
     gd_warn_colors_on
     if gd_yesno "Unvollständige Installation" "Die letzte Installation wurde nicht abgeschlossen (Details im Log unter $GD_LOG_DIR).\n\nSoll die unvollständige Installation entfernt und neu gestartet werden?\n\nBereits installierte Pakete bleiben erhalten, der Neustart geht deshalb schneller." 14 76; then
         rm -rf "$PTERO_DIR"
+        gd_nginx_stale_cleanup >> "$GD_LOG" 2>&1
         gd_conf_set INSTALL_STATE neu
     fi
     gd_warn_colors_off

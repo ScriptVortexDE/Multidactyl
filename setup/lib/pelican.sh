@@ -16,8 +16,9 @@ gd_pelican_packages() {
         nginx sqlite3 tar unzip git cron certbot python3-certbot-nginx || return 1
     update-alternatives --set php "/usr/bin/php${v}" 2>/dev/null
     gd_nginx_disable_default
+    gd_nginx_stale_cleanup pelican.conf
     systemctl enable --now "php${v}-fpm" cron || return 1
-    systemctl enable nginx && systemctl restart nginx
+    systemctl enable nginx && gd_nginx_restart
 }
 
 gd_pelican_download() {
@@ -109,7 +110,7 @@ EOF
     fi
     ln -sf /etc/nginx/sites-available/pelican.conf /etc/nginx/sites-enabled/pelican.conf
     gd_nginx_disable_default
-    nginx -t && systemctl reload nginx
+    gd_nginx_restart reload
 }
 
 gd_pelican_certbot() {
