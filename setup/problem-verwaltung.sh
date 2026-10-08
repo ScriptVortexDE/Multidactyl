@@ -14,7 +14,7 @@ else
     . "$_gd_c"; rm -f "$_gd_c"
 fi
 gd_require_root
-gd_source_lib multidactyl
+gd_source_lib translation
 gd_source_lib security
 gd_source_lib panel
 gd_source_lib wings

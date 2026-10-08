@@ -333,7 +333,7 @@ fix_php_socket() {
     sock="$(ls -1 /run/php/php*-fpm.sock 2>/dev/null | sort -V | tail -n1)"
     ver="$(sed -n 's#.*/php\([0-9.]*\)-fpm.sock#\1#p' <<< "$sock")"
     if [ -z "$sock" ] || ! gd_version_ge "$ver" "8.2"; then
-        gd_source_lib multidactyl; gd_source_lib security; gd_source_lib panel
+        gd_source_lib translation; gd_source_lib security; gd_source_lib panel
         gd_php_migrate || return 1
         sock="/run/php/php${GD_PHP_VERSION}-fpm.sock"
     fi
