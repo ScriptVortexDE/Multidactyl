@@ -1,0 +1,8 @@
+# Shell-Skripte, Patches und Prüfsummen müssen auf jedem System LF behalten,
+# sonst stimmen Prüfsummen und Signatur nicht mehr (Windows: core.autocrlf).
+* text=auto eol=lf
+*.patch -text
+patches/SHA256SUMS -text
+patches/SHA256SUMS.asc -text
+patches/*.asc -text
+*.png binary
