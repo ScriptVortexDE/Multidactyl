@@ -127,8 +127,22 @@ gd_pending_credentials_save() {
         "$GD_DOMAIN" "$GD_ADMIN_USER" "$GD_EMAIL" "$GD_ADMIN_PASSWORD" > "$GD_PENDING_CREDENTIALS" )
 }
 
+gd_resume_translation() {
+    # Übersetzung nachholen, wenn sie beim ersten Lauf nicht angewendet wurde (z. B. Abbruch beim Build)
+    local ver
+    [ -z "$(gd_conf_get GD_TRANSLATION)" ] || return 0
+    ver="$(gd_panel_installed_version)"
+    [ -n "$ver" ] && gd_patch_exists "$ver" || return 0
+    gd_yesno "⌘ Übersetzung nachholen" "Die Übersetzung ($GD_PATCH_LANG) für Panel v$ver wurde noch nicht angewendet.\n\nSoll sie jetzt angewendet werden? Die Oberfläche wird dabei neu gebaut, das dauert einige Minuten." 12 74 || return 0
+    GD_PANEL_VERSION="$ver"
+    gd_gauge_open "⌘ Übersetzung wird angewendet" "Vorbereitung..."
+    gd_translation_steps 10
+    gd_progress 100 "Übersetzung abgeschlossen."
+    gd_gauge_close
+}
+
 gd_resume_install() {
-    # Panel ist fertig, ein späterer Schritt (Wings oder Absicherung) wurde nicht abgeschlossen
+    # Panel ist fertig, ein späterer Schritt (Übersetzung, Wings oder Absicherung) wurde nicht abgeschlossen
     local mode text
     mode="$(gd_conf_get INSTALL_MODE)"
     if [ "$mode" = "panel_wings" ] && [ ! -f /etc/pterodactyl/config.yml ]; then
@@ -141,7 +155,11 @@ gd_resume_install() {
         # shellcheck disable=SC1090
         . "$GD_PENDING_CREDENTIALS"
         gd_show_credentials
+    else
+        gd_msg "Zugangsdaten" "Die Zugangsdaten des Administrator-Kontos liegen nicht mehr vor. Setze das Passwort später in der Verwaltung unter 'Hilfe & Analyse → Ich habe mich ausgesperrt' neu." 11 74
     fi
+    gd_resume_translation
+    GD_PORT_RANGE="${GD_PORT_RANGE:-$(gd_conf_get WINGS_PORT_RANGE_PLANNED)}"
     if [ "$mode" = "panel_wings" ]; then
         gd_yesno "⇄ Einrichtung fortsetzen" "$text" 13 76 || return 0
         gd_run wings-installer.sh
@@ -239,6 +257,8 @@ gd_fresh_install() {
     GD_ADMIN_PASSWORD="$(gd_gen_password 24)"
     GD_DB_PASSWORD="$(gd_gen_password 48)"
     gd_log "Installation gestartet: mode=$mode domain=$GD_DOMAIN version=$GD_PANEL_VERSION patch=$GD_APPLY_PATCH"
+    gd_conf_set INSTALL_MODE "$mode"
+    gd_conf_set WINGS_PORT_RANGE_PLANNED "${GD_PORT_RANGE:-}"
 
     gd_gauge_open "➜ Pterodactyl wird installiert" "Installation wird vorbereitet..."
     gd_panel_install_steps
@@ -334,6 +354,12 @@ fi
 if [ -d "$PTERO_DIR" ] && [ ! -f "$PTERO_DIR/.env" ] && [ "$(gd_conf_get INSTALL_STATE)" != "laeuft" ]; then
     gd_conf_set INSTALL_STATE laeuft
 fi
+# Panel bereits fertig eingerichtet (Abbruch erst bei Übersetzung, Wings oder Absicherung)? Dann fortsetzen statt löschen.
+if [ -d "$PTERO_DIR" ] && [ "$(gd_conf_get INSTALL_STATE)" = "laeuft" ] && gd_panel_configured; then
+    gd_log "Abgebrochene Installation mit fertigem Panel erkannt – Einrichtung wird fortgesetzt."
+    gd_conf_set INSTALL_STATE panel_fertig
+fi
+
 if [ -d "$PTERO_DIR" ] && [ "$(gd_conf_get INSTALL_STATE)" = "laeuft" ]; then
     gd_warn_colors_on
     if gd_yesno "Unvollständige Installation" "Die letzte Installation wurde nicht abgeschlossen (Details im Log unter $GD_LOG_DIR).\n\nSoll die unvollständige Installation entfernt und neu gestartet werden?\n\nBereits installierte Pakete bleiben erhalten, der Neustart geht deshalb schneller." 14 76; then

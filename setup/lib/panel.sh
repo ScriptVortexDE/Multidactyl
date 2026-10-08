@@ -370,6 +370,9 @@ gd_panel_install_steps() {
     gd_step 42 "Composer-Abhängigkeiten werden installiert (dauert etwas)..." gd_panel_composer
     gd_step 52 "Panel wird konfiguriert und die Datenbank eingerichtet..." gd_panel_configure "$GD_DOMAIN" "$GD_EMAIL" "$GD_DB_PASSWORD" "$GD_TELEMETRY"
     gd_step 58 "Administrator-Konto wird angelegt..." gd_panel_admin "$GD_EMAIL" "$GD_ADMIN_USER" "$GD_ADMIN_PASSWORD"
+    # Ab hier existiert das Konto: Zugangsdaten sofort sichern, damit sie bei einem späteren Abbruch
+    # (z. B. beim Build der Übersetzung) nicht verloren gehen.
+    if declare -F gd_pending_credentials_save >/dev/null; then gd_pending_credentials_save; fi
     gd_step 60 "Berechtigungen werden gesetzt..." gd_panel_permissions
     gd_step 62 "Cronjob und Hintergrunddienst (Queue) werden eingerichtet..." gd_panel_services
     # Reihenfolge wichtig: Blueprint ersetzt Dateien der Oberfläche, die Übersetzung kommt danach
@@ -402,6 +405,13 @@ gd_php_migrate() {
             /etc/nginx/sites-available/pterodactyl.conf
     fi
     gd_nginx_restart reload
+}
+
+gd_panel_configured() {
+    # Panel ist eingerichtet (Schlüssel, Datenbank, Queue-Dienst), auch wenn die Installation später abbrach
+    [ -f "$PTERO_DIR/.env" ] && grep -q '^APP_KEY=base64:' "$PTERO_DIR/.env" \
+        && [ -f /etc/systemd/system/pteroq.service ] \
+        && (cd "$PTERO_DIR" && php artisan migrate:status >/dev/null 2>&1)
 }
 
 gd_panel_installed_version() {

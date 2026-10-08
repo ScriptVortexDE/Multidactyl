@@ -666,17 +666,38 @@ maintenance_down() {
     fi
 }
 
+# Brauchen die Build-Werkzeuge den OpenSSL-Legacy-Provider? Ältere Build-Abhängigkeiten (Webpack 4 bei
+# Panel 1.11.x, css-loader < 6 z. B. aus Blueprints package.json) hashen mit MD4, das OpenSSL 3 (Node >= 17)
+# nur mit --openssl-legacy-provider erlaubt. Sonst: "error:0308010C:digital envelope routines::unsupported".
+needs_legacy_provider() {
+    local v
+    [ "$(node_major)" -ge 17 ] || return 1
+    v=$(sed -n 's/.*"version": *"\([0-9]*\)\..*/\1/p' node_modules/css-loader/package.json 2>/dev/null | head -n 1)
+    if [ -n "$v" ] && [ "$v" -lt 6 ]; then
+        return 0
+    fi
+    v=$(sed -n 's/.*"version": *"\([0-9]*\)\..*/\1/p' node_modules/webpack/package.json 2>/dev/null | head -n 1)
+    [ -n "$v" ] && [ "$v" -lt 5 ]
+}
+
 build_panel() {
+    local log_start
     send_info "Das Panel wird neu gebaut. Das dauert einige Minuten …"
     printf -- '--- yarn install ---\n' >>"$LOG"
     if ! run_logged yarn install --frozen-lockfile; then
         show_log_tail
         send_error "\"yarn install\" ist fehlgeschlagen."
     fi
+    if needs_legacy_provider; then
+        send_info "Ältere Build-Werkzeuge erkannt (z. B. durch Blueprint): Build läuft mit OpenSSL-Legacy-Provider."
+        export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--openssl-legacy-provider"
+    fi
+    log_start=$(wc -l <"$LOG")
     printf -- '--- yarn run build:production ---\n' >>"$LOG"
     if ! run_logged yarn run build:production; then
-        # Ältere Panel-Versionen (Webpack 4, z. B. v1.11.x) brauchen unter Node >= 17 den OpenSSL-Legacy-Provider.
-        if grep -q "ERR_OSSL_EVP_UNSUPPORTED" "$LOG"; then
+        # Fehlermeldung nur im Abschnitt dieses Builds suchen (das Log enthält auch frühere Läufe)
+        if tail -n "+$log_start" "$LOG" | grep -Eq "ERR_OSSL_EVP_UNSUPPORTED|0308010C|digital envelope routines" \
+            && [[ ${NODE_OPTIONS:-} != *openssl-legacy-provider* ]]; then
             send_warn "Build mit OpenSSL-Legacy-Modus wird erneut versucht (ältere Panel-Version) …"
             printf -- '--- yarn run build:production (NODE_OPTIONS=--openssl-legacy-provider) ---\n' >>"$LOG"
             if ! NODE_OPTIONS=--openssl-legacy-provider run_logged yarn run build:production; then

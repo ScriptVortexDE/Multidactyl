@@ -2,7 +2,18 @@
 
 ## 1.1.1 – 2026-10-09
 
+### Installer
+
+- Behoben: Build scheiterte mit `error:0308010C:digital envelope routines::unsupported`, wenn ältere
+  Build-Werkzeuge im Spiel sind (Blueprint bringt `css-loader 5.2.7` mit). Der Legacy-Provider wird jetzt vor dem
+  Build erkannt (css-loader < 6, webpack < 5) und beim Fehler in beiden Schreibweisen nachgezogen; die Suche nach
+  der Fehlermeldung beschränkt sich auf den aktuellen Lauf.
+
 ### Multidactyl Setup
+
+- Abbruch nach fertigem Panel (z. B. bei der Übersetzung) führt nicht mehr zur Neuinstallation: Der nächste Start
+  setzt fort, holt die Übersetzung nach und richtet Wings/Absicherung ein. Zugangsdaten werden direkt nach dem
+  Anlegen des Admin-Kontos gesichert.
 
 - Behoben: `Job for nginx.service failed` beim Paketschritt, wenn eine fehlerhafte `pterodactyl.conf` aus einem
   früheren Lauf in `sites-enabled` lag. Reste werden vor dem Start entfernt, die Konfiguration wird geprüft,

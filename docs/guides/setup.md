@@ -84,6 +84,12 @@ Multidactyl Setup basiert auf GermanDactyl Setup und behält den kompletten Funk
 - **Behoben:** `Job for nginx.service failed` beim Paketschritt, wenn eine fehlerhafte `pterodactyl.conf` aus einem
   abgebrochenen Lauf in `sites-enabled` lag. Reste werden vor dem Start entfernt, die Konfiguration wird geprüft, ein
   belegter Port 80 (z. B. Apache) wird im Fehlerdialog genannt.
+- **Behoben:** Der Build der Übersetzung scheiterte mit Blueprint (`error:0308010C:digital envelope routines`),
+  weil Blueprints `css-loader 5` auf Node 22 den OpenSSL-Legacy-Provider braucht. Der Installer erkennt das jetzt
+  vor dem Build und beim Fehler in beiden Schreibweisen.
+- **Besser:** Bricht die Installation erst nach dem fertigen Panel ab (Übersetzung, Wings, Absicherung), wird beim
+  nächsten Start fortgesetzt statt alles zu löschen. Zugangsdaten werden direkt nach dem Anlegen des Kontos gesichert,
+  die Übersetzung kann nachgeholt werden.
 - **Behoben:** Der Neustart nach einem Abbruch entfernt auch die nginx-Reste. Ein Panel-Ordner ohne `.env`, etwa nach
   einem Abbruch von GermanDactyl Setup, wird als unvollständige Installation erkannt.
 - **Sicherer:** Die Übersetzung wird mit Signatur- und Prüfsummenprüfung angewendet, mit Backup und Rollback.
