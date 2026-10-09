@@ -21,7 +21,7 @@ fi
 # ---------------------------------------------------------------------------
 # Bibliotheken laden: aus einem lokalen Checkout oder aus dem Repository
 # ---------------------------------------------------------------------------
-GD_LIBS=(common translation security panel wings blueprint backup autobackup uninstall manage)
+GD_LIBS=(common translation security panel panel2 wings blueprint backup autobackup uninstall manage)
 _gd_self="${BASH_SOURCE[0]:-}"
 if [ -n "$_gd_self" ] && [ -f "$_gd_self" ] && [ -f "$(dirname "$_gd_self")/lib/common.sh" ]; then
     GD_LOCAL_DIR="$(cd "$(dirname "$_gd_self")" && pwd)"
@@ -194,9 +194,18 @@ EOF
 }
 
 gd_fresh_install() {
-    local mode="$1"   # panel_wings | panel
+    local mode="$1"   # panel_wings | panel | panel2_wings | panel2
     local with_wings=false
-    [ "$mode" = "panel_wings" ] && with_wings=true
+    GD_PANEL_MAJOR=1
+    case "$mode" in
+        panel2_wings) with_wings=true; GD_PANEL_MAJOR=2 ;;
+        panel2)       GD_PANEL_MAJOR=2 ;;
+        panel_wings)  with_wings=true ;;
+    esac
+    mode="${mode/panel2/panel}"   # für INSTALL_MODE und die Fortsetzung nach Abbruch
+    if [ "$GD_PANEL_MAJOR" = 2 ]; then
+        gd_panel2_warning_dialog || { clear; echo "Die Installation wurde abgebrochen."; exit 0; }
+    fi
 
     # --- Eingaben -------------------------------------------------------------
     GD_DOMAIN="$(gd_ask_domain "⌂ Domain für das Panel" "Gib die Domain (FQDN) ein, unter der das Panel erreichbar sein soll, z. B. panel.deinedomain.de.\n\nDer DNS-Eintrag (A-Eintrag) muss bereits auf diesen Server zeigen, das wird im nächsten Schritt geprüft.")" || { clear; echo "Die Installation wurde abgebrochen."; exit 0; }
@@ -214,7 +223,12 @@ gd_fresh_install() {
         GD_TELEMETRY=true
     fi
 
-    gd_choose_panel_version || { clear; echo "Die Installation wurde abgebrochen."; exit 0; }
+    if [ "$GD_PANEL_MAJOR" = 2 ]; then
+        GD_PANEL_VERSION="$GD_PANEL2_LABEL"
+        GD_APPLY_PATCH=false
+    else
+        gd_choose_panel_version || { clear; echo "Die Installation wurde abgebrochen."; exit 0; }
+    fi
 
     if $with_wings; then
         GD_WINGS_FQDN="$GD_DOMAIN"
@@ -229,8 +243,11 @@ gd_fresh_install() {
     fi
 
     gd_security_ask
-    gd_blueprint_ask
-    gd_translation_ask
+    GD_BLUEPRINT=false
+    if [ "$GD_PANEL_MAJOR" != 2 ]; then
+        gd_blueprint_ask
+        gd_translation_ask
+    fi
 
     # Reste einer früheren Installation in der Datenbank?
     if command -v mariadb >/dev/null 2>&1 && gd_panel_db_has_tables; then
@@ -246,7 +263,7 @@ gd_fresh_install() {
 
     # --- Zusammenfassung ------------------------------------------------------
     local summary
-    summary="Panel:         https://${GD_DOMAIN}\nVersion:       v${GD_PANEL_VERSION} $( [ "$GD_APPLY_PATCH" = "true" ] && echo '(Deutsch, Multidactyl)' || echo '(Englisch)')\nE-Mail:        ${GD_EMAIL}\nBenutzername:  ${GD_ADMIN_USER}\nTelemetrie:    $( $GD_TELEMETRY && echo an || echo aus)\n"
+    summary="Panel:         https://${GD_DOMAIN}\nVersion:       $( [ "$GD_PANEL_MAJOR" = 2 ] && echo "${GD_PANEL_VERSION} (Entwicklungsversion, Englisch)" || echo "v${GD_PANEL_VERSION} $( [ "$GD_APPLY_PATCH" = "true" ] && echo '(Deutsch, Multidactyl)' || echo '(Englisch)')")\nE-Mail:        ${GD_EMAIL}\nBenutzername:  ${GD_ADMIN_USER}\nTelemetrie:    $( $GD_TELEMETRY && echo an || echo aus)\n"
     if $with_wings; then
         summary+="Wings:         https://${GD_WINGS_FQDN}:8080 (automatisch verbunden)\nGameserver:    Ports ${GD_PORT_RANGE}\n"
     fi
@@ -265,7 +282,11 @@ gd_fresh_install() {
     gd_conf_set WINGS_PORT_RANGE_PLANNED "${GD_PORT_RANGE:-}"
 
     gd_gauge_open "➜ Pterodactyl wird installiert" "Installation wird vorbereitet..."
-    gd_panel_install_steps
+    if [ "$GD_PANEL_MAJOR" = 2 ]; then
+        gd_panel2_install_steps
+    else
+        gd_panel_install_steps
+    fi
     # Ab hier ist das Panel nutzbar. Scheitert ein späterer Schritt (Wings, Absicherung), gehen die
     # Zugangsdaten nicht verloren und der nächste Start setzt die Einrichtung fort, statt neu zu installieren.
     gd_conf_set INSTALL_STATE panel_fertig
@@ -317,17 +338,21 @@ gd_install_menu() {
         clear; echo "Die Installation wurde abgebrochen."; exit 0
     fi
 
-    choice=$(whiptail --title "Was möchtest du installieren?" --menu "Wähle aus, was auf diesem Server eingerichtet werden soll:" 17 78 4 \
+    choice=$(whiptail --title "Was möchtest du installieren?" --menu "Wähle aus, was auf diesem Server eingerichtet werden soll:" 19 78 6 \
         "1" "Panel + Wings (empfohlen, sofort einsatzbereit)" \
         "2" "Nur Panel (Wings läuft auf einem anderen Server)" \
         "3" "Nur Wings (Panel läuft auf einem anderen Server)" \
-        "4" "Pelican Panel + Wings (Beta)" 3>&1 1>&2 2>&3) || { clear; exit 0; }
+        "4" "Pelican Panel + Wings (Beta)" \
+        "5" "Pterodactyl 2.0-develop + Wings (Entwicklungsversion, nur zum Testen)" \
+        "6" "Pterodactyl 2.0-develop, nur Panel (Entwicklungsversion)" 3>&1 1>&2 2>&3) || { clear; exit 0; }
 
     case "$choice" in
         1) gd_fresh_install panel_wings ;;
         2) gd_fresh_install panel ;;
         3) gd_run wings-installer.sh ;;
         4) gd_run pelican-installer.sh ;;
+        5) gd_fresh_install panel2_wings ;;
+        6) gd_fresh_install panel2 ;;
     esac
 }
 

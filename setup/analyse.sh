@@ -222,7 +222,7 @@ check_panel() {
     [ -f "$PTERO_DIR/config/app.php" ] || return
     local installed latest php_version code
     installed="$(grep "'version' =>" "$PTERO_DIR/config/app.php" | cut -d\' -f4)"
-    latest="$(gd_latest_release pterodactyl/panel)"
+    latest="$( [ "$(gd_conf_get PANEL_MAJOR)" = "2" ] || gd_latest_release pterodactyl/panel)"
     if [ -z "$latest" ]; then warn "Pterodactyl Panel v$installed – die neueste Version konnte nicht abgefragt werden (GitHub nicht erreichbar)"
     elif [ "$installed" = "$latest" ]; then ok "Pterodactyl Panel v$installed ist aktuell"
     elif gd_version_ge "$installed" "$latest"; then ok "Pterodactyl Panel v$installed (neuer als die letzte Veröffentlichung)"

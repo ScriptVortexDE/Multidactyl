@@ -139,6 +139,19 @@ gd_php_fpm_socket() {
     echo "${sock:-/run/php/php${GD_PHP_VERSION}-fpm.sock}"
 }
 
+gd_nginx_assets_block() {
+    # Pterodactyl 2.0 liefert die gebaute Oberfläche unter /assets/ als statische Dateien aus
+    [ "${GD_PANEL_MAJOR:-$(gd_conf_get PANEL_MAJOR)}" = "2" ] || return 0
+    cat <<'EOF'
+    # Pterodactyl 2.0: gebaute Oberfläche als statische Dateien, nie an PHP
+    location /assets/ {
+        try_files $uri =404;
+        location ~ /\. { deny all; }
+    }
+
+EOF
+}
+
 gd_nginx_ssl_config() {
     # Offizielle SSL-Konfiguration (https://pterodactyl.io/panel/1.0/webserver_configuration.html)
     local domain="$1" sock
@@ -193,7 +206,7 @@ $( [ -f /etc/nginx/snippets/multidactyl-phpmyadmin.conf ] && echo "    include s
     add_header X-Frame-Options DENY;
     add_header Referrer-Policy same-origin;
 
-    location / {
+$(gd_nginx_assets_block)    location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
     }
 
@@ -415,6 +428,11 @@ gd_panel_configured() {
 }
 
 gd_panel_installed_version() {
+    # 2.0 meldet "canary" – dort den Branch-Stand aus der Konfiguration zeigen
+    if [ "$(gd_conf_get PANEL_MAJOR)" = "2" ]; then
+        echo "2.0-develop"
+        return 0
+    fi
     grep "'version' =>" "$PTERO_DIR/config/app.php" 2>/dev/null | cut -d\' -f4
 }
 
@@ -447,6 +465,10 @@ gd_panel_update_steps() {
 gd_panel_update() {
     # Interaktive Aktualisierung/Reparatur inklusive Multidactyl
     local installed
+    if declare -F gd_panel2_is_installed >/dev/null && gd_panel2_is_installed; then
+        gd_panel2_update
+        return
+    fi
     installed="$(gd_panel_installed_version)"
     gd_choose_panel_version || return 1
     gd_yesno "↑ Panel aktualisieren" "Installiert: v${installed:-unbekannt}\nZiel: v${GD_PANEL_VERSION} $( [ "$GD_APPLY_PATCH" = "true" ] && echo '(mit deutscher Übersetzung)' || echo '(Englisch)')\n\nDas Panel ist während der Aktualisierung einige Minuten nicht erreichbar. Änderungen an Dateien des Panels (Themes/Addons) werden dabei überschrieben.\n\nEmpfehlung: Erstelle vorher ein Backup über die Backup-Verwaltung.\n\nMöchtest du fortfahren?" 18 78 || return 1

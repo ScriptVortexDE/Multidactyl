@@ -70,6 +70,17 @@ Statuszeile und diesen Bereichen:
 | Server & Sicherheit | Firewall, fail2ban, automatische Updates, SSH-Loginseite |
 | Deinstallieren | Panel, Wings und alle Komponenten sauber entfernen |
 
+### Pterodactyl 2.0 (Entwicklungsversion)
+
+Zum Testen installiert das Setup auch den Branch `2.0-develop` nach der
+[offiziellen 2.0-Dokumentation](https://docs.pterodactyl.io/v2): ZIP des Branches, PHP 8.3 mit `intl`, MariaDB ab
+10.11 (auf Debian 11/12 und Ubuntu 22.04 wird das MariaDB-Repository eingerichtet), Node.js 22 mit npm/Vite-Build,
+nginx mit dem neuen `/assets/`-Block, Cronjob, Queue-Dienst, SSL und Admin-Konto. Wings ist dasselbe wie bei 1.x.
+
+!!! warning "Nur zum Testen"
+    2.0 ist nicht veröffentlicht, der Branch ändert sich täglich. Keine Übersetzung (2.0 bringt ein eigenes
+    Sprachsystem mit, Deutsch folgt), kein Blueprint. „Panel aktualisieren“ holt den neuesten Branch-Stand.
+
 ### Pelican Panel (Beta)
 
 Alternativ installiert das Skript das Pelican Panel samt Pelican Wings. Pelican bringt Deutsch bereits mit, ein

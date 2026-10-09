@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0 – 2026-10-09
+
+### Multidactyl Setup
+
+- Neu: Installation von **Pterodactyl 2.0-develop** (Entwicklungsversion) nach der offiziellen 2.0-Dokumentation,
+  mit und ohne Wings: Branch-ZIP, MariaDB ab 10.11 (Repository auf älteren Systemen), Node.js 22 mit npm/Vite-Build,
+  nginx `/assets/`-Block, Rückfallebene für geänderte Artisan-Optionen. Update holt den neuesten Branch-Stand.
+  Keine Übersetzung und kein Blueprint für 2.0, die Verwaltung erkennt 2.0 und überspringt den 1.x-Versionsvergleich.
+
 ## 1.1.1 – 2026-10-09
 
 ### Installer

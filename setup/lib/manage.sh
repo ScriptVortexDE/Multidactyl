@@ -105,6 +105,7 @@ gd_update_check() {
     local ts latest
     GD_UPDATE_VERSION=""
     gd_has_panel || return 0
+    [ "$(gd_conf_get PANEL_MAJOR)" = "2" ] && return 0   # 2.0-develop: kein Release-Vergleich
     ts="$(gd_conf_get PANEL_LATEST_TS)"
     if [ -z "$ts" ] || [ $(( $(date +%s) - ts )) -gt 86400 ]; then
         latest="$(gd_latest_release pterodactyl/panel)"

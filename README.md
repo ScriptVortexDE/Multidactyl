@@ -39,7 +39,8 @@ Alle Details, Voraussetzungen und die manuelle Installation stehen in der [Dokum
 ## Multidactyl Setup: Panel und Wings installieren
 
 Noch kein Panel? Das Setup richtet Pterodactyl Panel, Wings, SSL, Admin-Konto und Absicherung über eine Textoberfläche ein
-und bietet danach eine Verwaltung (Updates, Problembehandlung, Backups, Deinstallation). Auch Pelican (Beta).
+und bietet danach eine Verwaltung (Updates, Problembehandlung, Backups, Deinstallation). Auch Pelican (Beta) und
+Pterodactyl 2.0-develop (Entwicklungsversion, zum Testen).
 
 ```shell
 sudo bash -c "$(curl -sSL https://raw.githubusercontent.com/ScriptVortexDE/Multidactyl/main/setup/installer.sh)"
