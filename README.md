@@ -6,11 +6,20 @@ Aktuell enthalten: **Deutsch** (`de`) für Panel **v1.15.1** sowie die älteren 
 
 ## Installation
 
+**Komplett-Installation (Panel, Wings, SSL, Admin-Konto, Absicherung)** über die Textoberfläche von Multidactyl Setup.
+Läuft bereits ein Panel, öffnet derselbe Befehl die Verwaltung:
+
+```shell
+sudo bash -c "$(curl -sSL https://raw.githubusercontent.com/ScriptVortexDE/Multidactyl/main/setup/installer.sh)"
+```
+
+**Nur die Übersetzung** für ein bestehendes Pterodactyl Panel:
+
 ```shell
 curl -fsSL https://raw.githubusercontent.com/ScriptVortexDE/Multidactyl/main/scripts/install.sh | sudo bash -s --
 ```
 
-Der Installer erkennt die Panel-Version, lädt den passenden Patch, prüft Signatur und Prüfsumme, legt ein Backup an, wendet den Patch an, baut die Oberfläche neu und stellt die Sprache um. Schlägt der Build fehl, wird das Backup automatisch zurückgespielt.
+Der Übersetzungs-Installer erkennt die Panel-Version, lädt den passenden Patch, prüft Signatur und Prüfsumme, legt ein Backup an, wendet den Patch an, baut die Oberfläche neu und stellt die Sprache um. Schlägt der Build fehl, wird das Backup automatisch zurückgespielt.
 
 | Option | Bedeutung |
 | --- | --- |
@@ -20,6 +29,7 @@ Der Installer erkennt die Panel-Version, lädt den passenden Patch, prüft Signa
 | `-c` | nur prüfen, ob der Patch passt – verändert nichts |
 | `-s` | Status: Panel-Version, Sprache, installierter Patch, Backups |
 | `-l` | verfügbare Sprachen und Patches auflisten |
+| `-f` | nicht passende Stellen ohne Rückfrage überspringen (für Skripte) |
 | `-u` | deinstallieren, zurück zu Englisch |
 | `-y` | ohne Wartezeit starten |
 | `-V` / `-h` | Version / Hilfe |
@@ -38,13 +48,9 @@ Alle Details, Voraussetzungen und die manuelle Installation stehen in der [Dokum
 
 ## Multidactyl Setup: Panel und Wings installieren
 
-Noch kein Panel? Das Setup richtet Pterodactyl Panel, Wings, SSL, Admin-Konto und Absicherung über eine Textoberfläche ein
-und bietet danach eine Verwaltung (Updates, Problembehandlung, Backups, Deinstallation). Auch Pelican (Beta) und
-Pterodactyl 2.0-develop (Entwicklungsversion, zum Testen).
-
-```shell
-sudo bash -c "$(curl -sSL https://raw.githubusercontent.com/ScriptVortexDE/Multidactyl/main/setup/installer.sh)"
-```
+Das Setup richtet Pterodactyl Panel, Wings, SSL, Admin-Konto und Absicherung über eine Textoberfläche ein
+und bietet danach eine Verwaltung (Updates, Problembehandlung, Backups, Deinstallation). Auch Pelican (Beta),
+Pterodactyl 2.0-develop (Entwicklungsversion) und eine 2.0-Dev-Instanz neben dem bestehenden Panel.
 
 Details in [`setup/README.md`](setup/README.md) und in der [Dokumentation](https://scriptvortexde.github.io/Multidactyl/guides/setup/).
 
