@@ -4,6 +4,11 @@
 
 ### Multidactyl Setup
 
+- Neu: **Dev-Instanz** in der Verwaltung: Pterodactyl 2.0-develop als zweite, getrennte Installation neben dem
+  bestehenden Panel (eigene Domain, `/var/www/pterodactyl-dev`, Datenbank `panel_dev`, `pterodactyl-dev.conf`,
+  `pteroq-dev`) mit Installieren, Aktualisieren, Logs und Entfernen. Dafür sind Ordner, Datenbank, nginx-Konfiguration
+  und Queue-Dienst in den Panel-Funktionen jetzt instanzabhängig.
+
 - Neu: Installation von **Pterodactyl 2.0-develop** (Entwicklungsversion) nach der offiziellen 2.0-Dokumentation,
   mit und ohne Wings: Branch-ZIP, MariaDB ab 10.11 (Repository auf älteren Systemen), Node.js 22 mit npm/Vite-Build,
   nginx `/assets/`-Block, Rückfallebene für geänderte Artisan-Optionen. Update holt den neuesten Branch-Stand.

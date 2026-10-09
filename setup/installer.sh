@@ -21,7 +21,7 @@ fi
 # ---------------------------------------------------------------------------
 # Bibliotheken laden: aus einem lokalen Checkout oder aus dem Repository
 # ---------------------------------------------------------------------------
-GD_LIBS=(common translation security panel panel2 wings blueprint backup autobackup uninstall manage)
+GD_LIBS=(common translation security panel panel2 instance wings blueprint backup autobackup uninstall manage)
 _gd_self="${BASH_SOURCE[0]:-}"
 if [ -n "$_gd_self" ] && [ -f "$_gd_self" ] && [ -f "$(dirname "$_gd_self")/lib/common.sh" ]; then
     GD_LOCAL_DIR="$(cd "$(dirname "$_gd_self")" && pwd)"

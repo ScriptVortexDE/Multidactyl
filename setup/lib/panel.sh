@@ -3,8 +3,13 @@
 # Eigenständige Installation und Aktualisierung des Pterodactyl Panels nach offizieller Dokumentation
 # (https://pterodactyl.io/panel/1.0/getting_started.html). Benötigt lib/common.sh und lib/translation.sh.
 
-GD_PANEL_DB="panel"
-GD_PANEL_DB_USER="pterodactyl"
+GD_PANEL_DB="${GD_PANEL_DB:-panel}"
+GD_PANEL_DB_USER="${GD_PANEL_DB_USER:-pterodactyl}"
+# Instanzabhängige Namen (eine zweite Instanz, z. B. die Dev-Instanz, setzt sie um – siehe lib/instance.sh)
+GD_NGINX_CONF="${GD_NGINX_CONF:-pterodactyl.conf}"
+GD_NGINX_LOG="${GD_NGINX_LOG:-pterodactyl}"
+GD_QUEUE_SERVICE="${GD_QUEUE_SERVICE:-pteroq}"
+GD_CONF_PREFIX="${GD_CONF_PREFIX:-}"
 
 # ---------------------------------------------------------------------------
 # Einzelschritte
@@ -41,8 +46,8 @@ gd_nginx_disable_default() {
 gd_nginx_stale_cleanup() {
     # Reste eines früheren (abgebrochenen) Laufs entfernen: Eine fehlerhafte Panel-Konfiguration in
     # sites-enabled verhindert sonst jeden Start von nginx ("Job for nginx.service failed").
-    # gd_nginx_stale_cleanup [konfigname] – Standard: pterodactyl.conf
-    local name="${1:-pterodactyl.conf}" f removed=0
+    # gd_nginx_stale_cleanup [konfigname] – Standard: die Konfiguration dieser Instanz
+    local name="${1:-$GD_NGINX_CONF}" f removed=0
     for f in "/etc/nginx/sites-enabled/$name" "/etc/nginx/sites-available/$name"; do
         [ -e "$f" ] || continue
         rm -f "$f"
@@ -109,7 +114,7 @@ gd_panel_download() {
 gd_nginx_http_config() {
     # Vorläufige Konfiguration nur für die Zertifikatsausstellung (Webroot-Verfahren)
     local domain="$1"
-    cat > /etc/nginx/sites-available/pterodactyl.conf <<EOF
+    cat > "/etc/nginx/sites-available/$GD_NGINX_CONF" <<EOF
 # Angelegt von Multidactyl Setup (vorläufig, wird nach der Zertifikatsausstellung ersetzt)
 server {
     listen 80;
@@ -124,7 +129,7 @@ server {
     }
 }
 EOF
-    ln -sf /etc/nginx/sites-available/pterodactyl.conf /etc/nginx/sites-enabled/pterodactyl.conf
+    ln -sf "/etc/nginx/sites-available/$GD_NGINX_CONF" "/etc/nginx/sites-enabled/$GD_NGINX_CONF"
     gd_nginx_disable_default
     gd_nginx_restart reload
 }
@@ -156,7 +161,7 @@ gd_nginx_ssl_config() {
     # Offizielle SSL-Konfiguration (https://pterodactyl.io/panel/1.0/webserver_configuration.html)
     local domain="$1" sock
     sock="$(gd_php_fpm_socket)"
-    cat > /etc/nginx/sites-available/pterodactyl.conf <<EOF
+    cat > "/etc/nginx/sites-available/$GD_NGINX_CONF" <<EOF
 # Angelegt von Multidactyl Setup – Grundlage: offizielle Pterodactyl-Dokumentation
 server {
     listen 80;
@@ -181,8 +186,8 @@ server {
     index index.php;
 $( [ -f /etc/nginx/snippets/multidactyl-phpmyadmin.conf ] && echo "    include snippets/multidactyl-phpmyadmin.conf;" )
 
-    access_log /var/log/nginx/pterodactyl.app-access.log;
-    error_log  /var/log/nginx/pterodactyl.app-error.log error;
+    access_log /var/log/nginx/${GD_NGINX_LOG}.app-access.log;
+    error_log  /var/log/nginx/${GD_NGINX_LOG}.app-error.log error;
 
     # allow larger file uploads and longer script runtimes
     client_max_body_size 100m;
@@ -231,7 +236,7 @@ $(gd_nginx_assets_block)    location / {
     }
 }
 EOF
-    ln -sf /etc/nginx/sites-available/pterodactyl.conf /etc/nginx/sites-enabled/pterodactyl.conf
+    ln -sf "/etc/nginx/sites-available/$GD_NGINX_CONF" "/etc/nginx/sites-enabled/$GD_NGINX_CONF"
     gd_nginx_restart reload
 }
 
@@ -317,7 +322,7 @@ gd_panel_services() {
     local cron_line="* * * * * php ${PTERO_DIR}/artisan schedule:run >> /dev/null 2>&1"
     { crontab -l 2>/dev/null | grep -vF "${PTERO_DIR}/artisan schedule:run"; echo "$cron_line"; } | crontab - || return 1
 
-    cat > /etc/systemd/system/pteroq.service <<EOF
+    cat > "/etc/systemd/system/${GD_QUEUE_SERVICE}.service" <<EOF
 # Pterodactyl Queue Worker File
 # ----------------------------------
 
@@ -340,7 +345,7 @@ RestartSec=5s
 WantedBy=multi-user.target
 EOF
     systemctl daemon-reload
-    systemctl enable --now redis-server pteroq
+    systemctl enable --now redis-server "$GD_QUEUE_SERVICE"
 }
 
 gd_panel_healthcheck() {
@@ -384,8 +389,8 @@ gd_panel_install_steps() {
     gd_step 52 "Panel wird konfiguriert und die Datenbank eingerichtet..." gd_panel_configure "$GD_DOMAIN" "$GD_EMAIL" "$GD_DB_PASSWORD" "$GD_TELEMETRY"
     gd_step 58 "Administrator-Konto wird angelegt..." gd_panel_admin "$GD_EMAIL" "$GD_ADMIN_USER" "$GD_ADMIN_PASSWORD"
     # Ab hier existiert das Konto: Zugangsdaten sofort sichern, damit sie bei einem späteren Abbruch
-    # (z. B. beim Build der Übersetzung) nicht verloren gehen.
-    if declare -F gd_pending_credentials_save >/dev/null; then gd_pending_credentials_save; fi
+    # (z. B. beim Build der Übersetzung) nicht verloren gehen (nur Hauptpanel).
+    if [ -z "${GD_DEV_INSTANCE:-}" ] && declare -F gd_pending_credentials_save >/dev/null; then gd_pending_credentials_save; fi
     gd_step 60 "Berechtigungen werden gesetzt..." gd_panel_permissions
     gd_step 62 "Cronjob und Hintergrunddienst (Queue) werden eingerichtet..." gd_panel_services
     # Reihenfolge wichtig: Blueprint ersetzt Dateien der Oberfläche, die Übersetzung kommt danach
@@ -413,9 +418,9 @@ gd_php_migrate() {
     # Ältere Installationen (z. B. PHP 8.1) auf die benötigte PHP-Version umstellen
     gd_php_repo || return 1
     gd_php_packages || return 1
-    if [ -f /etc/nginx/sites-available/pterodactyl.conf ]; then
+    if [ -f "/etc/nginx/sites-available/$GD_NGINX_CONF" ]; then
         sed -i -E "s#unix:/run/php/php[0-9]+\.[0-9]+-fpm\.sock#unix:/run/php/php${GD_PHP_VERSION}-fpm.sock#" \
-            /etc/nginx/sites-available/pterodactyl.conf
+            "/etc/nginx/sites-available/$GD_NGINX_CONF"
     fi
     gd_nginx_restart reload
 }
@@ -423,7 +428,7 @@ gd_php_migrate() {
 gd_panel_configured() {
     # Panel ist eingerichtet (Schlüssel, Datenbank, Queue-Dienst), auch wenn die Installation später abbrach
     [ -f "$PTERO_DIR/.env" ] && grep -q '^APP_KEY=base64:' "$PTERO_DIR/.env" \
-        && [ -f /etc/systemd/system/pteroq.service ] \
+        && [ -f "/etc/systemd/system/${GD_QUEUE_SERVICE}.service" ] \
         && (cd "$PTERO_DIR" && php artisan migrate:status >/dev/null 2>&1)
 }
 
@@ -450,7 +455,7 @@ gd_panel_update_steps() {
     gd_step 55 "Zwischenspeicher werden geleert..." bash -c "cd '$PTERO_DIR' && php artisan view:clear && php artisan config:clear"
     gd_step 60 "Datenbank wird aktualisiert..." bash -c "cd '$PTERO_DIR' && php artisan migrate --seed --force"
     gd_step 65 "Berechtigungen werden gesetzt..." gd_panel_permissions
-    gd_step 68 "Hintergrunddienste werden neu gestartet..." bash -c "cd '$PTERO_DIR' && php artisan queue:restart && systemctl restart pteroq"
+    gd_step 68 "Hintergrunddienste werden neu gestartet..." bash -c "cd '$PTERO_DIR' && php artisan queue:restart && systemctl restart $GD_QUEUE_SERVICE"
     # Blueprint wird durch das Update teilweise überschrieben und muss erneut angewendet werden
     if gd_blueprint_installed; then
         gd_blueprint_install_step 69

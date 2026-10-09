@@ -56,7 +56,7 @@ gd_panel2_download() {
     rm -rf "$src" "$GD_TMP/panel2.zip"
     chmod -R 755 "$PTERO_DIR"/storage/* "$PTERO_DIR"/bootstrap/cache/
     GD_PANEL2_COMMIT="$(gd_panel2_commit)"
-    gd_conf_set PANEL2_COMMIT "${GD_PANEL2_COMMIT:-unbekannt}"
+    gd_conf_set "${GD_CONF_PREFIX:-}PANEL2_COMMIT" "${GD_PANEL2_COMMIT:-unbekannt}"
     echo "Pterodactyl ${GD_PANEL2_LABEL} (Commit ${GD_PANEL2_COMMIT:-unbekannt}) entpackt."
 }
 
@@ -126,8 +126,8 @@ gd_panel2_install_steps() {
     # Erwartet: GD_DOMAIN, GD_EMAIL, GD_ADMIN_USER, GD_ADMIN_PASSWORD, GD_DB_PASSWORD, GD_TELEMETRY
     GD_PANEL_MAJOR=2
     GD_PANEL_VERSION="$GD_PANEL2_LABEL"
-    gd_conf_set INSTALL_STATE laeuft
-    gd_conf_set PANEL_MAJOR 2
+    gd_conf_set "${GD_CONF_PREFIX:-}INSTALL_STATE" laeuft
+    gd_conf_set "${GD_CONF_PREFIX:-}PANEL_MAJOR" 2
     gd_step 2  "Paketquellen werden aktualisiert..." gd_apt update
     gd_step 5  "PHP ${GD_PHP_VERSION}-Paketquelle wird eingerichtet..." gd_php_repo
     gd_step 9  "PHP ${GD_PHP_VERSION} wird installiert..." gd_php_packages
@@ -145,14 +145,14 @@ gd_panel2_install_steps() {
     gd_step 48 "Oberfläche wird gebaut (npm/Vite, dauert einige Minuten)..." gd_panel2_build
     gd_step 56 "Panel wird konfiguriert und die Datenbank eingerichtet..." gd_panel2_configure "$GD_DOMAIN" "$GD_EMAIL" "$GD_DB_PASSWORD" "$GD_TELEMETRY"
     gd_step 60 "Administrator-Konto wird angelegt..." gd_panel_admin "$GD_EMAIL" "$GD_ADMIN_USER" "$GD_ADMIN_PASSWORD"
-    if declare -F gd_pending_credentials_save >/dev/null; then gd_pending_credentials_save; fi
+    if [ -z "${GD_DEV_INSTANCE:-}" ] && declare -F gd_pending_credentials_save >/dev/null; then gd_pending_credentials_save; fi
     gd_step 62 "Berechtigungen werden gesetzt..." gd_panel_permissions
     gd_step 64 "Cronjob und Hintergrunddienst (Queue) werden eingerichtet..." gd_panel_services
     gd_step 70 "Panel wird auf Erreichbarkeit geprüft..." gd_panel_healthcheck "$GD_DOMAIN"
 
-    gd_conf_set PANEL_DOMAIN "$GD_DOMAIN"
-    gd_conf_set PANEL_EMAIL "$GD_EMAIL"
-    gd_conf_set PANEL_VERSION "$GD_PANEL2_LABEL"
+    gd_conf_set "${GD_CONF_PREFIX:-}PANEL_DOMAIN" "$GD_DOMAIN"
+    gd_conf_set "${GD_CONF_PREFIX:-}PANEL_EMAIL" "$GD_EMAIL"
+    gd_conf_set "${GD_CONF_PREFIX:-}PANEL_VERSION" "$GD_PANEL2_LABEL"
 }
 
 gd_panel2_update_steps() {
@@ -165,18 +165,18 @@ gd_panel2_update_steps() {
     gd_step 70 "Zwischenspeicher werden geleert..." bash -c "cd '$PTERO_DIR' && php artisan optimize:clear"
     gd_step 75 "Datenbank wird aktualisiert..." bash -c "cd '$PTERO_DIR' && php artisan migrate --force"
     gd_step 85 "Berechtigungen werden gesetzt..." gd_panel_permissions
-    gd_step 90 "Hintergrunddienste werden neu gestartet..." bash -c "cd '$PTERO_DIR' && php artisan queue:restart; systemctl restart pteroq php${GD_PHP_VERSION}-fpm"
+    gd_step 90 "Hintergrunddienste werden neu gestartet..." bash -c "cd '$PTERO_DIR' && php artisan queue:restart; systemctl restart $GD_QUEUE_SERVICE php${GD_PHP_VERSION}-fpm"
     gd_step 95 "Panel wird wieder freigegeben..." bash -c "cd '$PTERO_DIR' && php artisan up"
-    gd_conf_set PANEL_VERSION "$GD_PANEL2_LABEL"
+    gd_conf_set "${GD_CONF_PREFIX:-}PANEL_VERSION" "$GD_PANEL2_LABEL"
 }
 
 gd_panel2_update() {
-    gd_yesno "↑ Pterodactyl 2.0 aktualisieren" "Installiert: ${GD_PANEL2_LABEL} (Commit $(gd_conf_get PANEL2_COMMIT))\nZiel: neuester Stand des Branches ${GD_PANEL2_BRANCH}\n\nEntwicklungsversion: Der neue Stand kann Fehler enthalten. Das Panel ist während der Aktualisierung einige Minuten nicht erreichbar.\n\nEmpfehlung: Erstelle vorher ein Backup über die Backup-Verwaltung.\n\nMöchtest du fortfahren?" 17 78 || return 1
+    gd_yesno "↑ Pterodactyl 2.0 aktualisieren" "Installiert: ${GD_PANEL2_LABEL} (Commit $(gd_conf_get "${GD_CONF_PREFIX:-}PANEL2_COMMIT"))\nZiel: neuester Stand des Branches ${GD_PANEL2_BRANCH}\n\nEntwicklungsversion: Der neue Stand kann Fehler enthalten. Das Panel ist während der Aktualisierung einige Minuten nicht erreichbar.\n\nEmpfehlung: Erstelle vorher ein Backup über die Backup-Verwaltung.\n\nMöchtest du fortfahren?" 17 78 || return 1
     gd_gauge_open "↑ Pterodactyl 2.0 wird aktualisiert" "Aktualisierung wird vorbereitet..."
     gd_panel2_update_steps
     gd_progress 100 "Aktualisierung abgeschlossen."
     gd_gauge_close
-    gd_msg "✔ Aktualisierung abgeschlossen" "Pterodactyl ${GD_PANEL2_LABEL} wurde auf Commit $(gd_conf_get PANEL2_COMMIT) aktualisiert.\n\nFalls dein Browser noch die alte Oberfläche anzeigt, lade die Seite mit Strg + F5 neu." 11 70
+    gd_msg "✔ Aktualisierung abgeschlossen" "Pterodactyl ${GD_PANEL2_LABEL} wurde auf Commit $(gd_conf_get "${GD_CONF_PREFIX:-}PANEL2_COMMIT") aktualisiert.\n\nFalls dein Browser noch die alte Oberfläche anzeigt, lade die Seite mit Strg + F5 neu." 11 70
 }
 
 gd_panel2_warning_dialog() {

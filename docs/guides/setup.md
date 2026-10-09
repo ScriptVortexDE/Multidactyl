@@ -81,6 +81,18 @@ nginx mit dem neuen `/assets/`-Block, Cronjob, Queue-Dienst, SSL und Admin-Konto
     2.0 ist nicht veröffentlicht, der Branch ändert sich täglich. Keine Übersetzung (2.0 bringt ein eigenes
     Sprachsystem mit, Deutsch folgt), kein Blueprint. „Panel aktualisieren“ holt den neuesten Branch-Stand.
 
+### Dev-Instanz: 2.0 neben dem bestehenden Panel
+
+Läuft auf dem Server bereits ein Panel, findest du in der Verwaltung den Punkt **„Dev-Instanz: Pterodactyl 2.0
+nebenbei“**. Er installiert 2.0-develop als zweite, getrennte Instanz unter eigener Domain (z. B. `dev.deinedomain.de`)
+mit eigenem Ordner `/var/www/pterodactyl-dev`, eigener Datenbank `panel_dev`, eigener nginx-Konfiguration und eigenem
+Queue-Dienst `pteroq-dev`. Das Hauptpanel bleibt unverändert, Wings bleibt mit dem Hauptpanel verbunden. Dort kannst
+du die Dev-Instanz auch aktualisieren (neuester Branch-Stand), Logs ansehen und sie rückstandslos entfernen.
+
+!!! info "MariaDB"
+    2.0 braucht MariaDB ab 10.11. Ist auf dem Server eine ältere Version installiert, bricht die Dev-Instanz mit
+    einem Hinweis ab, weil ein MariaDB-Upgrade auch das Hauptpanel betreffen würde.
+
 ### Pelican Panel (Beta)
 
 Alternativ installiert das Skript das Pelican Panel samt Pelican Wings. Pelican bringt Deutsch bereits mit, ein

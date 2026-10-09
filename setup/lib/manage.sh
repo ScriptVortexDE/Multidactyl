@@ -140,6 +140,7 @@ gd_main_menu() {
         gd_has_panel && items+=("5" "❖ Erweiterungen & Aussehen")
         gd_has_panel && items+=("6" "▦ Datenbanken (phpMyAdmin, DB-Host)")
         items+=("7" "⚙ Server & Sicherheit (Firewall, SSH)")
+        gd_has_panel && items+=("D" "⚗ Dev-Instanz: Pterodactyl 2.0 nebenbei ($(gd_dev_installed && echo "installiert" || echo "nicht installiert"))")
         gd_has_panel || items+=("P" "✚ Panel auf diesem Server installieren")
         items+=("8" "✖ Deinstallieren")
         items+=("0" "⊗ Beenden")
@@ -155,6 +156,7 @@ gd_main_menu() {
             5) gd_menu_extensions ;;
             6) gd_menu_databases ;;
             7) gd_menu_server ;;
+            D) gd_dev_menu ;;
             P) gd_install_menu; return ;;
             8) gd_uninstall && ! gd_has_panel && ! gd_has_wings && { gd_shortcut_remove; clear; echo "Pterodactyl wurde entfernt."; exit 0; } ;;
             0|*)
