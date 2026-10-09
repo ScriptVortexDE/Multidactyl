@@ -515,6 +515,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#dev-instanz-20-neben-dem-bestehenden-panel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dev-Instanz: 2.0 neben dem bestehenden Panel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pelican-panel-beta" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -840,6 +851,17 @@ nginx mit dem neuen <code>/assets/</code>-Block, Cronjob, Queue-Dienst, SSL und 
 <p class="admonition-title">Nur zum Testen</p>
 <p>2.0 ist nicht veröffentlicht, der Branch ändert sich täglich. Keine Übersetzung (2.0 bringt ein eigenes
 Sprachsystem mit, Deutsch folgt), kein Blueprint. „Panel aktualisieren“ holt den neuesten Branch-Stand.</p>
+</div>
+<h3 id="dev-instanz-20-neben-dem-bestehenden-panel">Dev-Instanz: 2.0 neben dem bestehenden Panel</h3>
+<p>Läuft auf dem Server bereits ein Panel, findest du in der Verwaltung den Punkt <strong>„Dev-Instanz: Pterodactyl 2.0
+nebenbei“</strong>. Er installiert 2.0-develop als zweite, getrennte Instanz unter eigener Domain (z. B. <code>dev.deinedomain.de</code>)
+mit eigenem Ordner <code>/var/www/pterodactyl-dev</code>, eigener Datenbank <code>panel_dev</code>, eigener nginx-Konfiguration und eigenem
+Queue-Dienst <code>pteroq-dev</code>. Das Hauptpanel bleibt unverändert, Wings bleibt mit dem Hauptpanel verbunden. Dort kannst
+du die Dev-Instanz auch aktualisieren (neuester Branch-Stand), Logs ansehen und sie rückstandslos entfernen.</p>
+<div class="admonition info">
+<p class="admonition-title">MariaDB</p>
+<p>2.0 braucht MariaDB ab 10.11. Ist auf dem Server eine ältere Version installiert, bricht die Dev-Instanz mit
+einem Hinweis ab, weil ein MariaDB-Upgrade auch das Hauptpanel betreffen würde.</p>
 </div>
 <h3 id="pelican-panel-beta">Pelican Panel (Beta)</h3>
 <p>Alternativ installiert das Skript das Pelican Panel samt Pelican Wings. Pelican bringt Deutsch bereits mit, ein
